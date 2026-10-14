@@ -18,7 +18,7 @@ texto ──► api (FastAPI) ──► gerador de poses ──► sequência de
 | --- | --- | --- |
 | `api/` | Serviço HTTP. Recebe texto e devolve a sequência de poses | Funcional com gerador **stub** |
 | `web/` | Front (React + Vite + three.js). Envia texto e anima o avatar | Funcional, avatar em esqueleto |
-| `model/` | Treino do modelo texto → pose | Só a interface e o plano |
+| `model/` | Treino do modelo sinal → pose, com linhas de base e métrica DTW | Esqueleto testado com dados sintéticos |
 | `data/` | Extração de keypoints com MediaPipe Holistic | Script inicial, sem dataset |
 | `docs/` | Contrato do formato de pose e decisões | `pose-format.md` |
 
