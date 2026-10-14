@@ -26,6 +26,19 @@ O contrato entre `model/`, `api/` e `web/` é o **formato de pose** descrito em 
 
 ## Como rodar
 
+### Tudo de uma vez (Docker)
+
+```powershell
+docker compose up --build
+```
+
+- Front: `http://localhost:5173`
+- API: `http://localhost:8000` (documentação em `/docs`)
+
+O front é servido pelo nginx e repassa `/api/*` para a API, então não há CORS. Para parar: `Ctrl+C` e `docker compose down`. O Docker Desktop precisa estar em execução.
+
+Os serviços `model/` e `data/` não entram no compose: são ferramentas de linha de comando (treino e extração), não servidores.
+
 ### API
 
 ```powershell
