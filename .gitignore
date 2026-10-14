@@ -1,0 +1,25 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+
+# Dados e artefatos de treino (grandes, não versionar)
+data/raw/
+data/processed/
+model/checkpoints/
+*.npy
+*.pt
+*.pth
+
+# Ambiente / editor
+.env
+.env.*
+.vscode/
+.idea/
+.DS_Store
