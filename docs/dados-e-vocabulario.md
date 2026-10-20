@@ -61,6 +61,14 @@ Frases de demonstração que usam só esse vocabulário:
   - V-LIBRASIL: não versionar vídeos nem keypoints derivados sem permissão.
   - pt-br2libras-gloss (CC BY-SA 4.0): confirmar com o professor o efeito do share-alike sobre modelos treinados nele.
 
+## Ferramentas de extração e licença
+
+A extração de keypoints usa **YOLOv8 + MediaPipe Holistic**: o YOLOv8 localiza a pessoa e recorta o vídeo, o MediaPipe extrai pose e mãos no recorte (ver [`data/README.md`](../data/README.md)).
+
+- **Ultralytics (YOLOv8): AGPL-3.0**, com licença Enterprise paga como alternativa (conferido em github.com/ultralytics/ultralytics em 2026-10-19). Aqui ele roda **só offline, na preparação dos dados**; a API e o front não o usam. Os keypoints gerados são dados nossos, não código da Ultralytics. Se o projeto algum dia distribuir ou servir o Ultralytics (por exemplo, detecção na API), reavaliar a AGPL com o professor.
+- **MediaPipe: Apache-2.0.** [conhecimento geral, não conferido nesta data]
+- **Não usamos modelo de mãos do YOLO.** A Ultralytics tem um dataset de *hand keypoints* (21 pontos, CC BY-NC-SA 4.0), mas os rótulos dele foram gerados pelo próprio MediaPipe e não há modelo pré-treinado oficial: treinar um seria imitar o MediaPipe, com licença NC-SA. O YOLOv8 entra só como detector de **pessoa** (classe `person` do COCO, pesos `yolov8n.pt` pré-treinados).
+
 ## Como isso vira ML
 
 Com 20 classes e cerca de 60 gravações por classe, o MVP treina um **gerador de movimento condicionado ao sinal**, validando em sinalizante que não apareceu no treino. A linha de base é a recuperação: tomar a gravação mais representativa de cada sinal e concatenar. O modelo só se justifica se superar essa linha de base em uma métrica objetiva (por exemplo, distância DTW para as gravações de um sinalizante não visto). Essa métrica mede fidelidade ao movimento gravado, **não** correção linguística.
