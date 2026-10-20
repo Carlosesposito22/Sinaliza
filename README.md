@@ -32,6 +32,13 @@ O contrato entre `model/`, `api/` e `web/` é o **formato de pose** descrito em 
 docker compose up --build
 ```
 
+Para a API tocar as gravações reais (e não o aceno de teste), aponte `SINALIZA_MOTIONS_DIR` para a pasta com o `motions.npz` (derivado do V-LIBRASIL, fora do repositório; ver `references/12-api.md`):
+
+```powershell
+$env:SINALIZA_MOTIONS_DIR = "C:\Users\Carlos\Desktop\Projetos 6\Datasets\motions"
+docker compose up --build
+```
+
 - Front: `http://localhost:5173`
 - API: `http://localhost:8000` (documentação em `/docs`)
 
@@ -72,7 +79,6 @@ Abre em `http://localhost:5173`. Para apontar para outra API, defina `VITE_API_U
 
 ## Próximos passos
 
-1. Treinar o modelo em `model/` com os keypoints do V-LIBRASIL (`data/extract_keypoints.py vlibrasil ...`), comparar com as linhas de base e plugar o vencedor no lugar do `StubGenerator`.
-2. Validar os sinais e o vocabulário com alguém que saiba Libras.
+1. Validar os sinais com alguém que saiba Libras e destacar a glosa em execução no avatar.
+2. Decidir se entra um segundo dataset (mais sinalizantes ou gravações por sinal é o que mudaria o resultado do modelo).
 3. Trocar o esqueleto por um avatar com rig (GLB) e retargeting dos keypoints.
-4. Decidir se entra um segundo dataset (hoje só o V-LIBRASIL).

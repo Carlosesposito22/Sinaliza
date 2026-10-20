@@ -1,6 +1,6 @@
 # API (`api/`)
 
-FastAPI 0.115+, pydantic v2, Python 3.11 (no Docker). Título "Sinaliza API", versão `0.2.0`.
+FastAPI 0.115+, pydantic v2, Python 3.11 (no Docker). Título "Sinaliza API", versão `0.3.0`.
 
 ## Arquivos (`api/app/`)
 
@@ -11,11 +11,12 @@ FastAPI 0.115+, pydantic v2, Python 3.11 (no Docker). Título "Sinaliza API", ve
 | `embeddings.py` | `Embedder` (Protocol), `CharNgramEmbedder`, `SentenceTransformerEmbedder`, `build_embedder` |
 | `text_to_gloss.py` | `TextToGloss`: palavra → glosa por tabela, **lematizador** (simplemma) e, na falta, por embedding; formas de várias palavras; `Match` |
 | `phrases.py` | Gerador das frases de exemplo por categoria; CLI `python -m app.phrases [--check]` |
-| `generator.py` | `PoseGenerator` (Protocol, só `generate`) e `StubGenerator` |
+| `generator.py` | `PoseGenerator` (Protocol: `name` e `generate`) e `StubGenerator` (aceno de teste) |
+| `motion_generator.py` | `MotionPlayback`: toca gravações reais por sinal, com transições; `transition()` |
 | `pose_format.py` | `POSE_COUNT=33`, `HAND_COUNT=21`, `NUM_KEYPOINTS=75`, `LOWER_BODY_START=23`, `LAYOUT` |
 | `schemas.py` | `PoseSequence`, `TranslateRequest`, `WordMatch`, `TranslateResponse`, `VocabularyResponse`, `CategoriesResponse` |
 
-Testes em `api/tests/` (`test_api.py`, `test_text_to_gloss.py`, `test_phrases.py`): **30, passam**. Requisitos: `requirements.txt` (inclui `numpy` e `simplemma`); opcional `requirements-semantic.txt` (`sentence-transformers`).
+Testes em `api/tests/` (`test_api.py`, `test_text_to_gloss.py`, `test_phrases.py`, `test_motion_generator.py`): **40, passam**. Requisitos: `requirements.txt` (inclui `numpy` e `simplemma`); opcional `requirements-semantic.txt` (`sentence-transformers`).
 
 ## Vocabulário
 
@@ -88,29 +89,42 @@ Escolha por `SINALIZA_EMBEDDER`:
 
 "Geração de textos a partir de categorias", por **modelos de frase com lacunas**, escritos à mão em português (categoria = contexto do vocabulário). Cada frase só entra se toda palavra com sinal casar por tabela ou lema (nenhuma `approx`), tiver **pelo menos dois sinais** e **pelo menos um sinal do contexto** (`geral` é livre). Se um modelo gerar frase inválida, a geração **falha**. `python -m app.phrases` grava `data/phrases.json` (**57 frases**); `--check` confere se está atualizado, e um teste faz isso. É texto em português, **não** Libras; palavras sem sinal (verbos, por exemplo) aparecem em `ignored`.
 
-## Interface do gerador
+## Geradores de pose
 
 ```python
 class PoseGenerator(Protocol):
+    name: str
     def generate(self, glosses: list[str]) -> PoseSequence: ...
 ```
 
-### `StubGenerator` (atual)
+A resposta de `POST /translate` traz `generator`: `"playback"` ou `"stub"`. O front usa isso para avisar o que a animação é.
 
-`fps=15`, 1 s por glosa; cada quadro é um **aceno** de braço direito. **Não representa Libras**. Segue o contrato novo do formato de pose: **origem no meio dos ombros** e índices 23–32 **zerados**.
+### `MotionPlayback` (reprodução de gravações)
 
-## Como plugar o modelo (próximo passo)
+Escolhido quando `SINALIZA_MOTIONS` aponta para um arquivo `.npz` de movimentos (montado por `python -m sinaliza_model.motions`, em `model/`). Cada glosa vira a **gravação real de um sinalizante do V-LIBRASIL** (por padrão, o com mais mão detectada, o `01`: uma pessoa só para o avatar não "trocar de pessoa" entre sinais). Entre dois sinais, uma **transição de 8 quadros** (~0,27 s) interpola, com `smoothstep`, do último quadro de um ao primeiro do outro. Ponto ausente (`[0, 0, 0]`) em uma das pontas não é interpolado (não "corre" até a origem). Sinal sem movimento no arquivo é pulado; se nenhum tem, a API responde 422. A saída tem 30 fps e os valores são arredondados a 3 casas (em float64, para o JSON não carregar `0.12300000339`).
 
-1. obter por glosa uma sequência `(32, 75, 3)` do modelo ou do medoide, **reescalar no tempo** e fixar o `fps`;
-2. **concatenar** com transições suaves (interpolação entre o último quadro de um sinal e o primeiro do próximo);
-3. carregar `checkpoints/model.pt` (ou os medoides). `api/requirements.txt` não inclui `torch`; com o medoide basta NumPy;
-4. respeitar `NUM_KEYPOINTS=75`, o layout e o contrato (origem nos ombros, 23–32 zerados).
+- Medido no arquivo real (210 sinais, 20 MB): "O filho está com dor de cabeça" → 2 sinais, 318 quadros, **489 KB de JSON**, 59 ms. Frases de ~12 sinais passam de 1 MB.
+- **Por que reprodução e não rede:** no teste em dado real (3 folds) o modelo não superou a média por sinal, e uma gravação real é mais nítida que uma média (que borra as mãos). Ver `11-modelo-ml.md`.
+- **Limites:** sinais isolados na ordem do texto, sem gramática, sem expressão facial, sem coarticulação aprendida (a transição é só interpolação); o movimento é de **uma** pessoa; os sinais não foram validados por falante de Libras. **Não é tradução para Libras.**
+- Arquivo ausente ou inválido **não derruba a API**: cai no stub e avisa no log.
+- O `.npz` é derivado do V-LIBRASIL (sem redistribuição): **fica fora do repositório**.
 
-`test_api.py` assume 1 s por glosa (`len(frames) == 2 * fps` para 2 glosas) e testa a origem dos ombros no stub; mudar o gerador exige ajustar.
+### `StubGenerator` (sem `SINALIZA_MOTIONS`)
+
+`fps=15`, 1 s por glosa; cada quadro é um **aceno** de braço direito. **Não representa Libras** e não corresponde às glosas. Segue o contrato do formato de pose (origem nos ombros, 23–32 zerados).
+
+`test_api.py` força o stub (mesmo que `SINALIZA_MOTIONS` esteja definida na máquina) e assume 1 s por glosa.
 
 ## Docker
 
-O build da API usa a **raiz do repositório** como contexto para copiar `data/vocabulary.json` e `data/phrases.json` para `/srv/data/`. Verificado em 2026-10-19 com o vocabulário antigo; **depois da troca de vocabulário e da inclusão do `simplemma` a imagem não foi reconstruída**.
+O build da API usa a **raiz do repositório** como contexto para copiar `data/vocabulary.json` e `data/phrases.json` para `/srv/data/`. O `docker-compose.yml` monta a pasta de movimentos do host em `/srv/motions` (somente leitura) e aponta `SINALIZA_MOTIONS` para `/srv/motions/motions.npz`:
+
+```powershell
+$env:SINALIZA_MOTIONS_DIR = "C:\Users\Carlos\Desktop\Projetos 6\Datasets\motions"
+docker compose up --build
+```
+
+Sem `SINALIZA_MOTIONS_DIR` a pasta padrão é `./data/motions` (vazia, git-ignorada) e a API usa o stub, com aviso no log. **Verificado em 2026-10-20** com e sem a variável (`generator` `playback` e `stub`; a imagem da API tem 397 MB com `simplemma`).
 
 ## Pontos de atenção
 

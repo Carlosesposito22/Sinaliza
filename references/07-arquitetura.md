@@ -5,7 +5,7 @@
 ```
 texto ──► api ──► TextToGloss (tabela + embeddings) ──► glosas ──► PoseGenerator ──► keypoints ──► web
                                                                         ▲
-                                                  model/ (treino; ainda NÃO plugado na api)
+                                                  model/ (treino e montagem dos movimentos; a api toca o .npz)
                                                                         ▲
                                   data/ (vídeos MINDS-Libras ──► YOLOv8 (recorte) ──► MediaPipe ──► .npy)
 ```
@@ -16,7 +16,7 @@ Em tempo de **execução** só `web/` e `api/` participam. `model/` e `data/` s�
 
 | Pasta | Tecnologia | Papel | Estado (2026-10-19) |
 | --- | --- | --- | --- |
-| `api/` | Python 3.11, FastAPI, pydantic v2, NumPy | `POST /translate`: texto → glosas (tabela + embeddings) → pose; `GET /vocabulary`, `GET /categories` | Funcional com `StubGenerator` (aceno, não é Libras) |
+| `api/` | Python 3.11, FastAPI, pydantic v2, NumPy | `POST /translate`: texto → glosas (tabela + embeddings) → pose; `GET /vocabulary`, `GET /categories` | Toca gravações reais (`MotionPlayback`) quando há arquivo de movimentos; senão, `StubGenerator` (aceno de teste) |
 | `web/` | React 18, Vite 5, TypeScript 5.6, three.js 0.169 | Formulário de texto e avatar em esqueleto | Funcional |
 | `model/` | PyTorch, NumPy | Treino do gerador sinal → pose; linhas de base; DTW | Esqueleto testado só com dados **sintéticos** |
 | `data/` | **YOLOv8 (Ultralytics)** + MediaPipe Holistic 0.10.21, OpenCV, NumPy `<2` | Vídeo → recorte da pessoa → keypoints normalizados; leitura dos ZIPs do MINDS-Libras | Script pronto e testado com detector falso; **nunca rodado em vídeo real nem com pesos do YOLOv8** |

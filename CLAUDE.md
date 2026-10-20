@@ -19,7 +19,7 @@ Leia `references/README.md` (índice). Para começar:
 3. Só afirme que o modelo funciona com DTW em sinalizante não visto, em dados reais. Resultado em dados sintéticos não vale. Se o modelo não superar o medoide, fica o medoide.
 4. O formato de pose (75 keypoints, normalizado) é o contrato entre `api/`, `web/`, `model/` e `data/`. Ao mudá-lo, atualize os quatro e `docs/pose-format.md`.
 5. Respeite as licenças: MINDS-Libras é CC BY 4.0 (atribuir); V-LIBRASIL só para pesquisa e ensino, sem redistribuir, e fica só local em `C:\Users\Carlos\Desktop\Projetos 6\Datasets` (fora do repositório). Nunca versione vídeos de sinalizantes nem `data/raw/`, `data/processed/`, `*.npy`, `*.pt`. Ver `references/21-datasets-de-treino.md`.
-6. Ao trocar o `StubGenerator`, atualize `api/tests/test_api.py`.
+6. A API toca gravações reais (`MotionPlayback`) quando `SINALIZA_MOTIONS` aponta para um `.npz`; senão usa o `StubGenerator` (aceno de teste). O `.npz` é derivado do V-LIBRASIL: não versione.
 7. Aproximação de palavra por embedding nunca é silenciosa (`kind: "approx"` na API, "~" no front).
 8. O YOLOv8 (Ultralytics, AGPL-3.0) fica só na extração offline em `data/`; não o leve para a API.
 9. `data/vocabulary.json` vem de `data/build_vocabulary.py` (tabela `CURATED`); ao mudar ele ou `api/app/phrases.py`, rode `python -m app.phrases` e commite `data/phrases.json`.

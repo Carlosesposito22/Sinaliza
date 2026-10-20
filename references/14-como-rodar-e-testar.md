@@ -22,7 +22,7 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python -m uvicorn app.main:app --reload
-python -m pytest                      # 30 testes
+python -m pytest                      # 40 testes
 python -m app.phrases                 # regera data/phrases.json
 python -m app.phrases --check         # falha se estiver desatualizado
 ```
@@ -84,7 +84,8 @@ cd model
 py -3.12 -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-python -m pytest                                                                  # 23 testes
+python -m pytest                                                                  # 32 testes
+python -m sinaliza_model.motions --data-root "<...>/processed/v-librasil" --out "<...>/Datasets/motions/motions.npz"   # movimentos que a API toca
 python -m sinaliza_model.train --synthetic                                        # demonstração
 python -m sinaliza_model.train --data-root ../data/processed/minds-libras --val-signers 10
 python -m sinaliza_model.embeddings checkpoints/model.pt                          # vizinhos no embedding

@@ -24,6 +24,7 @@ React 18 + Vite 5 + TypeScript 5.6 + three.js 0.169. Pacote `sinaliza-web` 0.1.0
   - `ignored`: palavra **riscada**, nota "Palavras riscadas não têm sinal no vocabulário e foram ignoradas";
   - `function` (artigo, preposição): texto cinza, sem alarde.
   Abaixo, as glosas na ordem.
+- **Aviso sobre a animação** (campo `generator` da resposta): com `playback`, "Movimento: gravações reais de um sinalizante do V-LIBRASIL, sinal por sinal, na ordem do texto, com transições automáticas entre eles. Não é tradução para Libras."; com `stub`, "Animação de teste (um aceno): não corresponde aos sinais mostrados."
 - **Aviso fixo no subtítulo:** o vocabulário é pequeno e isto não é tradução para Libras.
 - **Erros:** o `detail` da API é mostrado (ex.: "nenhuma palavra do texto tem sinal no vocabulário (210 sinais)"); se não houver `detail`, mostra `A API respondeu <status>`. Erro limpa o resultado anterior.
 - `API_URL`: `import.meta.env.VITE_API_URL ?? "http://localhost:8000"`. No Docker, `VITE_API_URL=/api` e o nginx repassa à API.

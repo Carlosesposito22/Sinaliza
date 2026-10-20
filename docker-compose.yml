@@ -5,6 +5,15 @@ services:
       dockerfile: api/Dockerfile
     ports:
       - "8000:8000"
+    environment:
+      # Arquivo de movimentos montado do host (derivado do V-LIBRASIL: fora do repositório).
+      # Sem ele, a API usa o stub (um aceno de teste).
+      SINALIZA_MOTIONS: /srv/motions/motions.npz
+    volumes:
+      - type: bind
+        source: ${SINALIZA_MOTIONS_DIR:-./data/motions}
+        target: /srv/motions
+        read_only: true
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 5s

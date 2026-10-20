@@ -21,7 +21,7 @@ Posição em **2026-10-19**, segundo o código e o git. Os 5 commits originais s
 
 1. **Dados reais:** o **V-LIBRASIL** está baixado (só local, fora do repositório) e **629 vídeos do vocabulário foram extraídos** (210 sinais × 3 sinalizantes) para `Projetos 6\Datasets\processed\v-librasil`. O **MINDS-Libras não foi baixado**. Faltam: **validar os sinais com alguém que saiba Libras** (a curadoria é só de palavras) e **investigar as mãos não detectadas** (70 gravações abaixo de 80% na esquerda). Ver `21-datasets-de-treino.md`.
 2. **YOLOv8 roda com pesos reais** (`yolov8n.pt`, 6,25 MB, em `data/yolov8n.pt`, ignorado pelo git), mas o **ganho do recorte no MINDS-Libras não foi medido**. Num clipe de webcam e numa simulação 1080p o efeito em mãos foi pequeno (só apareceu com a pessoa a 35% do quadro). Primeiro experimento real: `--limit` pequeno com e sem `--no-yolo` nos vídeos do dataset, comparando `extraction_log.csv`.
-3. **Gerador real:** a API usa `StubGenerator` (aceno): a animação **não corresponde** às glosas mostradas. Falta o `PoseGenerator` com modelo/medoide, concatenação e suavização de transições.
+3. ~~Gerador real~~ **feito em 2026-10-20 (reprodução de gravações):** a API toca a gravação real de um sinalizante do V-LIBRASIL para cada sinal, com transições interpoladas (`MotionPlayback`). Limites: sinais isolados, uma pessoa, sem gramática nem expressão facial, sem coarticulação aprendida; sem arquivo de movimentos, cai no aceno de teste.
 4. **Embedder semântico não testado:** `sentence-transformers` só foi testado com modelo falso; o limiar 0,7 não está calibrado. O `char-ngram` está calibrado à mão (0,65) em poucos exemplos.
 5. **Modelo treinado:** **primeiro resultado em dado real (2026-10-20, 3 folds)**: o modelo **não supera a média por sinal** (recuperação top-1 6,7% contra 7,6%; acaso 0,5%) e a vantagem dele no DTW médio é compatível com borrão. Pela regra do projeto, o modelo não se justifica; ver `11-modelo-ml.md`.
 6. **Avatar com rig:** o front desenha esqueleto; falta GLB + retargeting.
@@ -37,7 +37,7 @@ Posição em **2026-10-19**, segundo o código e o git. Os 5 commits originais s
 3. **Rodar o lote completo** do subconjunto.
 4. **Rodar as linhas de base e o treino** em dados reais (`train.py`); depois `sinaliza_model.embeddings` para diagnosticar.
 5. **Escolher o gerador:** medoide ou modelo, conforme o DTW.
-6. **Implementar o `PoseGenerator` real** em `api/` (transições suaves, duração por sinal), trocando o stub; ajustar `test_api.py`.
+6. ~~Implementar o `PoseGenerator` real~~ **feito** (ver item 3). Falta **destacar a glosa em execução** e **controles de reprodução** no front.
 7. **Calibrar o embedder semântico** (se for usá-lo): lista de sinônimos esperados e de falsos positivos; ajustar `SINALIZA_APPROX_THRESHOLD`.
 8. **Front:** destacar a glosa em execução, controles de reprodução.
 9. **Avatar com rig** e retargeting (se der tempo).

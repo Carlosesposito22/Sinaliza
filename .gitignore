@@ -12,6 +12,7 @@ dist/
 # Dados e artefatos de treino (grandes, não versionar)
 data/raw/
 data/processed/
+data/motions/
 model/checkpoints/
 *.npy
 *.pt

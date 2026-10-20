@@ -71,6 +71,10 @@ Duas medidas: **DTW médio** (premia borrão) e **recuperação** (`retrieval` e
 - **`medoid` com 2 gravações** é só uma das duas (por isso o DTW 2,539, igual nos folds 01 e 02: é o mesmo par de gravações, DTW simétrico).
 - Cautelas: 3 folds, sem teste estatístico, diferenças dentro do ruído, modelo sem ajuste de hiperparâmetros, métricas de fidelidade (não de correção linguística). Detalhes por fold em `model/checkpoints/val0N/metrics.json` (git-ignorado).
 
+## Movimentos para a API (`sinaliza_model/motions.py`)
+
+Como o modelo não superou a média por sinal, a API **toca gravações reais**. `python -m sinaliza_model.motions --data-root <processed/v-librasil> --out <Datasets/motions/motions.npz>` monta um `.npz` com um movimento `(frames, 75, 3)` por sinal (chave = `file_key` da glosa) e `_meta`. Métodos: `recording` (padrão: a gravação do **mesmo sinalizante** para todos os sinais, o com mais mão detectada; se faltar, a do próximo) e `mean` (média das gravações; borra as mãos). A repetição da última mão detectada (`fill_missing_hands`) é aplicada nos movimentos escolhidos, para a mão não piscar. Rodado nos dados reais: 210 movimentos, sinalizante 01, 20 MB, mediana de 134 quadros (mín 69, máx 265). **O arquivo é derivado do V-LIBRASIL: não versionar.** Testes em `tests/test_motions.py` (8).
+
 ## Embeddings de sinal (`sinaliza_model/embeddings.py`)
 
 A primeira camada da rede é `nn.Embedding(num_glosses, hidden)`: cada sinal vira um vetor aprendido, e é ele que condiciona o movimento. O módulo `embeddings.py` inspeciona isso depois do treino:
@@ -94,7 +98,7 @@ Há **dois usos diferentes de "embedding" no projeto**: este (vetor do sinal, de
 - ~60 gravações por sinal e poucos sinalizantes (4 no subconjunto inicial): a variação entre pessoas pode dominar.
 - Sinais compostos em frase **não** são modelados: a concatenação e a **suavização de transições** são trabalho do gerador na API (ainda não feito).
 
-## Testes existentes (24 em `model/`, passam; rodados em 2026-10-20 no Python 3.12 do venv de `data/`, que tem torch; o venv próprio de `model/` não foi montado)
+## Testes existentes (32 em `model/`, passam; rodados em 2026-10-20 no Python 3.12 do venv de `data/`, que tem torch; o venv próprio de `model/` não foi montado)
 
 `test_data.py`: vocabulário com 20 glosas únicas; `slug`; reamostragem (extremos, 1 frame); preenchimento de mãos; carga e rejeição de formato errado; divisão sem sobreposição. `test_metrics_baseline.py`: DTW zero para iguais e simétrico, tolera esticamento temporal; formatos das linhas de base; medoide é uma gravação de treino. `test_train.py`: condicionar no sinal supera a média global (sintético); pipeline roda e aprende o rótulo.
 
