@@ -6,6 +6,10 @@
 - Nomes de código (variáveis, funções, classes) em **inglês** (`StubGenerator`, `to_glosses`, `process_zip`).
 - Glosas em **MAIÚSCULAS** (`FILHO`, `AMÉRICA`). Comparações usam `slug()` (sem acento, maiúsculas) — não compare strings cruas.
 
+## Terminologia (textos, interface, apresentação)
+
+Dizer **"surdo" / "pessoa surda"**. Não usar **"deficiente auditivo"** nem **"surdo-mudo"** em texto nosso; "deficiência auditiva" só ao citar uma categoria do IBGE ou de outra fonte. Origem e ressalva em [`18-glossario.md`](18-glossario.md) e [`20-tcc-lisandra-cruz.md`](20-tcc-lisandra-cruz.md).
+
 ## Estilo de código
 
 - Python: tipagem moderna (`list[str]`, `X | None`), `dataclass(frozen=True)`, docstrings curtas que explicam **limites e porquês** (ver `metrics.py`, `data/README.md`). Poucos comentários, só onde o motivo não é óbvio.

@@ -50,6 +50,7 @@ Esta pasta existe para que uma sessão nova do Claude (ou uma pessoa nova na equ
 | [`16-riscos-e-questoes-abertas.md`](16-riscos-e-questoes-abertas.md) | O que ainda não sabemos ou não validamos |
 | [`17-convencoes-e-regras-para-claude.md`](17-convencoes-e-regras-para-claude.md) | Idioma, commits, ambiente, honestidade sobre Libras |
 | [`18-glossario.md`](18-glossario.md) | Termos de Libras, ML e do projeto |
+| [`20-tcc-lisandra-cruz.md`](20-tcc-lisandra-cruz.md) | TCC indicado pelo orientador (reconhecimento de sinais estáticos): resumo, cautelas e o que aproveitar |
 | [`19-sugestoes-do-orientador.md`](19-sugestoes-do-orientador.md) | YOLOv8, embeddings e geração de textos por categoria: interpretação adotada e o que foi implementado |
 
 ## Como manter

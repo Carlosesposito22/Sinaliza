@@ -9,7 +9,9 @@
 | **Glosa (gloss)** | Rótulo escrito, em maiúsculas, que representa um sinal (`FILHO`). É a etapa intermediária entre texto e movimento. Não é tradução: é um nome de sinal |
 | **Datilologia** | Soletração letra a letra com o alfabeto manual. Usada por tradutores para palavras sem sinal; considerada tradução de menor qualidade quando abusada |
 | **Sinalizante (signer)** | Pessoa que faz os sinais num vídeo do dataset (12 no MINDS-Libras) |
-| **Surdo / deficiente auditivo** | A documentação usa "surdos" e "pessoas com deficiência auditiva". Tratar com cuidado: nem toda pessoa com dificuldade para ouvir usa Libras (só 2,6% declaram saber) |
+| **Surdo** | Termo preferido pela comunidade surda; usar **"surdo / pessoa surda"** nos nossos textos. **Evitar "deficiente auditivo"** (visto como pejorativo) e **"surdo-mudo"** (a maioria dos surdos tem o aparelho fonador íntegro e não fala por não ouvir). "Deficiência auditiva" só ao citar categoria do IBGE. Fonte: TCC de Cruz 2019, seção 2.1, que cita Espote et al. 2013 e Gesser 2008; **[a confirmar com uma pessoa surda]**. Nem toda pessoa com dificuldade para ouvir usa Libras (só 2,6% declaram saber) |
+| **Parâmetros dos sinais** | Os cinco itens com que um sinal é construído: configuração de mão, ponto de articulação, orientação das mãos, movimento, expressão facial e/ou corporal (Cruz 2019, 2.1). Em `20-tcc-lisandra-cruz.md` há o mapa do que o formato de pose captura de cada um |
+| **Sinal estático** | Sinal sem movimento (só a forma da mão), como a maioria das letras. O TCC de Cruz trata só desses; o Sinaliza trata de sinais **dinâmicos** (com movimento) |
 | **Expressão facial / não manual** | Parte da gramática de Libras (negação, pergunta, intensidade). **Fora** do formato de pose atual |
 | **Letramento** | Domínio da língua escrita; surdos frequentemente têm o português como segunda língua |
 | **Intérprete** | Profissional que traduz entre Libras e português; escasso em escolas, saúde e trabalho |
