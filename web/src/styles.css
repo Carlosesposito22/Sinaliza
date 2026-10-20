@@ -88,6 +88,105 @@ button:disabled {
   color: var(--error);
 }
 
+.categories {
+  margin-bottom: 16px;
+}
+
+.label {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+button.chip,
+button.phrase {
+  padding: 6px 14px;
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+button.chip[aria-pressed="true"] {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.phrases {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+button.phrase {
+  width: 100%;
+  text-align: left;
+  border-radius: 8px;
+}
+
+.result {
+  margin-top: 16px;
+}
+
+.words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.word.function {
+  color: var(--muted);
+}
+
+.word.ignored {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.word.exact,
+.word.approx {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.word.approx {
+  border-style: dashed;
+  border-color: var(--accent);
+}
+
+.word .source {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.word .gloss {
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .avatar {
   width: 100%;
   height: 480px;
