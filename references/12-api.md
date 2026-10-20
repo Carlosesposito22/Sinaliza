@@ -113,7 +113,7 @@ Criar uma classe que implemente `PoseGenerator` e trocar `generator` em `main.py
 
 ## Docker
 
-O build da API usa a **raiz do repositório** como contexto (`docker-compose.yml`: `context: .`, `dockerfile: api/Dockerfile`) para copiar `data/vocabulary.json` e `data/phrases.json` para `/srv/data/`, apontados por `SINALIZA_VOCABULARY` e `SINALIZA_PHRASES`. O `.dockerignore` da raiz exclui `Documentos/`, `references/`, `model/` e dados. **A imagem não foi construída nesta sessão** (o Docker Desktop estava desligado): o build com o novo contexto está sem verificação.
+O build da API usa a **raiz do repositório** como contexto (`docker-compose.yml`: `context: .`, `dockerfile: api/Dockerfile`) para copiar `data/vocabulary.json` e `data/phrases.json` para `/srv/data/`, apontados por `SINALIZA_VOCABULARY` e `SINALIZA_PHRASES`. O `.dockerignore` da raiz exclui `Documentos/`, `references/`, `model/` e dados. Verificado em 2026-10-19: `docker compose up --build` constrói as duas imagens (api 358 MB, web 103 MB), a API fica saudável e `/health`, `/translate`, `/vocabulary` e `/categories` respondem direto (porta 8000) e pelo proxy do nginx (`localhost:5173/api/...`); o front carrega as categorias. O primeiro build revelou que o `numpy` faltava no `api/requirements.txt` (nos testes locais ele vinha do Python do sistema); corrigido.
 
 ## Pontos de atenção
 

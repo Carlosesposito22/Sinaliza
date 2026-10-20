@@ -12,7 +12,7 @@ docker compose up --build
 - API: http://localhost:8000 (docs em `/docs`)
 - Parar: `Ctrl+C` e `docker compose down`. Docker Desktop precisa estar rodando.
 - `model/` e `data/` **não** entram no compose (são CLIs).
-- O build da API usa a **raiz do repositório** como contexto (a imagem leva `data/vocabulary.json` e `data/phrases.json`). **Não foi verificado** (Docker Desktop desligado em 2026-10-19).
+- O build da API usa a **raiz do repositório** como contexto (a imagem leva `data/vocabulary.json` e `data/phrases.json`). Verificado em 2026-10-19: `docker compose up --build` constrói as duas imagens (api 358 MB, web 103 MB), a API fica saudável e `/health`, `/translate`, `/vocabulary` e `/categories` respondem direto (porta 8000) e pelo proxy do nginx (`localhost:5173/api/...`); o front carrega as categorias. O primeiro build revelou que o `numpy` faltava no `api/requirements.txt` (nos testes locais ele vinha do Python do sistema); corrigido.
 
 ## API
 

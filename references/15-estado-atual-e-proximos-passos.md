@@ -15,7 +15,7 @@ Posição em **2026-10-19**, segundo o código e o git. Os 5 commits originais s
 | **Frases por categoria** | 30 frases em 6 categorias (`data/phrases.json`), geradas por modelos e validadas contra o vocabulário; `GET /categories` |
 | API | `/health`, `/translate` (com `matches`), `/vocabulary`, `/categories`; gerador **stub** |
 | Front | Categorias e frases de exemplo; mostra como cada palavra virou sinal (aproximada "~", ignorada riscada); avatar em esqueleto |
-| Docker | `docker compose up --build` (contexto da API agora é a raiz; **não verificado**) |
+| Docker | `docker compose up --build` verificado em 2026-10-19: imagens constroem, API saudável, endpoints respondem direto e pelo nginx, front carrega as categorias |
 
 ## O que é stub, não verificado ou está faltando
 
@@ -27,9 +27,8 @@ Posição em **2026-10-19**, segundo o código e o git. Os 5 commits originais s
 6. **Avatar com rig:** o front desenha esqueleto; falta GLB + retargeting.
 7. **Controles de reprodução e destaque da glosa atual** no front.
 8. **Validação linguística:** ninguém identificado para validar sinais, mapeamentos aproximados nem frases.
-9. **Imagem Docker da API** com o novo contexto de build não foi construída.
-10. **Testes de front** e CI inexistentes.
-11. **Documentação para a disciplina** reescrita para o escopo novo (hipótese, personas, requisitos).
+9. **Testes de front** e CI inexistentes.
+10. **Documentação para a disciplina** reescrita para o escopo novo (hipótese, personas, requisitos).
 
 ## Próximos passos sugeridos (ordem de dependência)
 
@@ -43,8 +42,7 @@ Posição em **2026-10-19**, segundo o código e o git. Os 5 commits originais s
 8. **Front:** destacar a glosa em execução, controles de reprodução.
 9. **Avatar com rig** e retargeting (se der tempo).
 10. **Validar com alguém que saiba Libras** (sinais, aproximações, frases) e registrar em `docs/`.
-11. **Construir a imagem Docker** da API e conferir `docker compose up --build`.
-12. **Atualizar a documentação da disciplina** para o escopo atual.
+11. **Atualizar a documentação da disciplina** para o escopo atual.
 
 ## Pergunta que o projeto precisa responder para ser defensável
 
