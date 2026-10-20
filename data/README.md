@@ -32,7 +32,7 @@ foreach ($i in 1, 2, 7, 10) {
 }
 ```
 
-`-C -` retoma downloads interrompidos. Na rede em que testamos, o Zenodo serviu cerca de 130–210 KB/s (algo como um dia para os 16,3 GB), e conexões em paralelo não ajudaram.
+`-C -` retoma downloads interrompidos. MD5 dos quatro arquivos (do Zenodo): 01 `0259b309d2d5472f20d9842547d94a8c`, 02 `e2b8673264ba7fca4cfc071654a099e8`, 07 `8e885f5cb6823744a583f206e4d2051c`, 10 `d6012f3e49e95d0cef7f6ec888743baa`; conferir com `Get-FileHash raw/minds-libras/Sinalizador07.zip -Algorithm MD5`. O outro dataset de treino, o V-LIBRASIL, e a situação de acesso estão em [`references/21-datasets-de-treino.md`](../references/21-datasets-de-treino.md); ele fica só na máquina do Carlos, em `C:\Users\Carlos\Desktop\Projetos 6\Datasets\v-librasil`, fora do repositório.
 
 Os vídeos de sinalizantes são dados pessoais. Citar o dataset conforme a página do Zenodo e não versionar o conteúdo bruto (`raw/` está no `.gitignore`).
 

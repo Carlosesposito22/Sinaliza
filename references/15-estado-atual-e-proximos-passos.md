@@ -19,7 +19,7 @@ Posição em **2026-10-19**, segundo o código e o git. Os 5 commits originais s
 
 ## O que é stub, não verificado ou está faltando
 
-1. **Dados reais:** os ZIPs do MINDS-Libras **não foram totalmente baixados**; a extração nunca rodou em vídeo real. É o gargalo de tudo que vem depois.
+1. **Dados reais:** a extração nunca rodou em vídeo real. O **Carlos baixa por conta própria** o MINDS-Libras (sinalizantes 01, 02, 07 e 10, 16,3 GB, para `data/raw/minds-libras/`) e o V-LIBRASIL (para `Projetos 6\Datasets\v-librasil`, fora do repositório). O download do MINDS que eu tinha iniciado foi interrompido a pedido dele, e sobrou um `Sinalizador01.zip` **parcial** (~446 MB). Ver `21-datasets-de-treino.md`. É o gargalo de tudo que vem depois.
 2. **YOLOv8 roda com pesos reais** (`yolov8n.pt`, 6,25 MB, em `data/yolov8n.pt`, ignorado pelo git), mas o **ganho do recorte no MINDS-Libras não foi medido**. Num clipe de webcam e numa simulação 1080p o efeito em mãos foi pequeno (só apareceu com a pessoa a 35% do quadro). Primeiro experimento real: `--limit` pequeno com e sem `--no-yolo` nos vídeos do dataset, comparando `extraction_log.csv`.
 3. **Gerador real:** a API usa `StubGenerator` (aceno): a animação **não corresponde** às glosas mostradas. Falta o `PoseGenerator` com modelo/medoide, concatenação e suavização de transições.
 4. **Embedder semântico não testado:** `sentence-transformers` só foi testado com modelo falso; o limiar 0,7 não está calibrado. O `char-ngram` está calibrado à mão (0,65) em poucos exemplos.

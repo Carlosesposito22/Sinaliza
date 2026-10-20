@@ -5,7 +5,7 @@ Decisão registrada em 2026-10-14. Licenças e tamanhos foram conferidos nas pá
 ## Decisão
 
 1. **Dados de movimento (gloss → pose):** MINDS-Libras, usando os 20 sinais como vocabulário fechado do MVP.
-2. **Expansão posterior:** V-LIBRASIL (1.364 sinais), só se o grupo aceitar as restrições de uso e redistribuição.
+2. **Expansão (decidida em 2026-10-19):** acrescentar o **V-LIBRASIL** (1.364 sinais; só pesquisa e ensino, sem redistribuição) ao MINDS-Libras. O Apoema-Libras560 foi considerado e **descartado** pelo grupo. O V-LIBRASIL fica **só na máquina do Carlos, fora do repositório** (`C:\Users\Carlos\Desktop\Projetos 6\Datasets`), e não se versionam vídeos nem keypoints. Detalhes em `references/21-datasets-de-treino.md`.
 3. **Texto → gloss:** no MVP, por tabela (`data/vocabulary.json`). O corpus `pt-br2libras-gloss` fica reservado para uma etapa seguinte, com modelo aprendido.
 
 ## Por que MINDS-Libras
