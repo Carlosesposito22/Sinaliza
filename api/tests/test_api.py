@@ -1,9 +1,18 @@
+import pytest
 from fastapi.testclient import TestClient
 
+from app import main
+from app.generator import StubGenerator
 from app.main import app
 from app.pose_format import LOWER_BODY_START, NUM_KEYPOINTS, POSE_COUNT
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def stub_generator(monkeypatch):
+    """Estes testes valem para o stub, mesmo que SINALIZA_MOTIONS esteja definida na máquina."""
+    monkeypatch.setattr(main, "generator", StubGenerator())
 
 
 def test_health():
@@ -24,6 +33,7 @@ def test_translate_returns_glosses_matches_and_pose_sequence():
         ("com", "function"),
         ("dor de cabeça", "exact"),
     ]
+    assert body["generator"] == "stub"
     pose = body["pose"]
     assert pose["fps"] > 0
     assert len(pose["frames"]) == 2 * pose["fps"]

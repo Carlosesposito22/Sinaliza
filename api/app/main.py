@@ -1,4 +1,6 @@
+import logging
 import os
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import phrases
 from .embeddings import build_embedder
 from .generator import PoseGenerator, StubGenerator
+from .motion_generator import MotionPlayback
 from .schemas import (
     CategoriesResponse,
     SignInfo,
@@ -17,7 +20,9 @@ from .schemas import (
 from .text_to_gloss import TextToGloss
 from .vocabulary import Vocabulary
 
-app = FastAPI(title="Sinaliza API", version="0.2.0")
+logger = logging.getLogger("sinaliza")
+
+app = FastAPI(title="Sinaliza API", version="0.3.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,7 +36,26 @@ threshold = os.environ.get("SINALIZA_APPROX_THRESHOLD")
 text_to_gloss = TextToGloss(
     vocabulary, build_embedder(), float(threshold) if threshold else None
 )
-generator: PoseGenerator = StubGenerator()
+
+
+def create_generator(motions_path: str | None) -> PoseGenerator:
+    """`MotionPlayback` se `motions_path` apontar para um arquivo de movimentos; senão o stub.
+
+    Arquivo ausente ou inválido **não derruba a API**: cai no stub e avisa no log (e a
+    resposta traz `generator: "stub"`, para a interface avisar que a animação é de teste).
+    """
+    if not motions_path:
+        return StubGenerator()
+    try:
+        generator = MotionPlayback.load(Path(motions_path))
+    except (OSError, ValueError, KeyError) as error:
+        logger.warning("movimentos indisponíveis em %s (%s); usando o stub", motions_path, error)
+        return StubGenerator()
+    logger.info("movimentos carregados de %s: %d sinais", motions_path, len(generator.motions))
+    return generator
+
+
+generator: PoseGenerator = create_generator(os.environ.get("SINALIZA_MOTIONS"))
 
 
 @app.get("/health")
@@ -65,9 +89,14 @@ def translate(request: TranslateRequest) -> TranslateResponse:
             status_code=422,
             detail=f"nenhuma palavra do texto tem sinal no vocabulário ({len(vocabulary.signs)} sinais)",
         )
+    try:
+        pose = generator.generate(glosses)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
     return TranslateResponse(
         text=request.text,
         glosses=glosses,
         matches=[WordMatch(**vars(m)) for m in matches],
-        pose=generator.generate(glosses),
+        generator=generator.name,
+        pose=pose,
     )

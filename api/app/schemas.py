@@ -38,6 +38,7 @@ class TranslateResponse(BaseModel):
     text: str
     glosses: list[str]
     matches: list[WordMatch]
+    generator: str
     pose: PoseSequence
 
 

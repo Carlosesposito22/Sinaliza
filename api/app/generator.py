@@ -1,6 +1,7 @@
 """Geração de pose a partir de glosas.
 
-`PoseGenerator` é a interface que o modelo treinado em `model/` deve implementar.
+`PoseGenerator` é a interface dos geradores (`StubGenerator` aqui, `MotionPlayback` em
+`motion_generator.py`).
 O texto vira glosas antes, em `text_to_gloss.py`.
 `StubGenerator` produz uma animação de aceno só para validar o fluxo ponta a ponta;
 não representa Libras.
@@ -16,6 +17,8 @@ Point = list[float]
 
 
 class PoseGenerator(Protocol):
+    name: str
+
     def generate(self, glosses: list[str]) -> PoseSequence: ...
 
 
@@ -123,6 +126,7 @@ def _frame(t: float, freq: float) -> list[Point]:
 
 
 class StubGenerator:
+    name = "stub"
     fps = 15
     seconds_per_gloss = 1.0
 

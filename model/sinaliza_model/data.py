@@ -76,7 +76,7 @@ def fill_missing_hands(sequence: np.ndarray) -> np.ndarray:
     return out
 
 
-def load_dataset(root: Path, glosses: list[str]) -> list[Sample]:
+def load_dataset(root: Path, glosses: list[str], fill: bool = True) -> list[Sample]:
     by_key = {file_key(g): g for g in glosses}
     if len(by_key) != len(glosses):
         raise ValueError("duas glosas dão o mesmo nome de arquivo")
@@ -89,7 +89,7 @@ def load_dataset(root: Path, glosses: list[str]) -> list[Sample]:
             array = np.load(path).astype(np.float32)
             if array.ndim != 3 or array.shape[1:] != (NUM_KEYPOINTS, 3):
                 raise ValueError(f"{path}: formato {array.shape}, esperado (frames, 75, 3)")
-            samples.append(Sample(gloss, signer_dir.name, fill_missing_hands(array)))
+            samples.append(Sample(gloss, signer_dir.name, fill_missing_hands(array) if fill else array))
     return samples
 
 

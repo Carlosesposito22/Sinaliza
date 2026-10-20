@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
@@ -13,6 +14,14 @@ def slug(text: str) -> str:
     """Sem acento e em maiúsculas, como em data/ e model/."""
     decomposed = unicodedata.normalize("NFKD", text)
     return "".join(c for c in decomposed if not unicodedata.combining(c)).upper()
+
+
+def file_key(text: str) -> str:
+    """Nome de arquivo seguro: sem acento, maiúsculas, não alfanumérico vira `_`.
+
+    Igual ao `file_key` de `model/` e `data/` (chave dos movimentos e dos `.npy`).
+    """
+    return re.sub(r"[^A-Z0-9]+", "_", slug(text)).strip("_")
 
 
 def fold(text: str) -> str:
