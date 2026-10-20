@@ -19,11 +19,11 @@ Posição em **2026-10-19**, segundo o código e o git. Os 5 commits originais s
 
 ## O que é stub, não verificado ou está faltando
 
-1. **Dados reais:** o **V-LIBRASIL** está baixado (4.086 vídeos, 1.364 sinais, 3 sinalizantes, em `Projetos 6\Datasets`, fora do repositório) e já foi testado com a extração em 9 vídeos (mãos detectadas em 96% a 97% dos quadros). O **MINDS-Libras não foi baixado** (só um `Sinalizador01.zip` parcial). Falta **extrair os 4.086 vídeos** (~10 h em um processo), **aparar o repouso**, decidir a origem da normalização e **redefinir o vocabulário** (só 7 dos 20 sinais do MVP existem no V-LIBRASIL). Ver `21-datasets-de-treino.md`. É o gargalo de tudo que vem depois.
+1. **Dados reais:** o **V-LIBRASIL** está baixado (só local, fora do repositório) e **629 vídeos do vocabulário foram extraídos** (210 sinais × 3 sinalizantes) para `Projetos 6\Datasets\processed\v-librasil`. O **MINDS-Libras não foi baixado**. Faltam: **validar os sinais com alguém que saiba Libras** (a curadoria é só de palavras) e **investigar as mãos não detectadas** (70 gravações abaixo de 80% na esquerda). Ver `21-datasets-de-treino.md`.
 2. **YOLOv8 roda com pesos reais** (`yolov8n.pt`, 6,25 MB, em `data/yolov8n.pt`, ignorado pelo git), mas o **ganho do recorte no MINDS-Libras não foi medido**. Num clipe de webcam e numa simulação 1080p o efeito em mãos foi pequeno (só apareceu com a pessoa a 35% do quadro). Primeiro experimento real: `--limit` pequeno com e sem `--no-yolo` nos vídeos do dataset, comparando `extraction_log.csv`.
 3. **Gerador real:** a API usa `StubGenerator` (aceno): a animação **não corresponde** às glosas mostradas. Falta o `PoseGenerator` com modelo/medoide, concatenação e suavização de transições.
 4. **Embedder semântico não testado:** `sentence-transformers` só foi testado com modelo falso; o limiar 0,7 não está calibrado. O `char-ngram` está calibrado à mão (0,65) em poucos exemplos.
-5. **Modelo treinado:** nenhum resultado em dado real; não se sabe se supera o medoide.
+5. **Modelo treinado:** **primeiro resultado em dado real (2026-10-20, 3 folds)**: o modelo **não supera a média por sinal** (recuperação top-1 6,7% contra 7,6%; acaso 0,5%) e a vantagem dele no DTW médio é compatível com borrão. Pela regra do projeto, o modelo não se justifica; ver `11-modelo-ml.md`.
 6. **Avatar com rig:** o front desenha esqueleto; falta GLB + retargeting.
 7. **Controles de reprodução e destaque da glosa atual** no front.
 8. **Validação linguística:** ninguém identificado para validar sinais, mapeamentos aproximados nem frases.

@@ -18,7 +18,7 @@ Modelo **sinal (glosa) → sequência de poses**. Pacote Python `sinaliza_model`
 
 ## Dados de entrada
 
-`<raiz>/<sinalizante>/<SINAL>_<repetição>.npy`, `(frames, 75, 3)` float32. `load_dataset` casa o nome do arquivo com o vocabulário ignorando acento e caixa (`MACA_1.npy` → MAÇÃ), valida o formato (lança erro se não for `(frames, 75, 3)`) e aplica `fill_missing_hands`.
+`<raiz>/<sinalizante>/<SINAL>_<repetição>.npy`, `(frames, 75, 3)` float32. `load_dataset` casa o nome do arquivo com o vocabulário por `file_key` (sem acento, sem diferença de caixa, `_` no lugar de espaços: `MACA_1.npy` → MAÇÃ, `DOR_DE_CABECA_1.npy` → DOR DE CABEÇA), recusa duas glosas com a mesma chave, valida o formato (lança erro se não for `(frames, 75, 3)`) e aplica `fill_missing_hands`.
 
 ## Rede
 
@@ -55,6 +55,22 @@ Ordem esperada (do pior ao melhor): `global_mean > medoid ≳ class_mean ≈ mod
 
 **Critério de decisão:** o modelo só se justifica se superar `medoid` e `class_mean` **nos dados reais**. Nos sintéticos o resultado não vale como evidência. **Se não superar a recuperação, ficar com o medoide** — é mais simples e previsível.
 
+## Resultado nos dados reais (V-LIBRASIL, 210 sinais, 3 folds leave-one-signer-out, 2026-10-20)
+
+Duas medidas: **DTW médio** (premia borrão) e **recuperação** (`retrieval` em `train.py`: o movimento gerado para o sinal X se parece mais com a gravação de X do que com as dos outros sinais do mesmo sinalizante de validação; não premia borrão).
+
+| Método | DTW médio (3 folds) | Recuperação top-1 | top-5 | Posição média do sinal certo (de 210) |
+| --- | --- | --- | --- | --- |
+| `global_mean` (ignora o sinal) | 2,178 | 0,5% (= acaso) | 2,4% (= acaso) | 105,3 (acaso 105,3) |
+| `class_mean` (média das 2 gravações) | 2,168 | **7,6%** | **19,5%** | **55,6** |
+| `medoid` (uma das 2 gravações) | 2,539 | 7,8% | 17,8% | 62,4 |
+| `model` (GRU + embedding do sinal) | **2,125** | 6,7% | 17,3% | 57,6 |
+
+- **O sinal carrega informação**: `class_mean` acerta o sinal em 1º lugar em 7,6% (acaso 0,5%) e nos 5 primeiros em 19,5% (acaso 2,4%). É pouco: a variação entre os 3 sinalizantes pesa tanto quanto o sinal.
+- **O modelo não supera a `class_mean`** na recuperação (6,7% contra 7,6% no top-1), e a vantagem dele no DTW médio (2%) é compatível com borrão (a `global_mean` fica a 0,5% da `class_mean`). **Pela regra do projeto, o modelo não se justifica**; ficar com a média por sinal.
+- **`medoid` com 2 gravações** é só uma das duas (por isso o DTW 2,539, igual nos folds 01 e 02: é o mesmo par de gravações, DTW simétrico).
+- Cautelas: 3 folds, sem teste estatístico, diferenças dentro do ruído, modelo sem ajuste de hiperparâmetros, métricas de fidelidade (não de correção linguística). Detalhes por fold em `model/checkpoints/val0N/metrics.json` (git-ignorado).
+
 ## Embeddings de sinal (`sinaliza_model/embeddings.py`)
 
 A primeira camada da rede é `nn.Embedding(num_glosses, hidden)`: cada sinal vira um vetor aprendido, e é ele que condiciona o movimento. O módulo `embeddings.py` inspeciona isso depois do treino:
@@ -78,7 +94,7 @@ Há **dois usos diferentes de "embedding" no projeto**: este (vetor do sinal, de
 - ~60 gravações por sinal e poucos sinalizantes (4 no subconjunto inicial): a variação entre pessoas pode dominar.
 - Sinais compostos em frase **não** são modelados: a concatenação e a **suavização de transições** são trabalho do gerador na API (ainda não feito).
 
-## Testes existentes (19 em `model/`, passam; rodados em 2026-10-19 no Python 3.12 do venv de `data/`, que tem torch; o venv próprio de `model/` não foi montado)
+## Testes existentes (24 em `model/`, passam; rodados em 2026-10-20 no Python 3.12 do venv de `data/`, que tem torch; o venv próprio de `model/` não foi montado)
 
 `test_data.py`: vocabulário com 20 glosas únicas; `slug`; reamostragem (extremos, 1 frame); preenchimento de mãos; carga e rejeição de formato errado; divisão sem sobreposição. `test_metrics_baseline.py`: DTW zero para iguais e simétrico, tolera esticamento temporal; formatos das linhas de base; medoide é uma gravação de treino. `test_train.py`: condicionar no sinal supera a média global (sintético); pipeline roda e aprende o rótulo.
 

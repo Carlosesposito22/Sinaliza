@@ -22,7 +22,7 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python -m uvicorn app.main:app --reload
-python -m pytest                      # 24 testes
+python -m pytest                      # 30 testes
 python -m app.phrases                 # regera data/phrases.json
 python -m app.phrases --check         # falha se estiver desatualizado
 ```
@@ -58,7 +58,8 @@ cd data
 py -3.12 -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt                     # traz o PyTorch (centenas de MB)
-python -m pytest                                    # 20 testes (sem baixar pesos do YOLO)
+python -m pytest                                    # 35 testes (sem baixar pesos do YOLO)
+python build_vocabulary.py "<pasta do V-LIBRASIL>/annotations.csv"   # regera vocabulary.json (curadoria em CURATED)
 python extract_keypoints.py video entrada.mp4 saida.npy
 python extract_keypoints.py zip raw/minds-libras/Sinalizador07.zip processed/minds-libras --limit 5
 python extract_keypoints.py zip raw/minds-libras/Sinalizador07.zip processed/minds-libras --no-yolo --limit 5   # sem recorte, para comparar
@@ -83,7 +84,7 @@ cd model
 py -3.12 -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-python -m pytest                                                                  # 19 testes
+python -m pytest                                                                  # 23 testes
 python -m sinaliza_model.train --synthetic                                        # demonstração
 python -m sinaliza_model.train --data-root ../data/processed/minds-libras --val-signers 10
 python -m sinaliza_model.embeddings checkpoints/model.pt                          # vizinhos no embedding

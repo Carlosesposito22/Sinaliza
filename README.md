@@ -11,7 +11,7 @@ texto ──► api (FastAPI) ──► texto → glosas ──► gerador de po
                               (tabela + embeddings)       ▲
                                               model/ (treino, ainda stub)
                                                           ▲
-                                       data/ (vídeos → YOLOv8 + MediaPipe → keypoints)
+                                       data/ (vídeos V-LIBRASIL → MediaPipe → keypoints)
 ```
 
 | Pasta | Papel | Estado |
@@ -19,7 +19,7 @@ texto ──► api (FastAPI) ──► texto → glosas ──► gerador de po
 | `api/` | Serviço HTTP. Texto → glosas (tabela + embeddings) → poses. Frases de exemplo por categoria | Funcional com gerador **stub** |
 | `web/` | Front (React + Vite + three.js). Envia texto, mostra como cada palavra virou sinal e anima o avatar | Funcional, avatar em esqueleto |
 | `model/` | Treino do modelo sinal → pose, com linhas de base e métrica DTW; inspeção dos embeddings | Esqueleto testado com dados sintéticos |
-| `data/` | Extração de keypoints: YOLOv8 recorta a pessoa, MediaPipe Holistic extrai pose e mãos | Pronto; ainda sem dataset real nem pesos do YOLOv8 baixados |
+| `data/` | Vocabulário curado (210 sinais do V-LIBRASIL) e extração de keypoints com MediaPipe Holistic (YOLOv8 opcional) | Pronto; o V-LIBRASIL fica só local, fora do repositório (ver `references/21-datasets-de-treino.md`) |
 | `docs/` | Contrato do formato de pose e decisões | `pose-format.md`, `dados-e-vocabulario.md` |
 
 O contrato entre `model/`, `api/` e `web/` é o **formato de pose** descrito em [`docs/pose-format.md`](docs/pose-format.md).
@@ -72,8 +72,7 @@ Abre em `http://localhost:5173`. Para apontar para outra API, defina `VITE_API_U
 
 ## Próximos passos
 
-1. Baixar o subconjunto do MINDS-Libras (ver `data/README.md`) e extrair os keypoints com `data/extract_keypoints.py`.
-2. Comparar as taxas de detecção de mão com e sem YOLOv8 (`--no-yolo`).
-3. Treinar o primeiro modelo em `model/`, comparar com as linhas de base e plugar o vencedor no lugar do `StubGenerator`.
-4. Trocar o esqueleto por um avatar com rig (GLB) e retargeting dos keypoints.
-5. Validar os sinais e o vocabulário com alguém que saiba Libras.
+1. Treinar o modelo em `model/` com os keypoints do V-LIBRASIL (`data/extract_keypoints.py vlibrasil ...`), comparar com as linhas de base e plugar o vencedor no lugar do `StubGenerator`.
+2. Validar os sinais e o vocabulário com alguém que saiba Libras.
+3. Trocar o esqueleto por um avatar com rig (GLB) e retargeting dos keypoints.
+4. Decidir se entra um segundo dataset (hoje só o V-LIBRASIL).

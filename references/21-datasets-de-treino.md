@@ -30,6 +30,10 @@ O avaliador disse que usar **vários datasets** na fase de treinamento é bom. E
 
 Consequência: **`data/vocabulary.json` (os 20 do MINDS) não descreve o V-LIBRASIL**, e as **30 frases de demonstração** dependem de sinais que ele não tem (VACINA, MEDO, ALUNO, CONHECER, AMÉRICA...). Usar o V-LIBRASIL como base exige novo vocabulário e novas frases.
 
+## Extração do vocabulário (2026-10-20)
+
+`python extract_keypoints.py vlibrasil ...` extraiu **629 vídeos** (os 210 sinais do vocabulário curado × 3 sinalizantes; CRIANÇA tem 2, porque o vídeo do articulador 3 falhou no download) para `C:\Users\Carlos\Desktop\Projetos 6\Datasets\processed\v-librasil` (79 MB, **fora do repositório**): MediaPipe sem YOLOv8, origem nos ombros, parte de baixo zerada, 30 fps e repouso aparado (13% dos quadros em média). Mãos detectadas em 91,5% (esquerda) e 93,5% (direita) dos quadros. **Resultado do treino nesses dados: o modelo não supera a média por sinal** (ver `11-modelo-ml.md`).
+
 ## Segundo dataset (decisão em aberto)
 
 Com só o V-LIBRASIL, o treino tem **3 sinalizantes e uma gravação de cada por sinal**: dá para recuperação (medoide) e para validar em um sinalizante deixado de fora (2 gravações no treino por sinal), mas é pouco para rede neural. Opções:

@@ -22,7 +22,9 @@ Leia `references/README.md` (índice). Para começar:
 6. Ao trocar o `StubGenerator`, atualize `api/tests/test_api.py`.
 7. Aproximação de palavra por embedding nunca é silenciosa (`kind: "approx"` na API, "~" no front).
 8. O YOLOv8 (Ultralytics, AGPL-3.0) fica só na extração offline em `data/`; não o leve para a API.
-9. Ao mudar `data/vocabulary.json` ou `api/app/phrases.py`, rode `python -m app.phrases` e commite `data/phrases.json`.
+9. `data/vocabulary.json` vem de `data/build_vocabulary.py` (tabela `CURATED`); ao mudar ele ou `api/app/phrases.py`, rode `python -m app.phrases` e commite `data/phrases.json`.
+10. Formato de pose: origem no meio dos **ombros**; índices 23–32 zerados em vídeo da cintura para cima; tratar `[0, 0, 0]` como ausente.
+11. Avalie geração com a **recuperação** (`retrieval`), não só com o DTW médio: o DTW premia movimento borrado.
 
 ## Convenções
 

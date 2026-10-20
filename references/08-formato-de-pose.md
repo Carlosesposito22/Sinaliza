@@ -29,10 +29,11 @@ Mão (0–20, relativo ao grupo): 0 = punho; 1–4 polegar; 5–8 indicador; 9�
 
 ## Normalização (feita em `data/extract_keypoints.py`: `_reference` e `_normalize`)
 
-- **Origem:** ponto médio entre os quadris (23 e 24).
+- **Origem:** ponto médio entre os **ombros** (11 e 12). (Era o meio dos quadris até 2026-10-20: os vídeos do V-LIBRASIL são da cintura para cima, os quadris ficam fora do quadro e a posição estimada variava ~0,1 largura de ombro entre os 3 sinalizantes.)
 - **Escala:** distância (no plano xy) entre os ombros (11 e 12) = 1.
 - **Eixos:** `x` para a direita da tela; `y` **para cima** (a imagem tem y para baixo, então inverte); `z` em direção à câmera (inverte o z do MediaPipe).
 - **Ausente = `[0, 0, 0]`.** Um ponto/mão não detectado vira zero.
+- **Cintura para baixo zerada:** em vídeos da cintura para cima (`--upper-body`, padrão do V-LIBRASIL) os índices **23–32** (quadris, joelhos, tornozelos, calcanhares, pés) são zerados. Quem consome o formato trata `[0, 0, 0]` como "ausente": a API (stub) segue isso e o avatar desenha só a parte de cima do corpo.
 - **A conta é feita em pixels do quadro original**, não nas coordenadas 0–1 do MediaPipe (que esticam `y` em relação a `x` num quadro 16:9). Com o recorte do YOLOv8, os landmarks voltam antes para pixels do quadro original; o recorte não muda o formato.
 
 ### Quadro sem corpo detectado
