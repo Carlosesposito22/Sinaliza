@@ -17,7 +17,7 @@ texto ──► api (FastAPI) ──► texto → glosas ──► gerador de po
 | Pasta | Papel | Estado |
 | --- | --- | --- |
 | `api/` | Serviço HTTP. Texto → glosas (tabela + embeddings) → poses. Frases de exemplo por categoria | Funcional com gerador **stub** |
-| `web/` | Front (React + Vite + three.js). Envia texto, mostra como cada palavra virou sinal e anima o avatar | Funcional, avatar em esqueleto |
+| `web/` | Front (React + Vite + three.js). Envia texto, mostra como cada palavra virou sinal e anima o avatar | Funcional, avatar 3D (Rocketbox) |
 | `model/` | Treino do modelo sinal → pose, com linhas de base e métrica DTW; inspeção dos embeddings | Esqueleto testado com dados sintéticos |
 | `data/` | Vocabulário curado (210 sinais do V-LIBRASIL) e extração de keypoints com MediaPipe Holistic (YOLOv8 opcional) | Pronto; o V-LIBRASIL fica só local, fora do repositório (ver `references/21-datasets-de-treino.md`) |
 | `docs/` | Contrato do formato de pose e decisões | `pose-format.md`, `dados-e-vocabulario.md` |
@@ -75,10 +75,12 @@ npm install
 npm run dev
 ```
 
-Abre em `http://localhost:5173`. Para apontar para outra API, defina `VITE_API_URL`.
+Abre em `http://localhost:5173`. Para apontar para outra API, defina `VITE_API_URL`. Testes: `npm test`.
+
+O avatar é o modelo Rocketbox em `web/public/avatar/` (créditos e licenças em [`docs/creditos-e-licencas.md`](docs/creditos-e-licencas.md)); sem ele, o front desenha o esqueleto.
 
 ## Próximos passos
 
 1. Validar os sinais com alguém que saiba Libras e destacar a glosa em execução no avatar.
 2. Decidir se entra um segundo dataset (mais sinalizantes ou gravações por sinal é o que mudaria o resultado do modelo).
-3. Trocar o esqueleto por um avatar com rig (GLB) e retargeting dos keypoints.
+3. Mexer tronco e cabeça do avatar (hoje só braços, mãos e dedos) e, se houver dados, a expressão facial.

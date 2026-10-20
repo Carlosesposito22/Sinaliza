@@ -45,6 +45,7 @@ cd web
 npm install
 npm run dev        # http://localhost:5173
 npm run build      # tsc --noEmit && vite build (passa)
+npm test             # vitest: 11 testes do retargeting do avatar (passam)
 ```
 
 Para outra API: `VITE_API_URL`. CORS da API só libera `localhost:5173`/`127.0.0.1:5173`. Para ver o front funcionando, suba a API (porta 8000) e o `npm run dev`.

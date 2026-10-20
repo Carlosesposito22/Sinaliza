@@ -31,7 +31,7 @@ Conversa com o professor, relatada pelo Carlos: **ninguém da equipe sabe Libras
 - Frases de exemplo por categoria (escola, saúde, serviços, trabalho, família, geral), só com o vocabulário.
 - Extração dos dados com YOLOv8 (recorte da pessoa) + MediaPipe.
 - Glosas → sequência de poses (corpo + mãos), por gerador (stub hoje; modelo ou medoide depois).
-- Avatar que anima a sequência (hoje, esqueleto em three.js).
+- Avatar que anima a sequência (hoje, um rapaz 3D do Microsoft Rocketbox, em three.js).
 - Dados: MINDS-Libras, vocabulário fechado de **20 sinais**.
 - Avaliação do modelo contra linhas de base, validando em **sinalizante não visto no treino**.
 
