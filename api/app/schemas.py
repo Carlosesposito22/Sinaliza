@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -19,7 +21,48 @@ class TranslateRequest(BaseModel):
         return value
 
 
+class WordMatch(BaseModel):
+    """Como uma palavra do texto virou (ou não) um sinal.
+
+    `exact`: está na tabela. `approx`: aproximada por embedding (proposta, com
+    `score`). `function`: artigo/preposição, sem sinal próprio. `ignored`: sem sinal.
+    """
+
+    word: str
+    gloss: str | None
+    kind: Literal["exact", "approx", "function", "ignored"]
+    score: float
+
+
 class TranslateResponse(BaseModel):
     text: str
     glosses: list[str]
+    matches: list[WordMatch]
     pose: PoseSequence
+
+
+class SignInfo(BaseModel):
+    gloss: str
+    forms: list[str]
+    contexts: list[str]
+    note: str | None = None
+
+
+class VocabularyResponse(BaseModel):
+    signs: list[SignInfo]
+
+
+class Phrase(BaseModel):
+    text: str
+    glosses: list[str]
+    ignored: list[str]
+
+
+class Category(BaseModel):
+    id: str
+    label: str
+    phrases: list[Phrase]
+
+
+class CategoriesResponse(BaseModel):
+    categories: list[Category]

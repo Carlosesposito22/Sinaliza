@@ -1,0 +1,353 @@
+{
+  "version": 1,
+  "status": "frases em português geradas por modelos e validadas contra o vocabulário; não são frases de Libras e não foram validadas por falante de Libras",
+  "categories": [
+    {
+      "id": "escola",
+      "label": "escola",
+      "phrases": [
+        {
+          "text": "O aluno precisa ir ao banheiro.",
+          "glosses": [
+            "ALUNO",
+            "BANHEIRO"
+          ],
+          "ignored": [
+            "precisa"
+          ]
+        },
+        {
+          "text": "O filho precisa ir ao banheiro.",
+          "glosses": [
+            "FILHO",
+            "BANHEIRO"
+          ],
+          "ignored": [
+            "precisa"
+          ]
+        },
+        {
+          "text": "O aluno quer ir ao banheiro.",
+          "glosses": [
+            "ALUNO",
+            "BANHEIRO"
+          ],
+          "ignored": [
+            "quer"
+          ]
+        },
+        {
+          "text": "O aluno tem medo do barulho.",
+          "glosses": [
+            "ALUNO",
+            "MEDO",
+            "BARULHO"
+          ],
+          "ignored": [
+            "tem"
+          ]
+        },
+        {
+          "text": "O aluno tem medo do sapo.",
+          "glosses": [
+            "ALUNO",
+            "MEDO",
+            "SAPO"
+          ],
+          "ignored": [
+            "tem"
+          ]
+        },
+        {
+          "text": "Cinco alunos comeram a maçã.",
+          "glosses": [
+            "CINCO",
+            "ALUNO",
+            "MAÇÃ"
+          ],
+          "ignored": [
+            "comeram"
+          ]
+        },
+        {
+          "text": "O aluno viu o sapo.",
+          "glosses": [
+            "ALUNO",
+            "SAPO"
+          ],
+          "ignored": [
+            "viu"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "saude",
+      "label": "saúde",
+      "phrases": [
+        {
+          "text": "O filho tem medo da vacina.",
+          "glosses": [
+            "FILHO",
+            "MEDO",
+            "VACINA"
+          ],
+          "ignored": [
+            "tem"
+          ]
+        },
+        {
+          "text": "A filha tem medo da vacina.",
+          "glosses": [
+            "FILHO",
+            "MEDO",
+            "VACINA"
+          ],
+          "ignored": [
+            "tem"
+          ]
+        },
+        {
+          "text": "O filho está com vontade de ir ao banheiro.",
+          "glosses": [
+            "FILHO",
+            "VONTADE",
+            "BANHEIRO"
+          ],
+          "ignored": [
+            "está"
+          ]
+        },
+        {
+          "text": "Você tem vontade de tomar a vacina?",
+          "glosses": [
+            "VONTADE",
+            "VACINA"
+          ],
+          "ignored": [
+            "Você",
+            "tem",
+            "tomar"
+          ]
+        },
+        {
+          "text": "Eu tenho medo do barulho.",
+          "glosses": [
+            "MEDO",
+            "BARULHO"
+          ],
+          "ignored": [
+            "tenho"
+          ]
+        },
+        {
+          "text": "O barulho é ruim.",
+          "glosses": [
+            "BARULHO",
+            "RUIM"
+          ],
+          "ignored": []
+        }
+      ]
+    },
+    {
+      "id": "servicos",
+      "label": "serviços",
+      "phrases": [
+        {
+          "text": "O banco fica na esquina.",
+          "glosses": [
+            "BANCO",
+            "ESQUINA"
+          ],
+          "ignored": [
+            "fica"
+          ]
+        },
+        {
+          "text": "Eu conheço o banco da esquina.",
+          "glosses": [
+            "CONHECER",
+            "BANCO",
+            "ESQUINA"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "O banco tem barulho.",
+          "glosses": [
+            "BANCO",
+            "BARULHO"
+          ],
+          "ignored": [
+            "tem"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trabalho",
+      "label": "trabalho",
+      "phrases": [
+        {
+          "text": "O banheiro tem barulho.",
+          "glosses": [
+            "BANHEIRO",
+            "BARULHO"
+          ],
+          "ignored": [
+            "tem"
+          ]
+        },
+        {
+          "text": "Eu conheço o banheiro do banco.",
+          "glosses": [
+            "CONHECER",
+            "BANHEIRO",
+            "BANCO"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "O barulho do banheiro é ruim.",
+          "glosses": [
+            "BARULHO",
+            "BANHEIRO",
+            "RUIM"
+          ],
+          "ignored": []
+        }
+      ]
+    },
+    {
+      "id": "familia",
+      "label": "família",
+      "phrases": [
+        {
+          "text": "O filho tem vontade de conhecer a América.",
+          "glosses": [
+            "FILHO",
+            "VONTADE",
+            "CONHECER",
+            "AMÉRICA"
+          ],
+          "ignored": [
+            "tem"
+          ]
+        },
+        {
+          "text": "A filha tem vontade de conhecer a América.",
+          "glosses": [
+            "FILHO",
+            "VONTADE",
+            "CONHECER",
+            "AMÉRICA"
+          ],
+          "ignored": [
+            "tem"
+          ]
+        },
+        {
+          "text": "O filho comeu a maçã amarela.",
+          "glosses": [
+            "FILHO",
+            "MAÇÃ",
+            "AMARELO"
+          ],
+          "ignored": [
+            "comeu"
+          ]
+        },
+        {
+          "text": "A filha comeu a maçã amarela.",
+          "glosses": [
+            "FILHO",
+            "MAÇÃ",
+            "AMARELO"
+          ],
+          "ignored": [
+            "comeu"
+          ]
+        },
+        {
+          "text": "O filho tem medo do sapo.",
+          "glosses": [
+            "FILHO",
+            "MEDO",
+            "SAPO"
+          ],
+          "ignored": [
+            "tem"
+          ]
+        },
+        {
+          "text": "A filha tem medo do sapo.",
+          "glosses": [
+            "FILHO",
+            "MEDO",
+            "SAPO"
+          ],
+          "ignored": [
+            "tem"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "geral",
+      "label": "geral",
+      "phrases": [
+        {
+          "text": "Eu quero conhecer a América.",
+          "glosses": [
+            "CONHECER",
+            "AMÉRICA"
+          ],
+          "ignored": [
+            "quero"
+          ]
+        },
+        {
+          "text": "O sapo amarelo tem medo do barulho.",
+          "glosses": [
+            "SAPO",
+            "AMARELO",
+            "MEDO",
+            "BARULHO"
+          ],
+          "ignored": [
+            "tem"
+          ]
+        },
+        {
+          "text": "Cinco maçãs amarelas.",
+          "glosses": [
+            "CINCO",
+            "MAÇÃ",
+            "AMARELO"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "O espelho está na esquina.",
+          "glosses": [
+            "ESPELHO",
+            "ESQUINA"
+          ],
+          "ignored": [
+            "está"
+          ]
+        },
+        {
+          "text": "Aconteceu um barulho na esquina.",
+          "glosses": [
+            "ACONTECER",
+            "BARULHO",
+            "ESQUINA"
+          ],
+          "ignored": []
+        }
+      ]
+    }
+  ]
+}

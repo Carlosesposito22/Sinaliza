@@ -1,0 +1,4 @@
+# Opcional: embeddings semânticos (SINALIZA_EMBEDDER=sentence-transformers).
+# Puxa o PyTorch e baixa o modelo multilíngue na primeira execução.
+-r requirements.txt
+sentence-transformers>=3,<6

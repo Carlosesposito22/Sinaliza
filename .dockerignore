@@ -1,0 +1,13 @@
+# Usado pelo build da API (contexto na raiz). O front tem o seu em web/.dockerignore.
+**/.venv/
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+**/node_modules/
+**/dist/
+.git/
+Documentos/
+references/
+data/raw/
+data/processed/
+model/
