@@ -74,6 +74,10 @@ No escopo atual essas frentes continuam, com troca de objeto: o modelo é **gera
 | 2026-10-14 | MediaPipe fixado em `0.10.21` (API `mp.solutions.holistic`); venvs separados para `data/` e `model/` | `data/README.md` |
 | 2026-10-14 | Docker: nginx serve o front e repassa `/api/*` à API (sem CORS) | `docker-compose.yml`, `web/nginx.conf` |
 | 2026-10-14 | Avatar inicial é esqueleto (three.js); avatar com rig/GLB e retargeting vem depois | `web/src/Avatar.tsx` |
+| 2026-10-19 | YOLOv8 entra como ferramenta de extração (recorte da pessoa), ligado por padrão; só detecta pessoa, não mãos | `data/person_crop.py` |
+| 2026-10-19 | Texto → glosa: tabela + aproximação por embedding de palavras (`char-ngram` padrão, `sentence-transformers` opcional), sempre sinalizada; palavra sem sinal é ignorada com aviso | `api/app/text_to_gloss.py` |
+| 2026-10-19 | Frases de exemplo por categoria geradas por modelos de frase e validadas contra o vocabulário (sem LLM) | `api/app/phrases.py`, `data/phrases.json` |
+| 2026-10-19 | Normalização passa a ser em pixels do quadro original; mãos sem corpo no quadro usam a última referência válida | `data/extract_keypoints.py` |
 
 ## Rascunho de hipótese para o escopo atual
 

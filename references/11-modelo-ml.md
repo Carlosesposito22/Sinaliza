@@ -12,7 +12,8 @@ Modelo **sinal (glosa) → sequência de poses**. Pacote Python `sinaliza_model`
 | `sinaliza_model/metrics.py` | `dtw_distance` |
 | `sinaliza_model/train.py` | `train_model`, `evaluate`, `run`, CLI |
 | `sinaliza_model/synthetic.py` | `make_synthetic` (dados sintéticos) |
-| `tests/` | `test_data.py`, `test_metrics_baseline.py`, `test_train.py` |
+| `sinaliza_model/embeddings.py` | Inspeção dos embeddings de sinal (ver seção abaixo) |
+| `tests/` | `test_data.py`, `test_metrics_baseline.py`, `test_train.py`, `test_embeddings.py` |
 | `requirements.txt` | `numpy>=1.26,<3`, `torch>=2.2,<3`, `pytest>=8,<9` |
 
 ## Dados de entrada
@@ -54,6 +55,20 @@ Ordem esperada (do pior ao melhor): `global_mean > medoid ≳ class_mean ≈ mod
 
 **Critério de decisão:** o modelo só se justifica se superar `medoid` e `class_mean` **nos dados reais**. Nos sintéticos o resultado não vale como evidência. **Se não superar a recuperação, ficar com o medoide** — é mais simples e previsível.
 
+## Embeddings de sinal (`sinaliza_model/embeddings.py`)
+
+A primeira camada da rede é `nn.Embedding(num_glosses, hidden)`: cada sinal vira um vetor aprendido, e é ele que condiciona o movimento. O módulo `embeddings.py` inspeciona isso depois do treino:
+
+- `gloss_embeddings(model)` / `checkpoint_embeddings(path)`: matriz `(20, 128)`;
+- `nearest_neighbors(vectors, glosses, k)`: vizinhos por cosseno;
+- `motion_distances(samples, glosses)`: DTW entre as **médias de movimento** de cada par de sinais;
+- `embedding_vs_motion(vectors, distances)`: Spearman entre a distância no embedding e o DTW;
+- CLI: `python -m sinaliza_model.embeddings checkpoints/model.pt [--data-root ...]`.
+
+Leitura honesta: serve para **diagnosticar o treino** (embeddings colapsados, por exemplo). Com 20 sinais, vizinhança no embedding reflete o que o modelo precisou para reduzir o MSE, **não semelhança linguística**. Testado só com dados sintéticos; nunca rodado em dados reais.
+
+Há **dois usos diferentes de "embedding" no projeto**: este (vetor do sinal, dentro do gerador de movimento, em `model/`) e o de **palavras** que aproxima palavras fora do vocabulário (em `api/app/embeddings.py`, ver [`12-api.md`](12-api.md)). Não se comunicam.
+
 ## Limites (leia antes de afirmar qualquer coisa sobre o modelo)
 
 - DTW mede **fidelidade à gravação, não correção linguística**. Um movimento próximo da referência ainda pode estar errado como sinal. Precisa de alguém que saiba Libras.
@@ -63,7 +78,7 @@ Ordem esperada (do pior ao melhor): `global_mean > medoid ≳ class_mean ≈ mod
 - ~60 gravações por sinal e poucos sinalizantes (4 no subconjunto inicial): a variação entre pessoas pode dominar.
 - Sinais compostos em frase **não** são modelados: a concatenação e a **suavização de transições** são trabalho do gerador na API (ainda não feito).
 
-## Testes existentes (20 `def test_*` no total entre `model/` e `data/`; não executados nesta sessão)
+## Testes existentes (19 em `model/`, passam; rodados em 2026-10-19 no Python 3.12 do venv de `data/`, que tem torch; o venv próprio de `model/` não foi montado)
 
 `test_data.py`: vocabulário com 20 glosas únicas; `slug`; reamostragem (extremos, 1 frame); preenchimento de mãos; carga e rejeição de formato errado; divisão sem sobreposição. `test_metrics_baseline.py`: DTW zero para iguais e simétrico, tolera esticamento temporal; formatos das linhas de base; medoide é uma gravação de treino. `test_train.py`: condicionar no sinal supera a média global (sintético); pipeline roda e aprende o rótulo.
 

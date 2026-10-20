@@ -59,10 +59,25 @@ Notas no JSON: **BALA** = doce (não projétil); **BANCO** = financeiro (não de
 
 Perceba que as demos **descartam** a maior parte das palavras ("o", "tem", "quer", "ir"…), e que a saída não é a gramática de Libras.
 
+`data/phrases.json` guarda **30 frases por categoria** (escola, saúde, serviços, trabalho, família, geral), geradas por modelos de frase em `api/app/phrases.py` e validadas contra o vocabulário (ver [`12-api.md`](12-api.md)). É texto em português, não Libras.
+
+## Comportamento para palavra fora do vocabulário (decidido em 2026-10-19)
+
+Cada palavra do texto recebe uma classe, e a API devolve isso em `matches`:
+
+| Classe | O que é | Na interface |
+| --- | --- | --- |
+| `exact` | Está na tabela (`pt` do `vocabulary.json`) | Caixinha com palavra e glosa |
+| `approx` | Fora da tabela, mas o **embedding** a aproxima de uma forma conhecida (similaridade ≥ limiar) | Caixinha tracejada com "~" e aviso para conferir |
+| `function` | Artigo, preposição, conjunção, palavra ≤ 2 letras | Cinza, sem alarde |
+| `ignored` | Sem correspondência (ex.: verbos) | Riscada, com aviso |
+
+Não há **soletração**: o MINDS-Libras não tem o alfabeto manual. A aproximação é **proposta** (escrita parecida, ou sentido parecido com o embedder semântico): proximidade não garante que o sinal sirva em Libras.
+
 ## Limites que precisam ficar explícitos
 
 - **Não é tradução para Libras.** Libras tem gramática própria (ordem, uso do espaço, expressão facial). O MVP converte palavras em **sequência de sinais isolados na ordem do texto**. Nas demonstrações, chamar de "sequência de sinais".
-- **Palavras fora do vocabulário** são ignoradas no desenho do MVP. **Definir o comportamento** (aviso ao usuário ou soletração) antes de expor ao público. *(Hoje o stub da API nem filtra por vocabulário: devolve todas as palavras em maiúsculas.)*
+- **Palavras fora do vocabulário:** comportamento definido (ver seção acima): aproximação por embedding, sinalizada, ou ignoradas com aviso.
 - **Polissemia:** "banco" e "bala" têm um único sinal gravado.
 - **Validação linguística:** ninguém do grupo fala Libras. Contextos e formas em `vocabulary.json` são **propostas**. É preciso identificar quem valida (professor, intérprete, pessoa surda) antes da avaliação com usuários.
 - **Licença dos derivados:**
@@ -70,6 +85,7 @@ Perceba que as demos **descartam** a maior parte das palavras ("o", "tem", "quer
   - V-LIBRASIL: não versionar vídeos nem keypoints derivados sem permissão.
   - pt-br2libras-gloss (CC BY-SA 4.0): confirmar com o professor o efeito do share-alike em modelos treinados nele.
 - **Dados pessoais:** vídeos de sinalizantes são dados pessoais; citar o dataset conforme o Zenodo e **não versionar `raw/`**.
+- **Ferramentas:** o **Ultralytics (YOLOv8) é AGPL-3.0** (ou licença Enterprise) — conferido em 2026-10-19. Aqui roda **só offline**, no recorte dos vídeos; a API não o usa. Se o projeto passar a servir ou distribuir o Ultralytics, reavaliar com o professor. O dataset de *hand keypoints* da Ultralytics é CC BY-NC-SA 4.0 e os rótulos são do próprio MediaPipe; **não é usado**. Detalhes em `docs/dados-e-vocabulario.md`.
 
 ## Como isso vira ML
 

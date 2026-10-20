@@ -27,7 +27,9 @@ Conversa com o professor, relatada pelo Carlos: **ninguém da equipe sabe Libras
 
 ### Dentro do escopo
 
-- Texto em português → sequência de glosas (no MVP, por tabela em `data/vocabulary.json`).
+- Texto em português → sequência de glosas: por tabela em `data/vocabulary.json` e, para palavras fora dela, por aproximação com embeddings (sempre sinalizada ao usuário).
+- Frases de exemplo por categoria (escola, saúde, serviços, trabalho, família, geral), só com o vocabulário.
+- Extração dos dados com YOLOv8 (recorte da pessoa) + MediaPipe.
 - Glosas → sequência de poses (corpo + mãos), por gerador (stub hoje; modelo ou medoide depois).
 - Avatar que anima a sequência (hoje, esqueleto em three.js).
 - Dados: MINDS-Libras, vocabulário fechado de **20 sinais**.

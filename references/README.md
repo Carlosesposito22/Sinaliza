@@ -4,7 +4,8 @@ Esta pasta existe para que uma sessão nova do Claude (ou uma pessoa nova na equ
 
 - `Documentos/` — as entregas da disciplina (Entrega 1, Ideação/Proposição, Personas, Jornadas, Análise de Similares, Requisitos, Matriz de Pesquisa, apresentação);
 - o código e os docs do repositório (`api/`, `web/`, `model/`, `data/`, `docs/`, `README.md`);
-- o histórico do git (5 commits, todos de 2026-10-14);
+- o histórico do git (5 commits de código, todos de 2026-10-14);
+- as sugestões do orientador (YOLOv8, embeddings, geração de textos por categoria), implementadas em 2026-10-19 (ver `19-sugestoes-do-orientador.md`);
 - a decisão de **reduzir o escopo**, tomada depois de conversa com o professor (relatada pelo Carlos).
 
 ## Leia primeiro
@@ -49,6 +50,7 @@ Esta pasta existe para que uma sessão nova do Claude (ou uma pessoa nova na equ
 | [`16-riscos-e-questoes-abertas.md`](16-riscos-e-questoes-abertas.md) | O que ainda não sabemos ou não validamos |
 | [`17-convencoes-e-regras-para-claude.md`](17-convencoes-e-regras-para-claude.md) | Idioma, commits, ambiente, honestidade sobre Libras |
 | [`18-glossario.md`](18-glossario.md) | Termos de Libras, ML e do projeto |
+| [`19-sugestoes-do-orientador.md`](19-sugestoes-do-orientador.md) | YOLOv8, embeddings e geração de textos por categoria: interpretação adotada e o que foi implementado |
 
 ## Como manter
 

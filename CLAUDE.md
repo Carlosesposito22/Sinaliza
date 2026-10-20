@@ -20,9 +20,12 @@ Leia `references/README.md` (índice). Para começar:
 4. O formato de pose (75 keypoints, normalizado) é o contrato entre `api/`, `web/`, `model/` e `data/`. Ao mudá-lo, atualize os quatro e `docs/pose-format.md`.
 5. Respeite as licenças: MINDS-Libras é CC BY 4.0 (atribuir), V-LIBRASIL não pode ser redistribuído. Não versione vídeos de sinalizantes nem `data/raw/`, `data/processed/`, `*.npy`, `*.pt`.
 6. Ao trocar o `StubGenerator`, atualize `api/tests/test_api.py`.
+7. Aproximação de palavra por embedding nunca é silenciosa (`kind: "approx"` na API, "~" no front).
+8. O YOLOv8 (Ultralytics, AGPL-3.0) fica só na extração offline em `data/`; não o leve para a API.
+9. Ao mudar `data/vocabulary.json` ou `api/app/phrases.py`, rode `python -m app.phrases` e commite `data/phrases.json`.
 
 ## Convenções
 
 - Docs, commits e mensagens de erro em português do Brasil; nomes de código em inglês; glosas em MAIÚSCULAS, comparadas com `slug()`.
 - Commits em Conventional Commits em português com escopo (`feat(data): ...`). Commite só quando o usuário pedir.
-- Ambiente: Windows e PowerShell. Venvs separados em `api/`, `data/` e `model/` (`data/` exige `numpy<2`). Veja `references/14-como-rodar-e-testar.md`.
+- Ambiente: Windows e PowerShell. Venvs separados em `api/`, `data/` e `model/` (`data/` exige `numpy<2` e Python 3.12). Veja `references/14-como-rodar-e-testar.md`.

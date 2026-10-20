@@ -28,8 +28,11 @@
 4. **Não mude o formato de pose** sem propagar para `api/`, `web/`, `model/` e `data/` e atualizar `docs/pose-format.md` e [`08-formato-de-pose.md`](08-formato-de-pose.md).
 5. **Respeite licenças:** MINDS-Libras CC BY 4.0 (atribuir); V-LIBRASIL sem redistribuição; pt-br2libras-gloss CC BY-SA 4.0 (consultar o professor sobre share-alike).
 6. **Não versione vídeos de sinalizantes** (dados pessoais).
-7. Se o `StubGenerator` for substituído, **atualize `api/tests/test_api.py`** (ele assume 1 s/glosa e glosas = todas as palavras).
-8. Distinga **fato verificado**, **inferido** e **a confirmar** ao resumir — como fazem estes arquivos.
+7. Se o `StubGenerator` for substituído, **atualize `api/tests/test_api.py`** (ele assume 1 s por glosa: `len(frames) == 3 * fps` para 3 glosas).
+8. Mapeamento aproximado por embedding **nunca é silencioso**: a API devolve `kind: "approx"` e o front marca. Não esconda nem promova uma aproximação a `exact`.
+9. Ao mudar `data/vocabulary.json` ou os modelos de frase em `api/app/phrases.py`, rode `python -m app.phrases` e commite `data/phrases.json` (um teste confere).
+10. O YOLOv8 (Ultralytics, **AGPL-3.0**) fica só na extração offline em `data/`; não o coloque na API nem na imagem Docker sem reavaliar a licença com o professor.
+11. Distinga **fato verificado**, **inferido** e **a confirmar** ao resumir — como fazem estes arquivos.
 
 ## Ambiente
 

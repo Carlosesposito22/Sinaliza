@@ -17,7 +17,11 @@ Classificação: **Alto / Médio / Baixo** é julgamento nosso **[inferido]**.
 | 9 | **Coerência com a disciplina.** Entregas anteriores descrevem outro escopo; avaliadores podem esperar o jogo com câmera | Médio | Registrar a decisão com o professor (data, o que foi combinado); reescrever hipótese/requisitos; **[a confirmar]** critérios da próxima entrega |
 | 10 | **Compatibilidade de ambiente:** Python 3.13 local vs `mediapipe==0.10.21`; `numpy<2` vs torch | Baixo/Médio | Venvs separados; usar Python 3.10–3.12 para `data/` se não houver wheel **[a verificar]** |
 | 11 | **Desempenho da resposta:** JSON com todos os frames | Baixo | Arredondar casas decimais; limite de 500 caracteres já existe |
-| 12 | **Borda na normalização:** frame sem corpo detectado devolve coordenadas não normalizadas para mãos | Baixo | Zerar o frame ou descartá-lo; ver [`08-formato-de-pose.md`](08-formato-de-pose.md) |
+| 12 | ~~Borda na normalização~~ **resolvido em 2026-10-19:** sem corpo no quadro, as mãos usam a última referência válida (ver [`08-formato-de-pose.md`](08-formato-de-pose.md)) | — | `.npy` antigos não são comparáveis; reextrair |
+| 13 | **Licença do Ultralytics (AGPL-3.0)** | Médio | Uso só offline, na extração; a API não o usa. Se algum dia o YOLOv8 for servido ou distribuído, reavaliar com o professor (ou licença Enterprise). Ver [`09-dados-e-vocabulario.md`](09-dados-e-vocabulario.md) |
+| 14 | **Ganho do YOLOv8 não medido no dataset real.** Em teste com um clipe de webcam e uma simulação 1080p o ganho em mãos foi pequeno e só com a pessoa pequena no quadro; recorte fixo assume câmera parada | Médio | A/B com `--limit` pequeno e `--no-yolo` nos vídeos do MINDS-Libras; olhar `extraction_log.csv` |
+| 15 | **Aproximação por embedding pode errar:** o usuário vê um sinal que não corresponde à palavra (ex.: parecido na escrita, ou "perto" no sentido com o embedder semântico) | Médio | Sempre marcada com "~" e aviso; limiar conservador (0,65 no `char-ngram`); embedder semântico precisa de calibração antes de uso; validar com falante de Libras |
+| 16 | **Frases de exemplo dão falsa impressão de cobertura:** os modelos de frase foram escritos para caber nos 20 sinais | Baixo | Mostram palavras ignoradas (`ignored`); aviso "não é tradução para Libras" no subtítulo |
 
 ## Privacidade (LGPD) no escopo atual
 
@@ -31,8 +35,8 @@ A fase 1 colocou a LGPD como *Must have* por causa da captura de câmera. Sem ca
 ## Questões abertas (precisam de decisão da equipe)
 
 1. **Quem valida os sinais?** (professor, intérprete, pessoa surda — e quando)
-2. **O que fazer com palavra fora do vocabulário?** Ignorar, avisar, soletrar (datilologia) — soletrar exigiria um alfabeto manual, que o MINDS-Libras **não tem**.
-3. **Qual a unidade de demonstração?** Palavras isoladas, frases curtas dentro do vocabulário, ou um modo "demo" com frases pré-definidas.
+2. ~~O que fazer com palavra fora do vocabulário?~~ **Decidido em 2026-10-19:** aproximar por embedding (sinalizado com "~") ou ignorar com aviso; soletrar não é possível (o MINDS-Libras não tem o alfabeto manual). Falta validar com falante de Libras e decidir se o embedder semântico entra.
+3. ~~Qual a unidade de demonstração?~~ **Encaminhado:** frases de exemplo por categoria (`data/phrases.json`). Falta o professor confirmar se é isso que ele quis dizer com "geração de textos a partir de categorias".
 4. **Qual o critério de sucesso do projeto?** Proposta: DTW do gerador < medoide e < média da classe em sinalizante não visto + demonstração funcional + validação qualitativa por pelo menos uma pessoa que saiba Libras.
 5. **Avatar com rig ou esqueleto?** Depende do tempo restante e de quem sabe three.js/Blender.
 6. **Prazo e entregas restantes da disciplina** (o cronograma de 8 semanas era do escopo antigo).

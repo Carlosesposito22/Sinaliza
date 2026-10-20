@@ -1,44 +1,50 @@
 # Estado atual e próximos passos
 
-Posição em **2026-10-19**, segundo o código e o git (5 commits, todos de 2026-10-14; árvore limpa exceto `Documentos/` untracked). Nada foi executado nesta sessão: o estado abaixo vem da leitura do código e dos READMEs.
+Posição em **2026-10-19**, segundo o código e o git. Os 5 commits originais são de 2026-10-14; depois vieram 2 commits de documentação (`Documentos/`, `references/`, `CLAUDE.md`). As implementações das sugestões do orientador (YOLOv8, embeddings, frases por categoria) estão **no working tree, ainda sem commit**.
 
 ## O que está pronto
 
 | Componente | Situação |
 | --- | --- |
 | Estrutura do repositório | `api/`, `web/`, `model/`, `data/`, `docs/`, Docker |
-| Formato de pose | Definido e documentado (75 keypoints, normalização) |
+| Formato de pose | Definido e documentado (75 keypoints, normalização em pixels) |
 | Decisão de dados | MINDS-Libras, 20 sinais, subconjunto inicial de 4 sinalizantes |
-| Extração de keypoints | CLI (`video` e `zip`), retomável, com log de detecção; testada com extrator falso e com **um vídeo derivado de foto** |
-| Treino | Pipeline completo com linhas de base e DTW; testado com dados sintéticos |
-| API | `/health`, `/translate` com gerador stub |
-| Front | Formulário + avatar em esqueleto animando a resposta |
-| Docker | `docker compose up --build` sobe API + front (nginx com proxy) |
+| **Extração de keypoints** | **YOLOv8 recorta a pessoa + MediaPipe Holistic**, em CLI (`video` e `zip`), retomável, com log de detecção; 20 testes passam; rodou com pesos reais num vídeo de teste |
+| Treino | Pipeline completo com linhas de base e DTW; testado com dados sintéticos; **inspeção dos embeddings de sinal** |
+| **Texto → glosa** | Tabela (`vocabulary.json`) + **embeddings** para palavras fora do vocabulário (`char-ngram` padrão; `sentence-transformers` opcional) com limiar; cada palavra classificada em `exact/approx/function/ignored` |
+| **Frases por categoria** | 30 frases em 6 categorias (`data/phrases.json`), geradas por modelos e validadas contra o vocabulário; `GET /categories` |
+| API | `/health`, `/translate` (com `matches`), `/vocabulary`, `/categories`; gerador **stub** |
+| Front | Categorias e frases de exemplo; mostra como cada palavra virou sinal (aproximada "~", ignorada riscada); avatar em esqueleto |
+| Docker | `docker compose up --build` (contexto da API agora é a raiz; **não verificado**) |
 
-## O que é stub ou está faltando
+## O que é stub, não verificado ou está faltando
 
 1. **Dados reais:** os ZIPs do MINDS-Libras **não foram totalmente baixados**; a extração nunca rodou em vídeo real. É o gargalo de tudo que vem depois.
-2. **Gerador real:** a API usa `StubGenerator` (aceno). Falta o `PoseGenerator` com modelo/medoide, concatenação e suavização de transições.
-3. **Texto → glosa:** a API ainda não usa `vocabulary.json`. Falta mapear `pt` → glosa, tratar palavras desconhecidas e (se quiser) lematização simples.
-4. **Modelo treinado:** nenhum resultado em dado real; não se sabe se supera o medoide.
-5. **Avatar com rig:** o front desenha esqueleto; falta GLB + retargeting.
-6. **Controles de reprodução e destaque da glosa atual** no front.
-7. **Validação linguística:** ninguém identificado para validar sinais.
-8. **Documentação para a disciplina** reescrita para o escopo novo (hipótese, personas, requisitos).
-9. **Testes de front** e CI inexistentes.
+2. **YOLOv8 roda com pesos reais** (`yolov8n.pt`, 6,25 MB, em `data/yolov8n.pt`, ignorado pelo git), mas o **ganho do recorte no MINDS-Libras não foi medido**. Num clipe de webcam e numa simulação 1080p o efeito em mãos foi pequeno (só apareceu com a pessoa a 35% do quadro). Primeiro experimento real: `--limit` pequeno com e sem `--no-yolo` nos vídeos do dataset, comparando `extraction_log.csv`.
+3. **Gerador real:** a API usa `StubGenerator` (aceno): a animação **não corresponde** às glosas mostradas. Falta o `PoseGenerator` com modelo/medoide, concatenação e suavização de transições.
+4. **Embedder semântico não testado:** `sentence-transformers` só foi testado com modelo falso; o limiar 0,7 não está calibrado. O `char-ngram` está calibrado à mão (0,65) em poucos exemplos.
+5. **Modelo treinado:** nenhum resultado em dado real; não se sabe se supera o medoide.
+6. **Avatar com rig:** o front desenha esqueleto; falta GLB + retargeting.
+7. **Controles de reprodução e destaque da glosa atual** no front.
+8. **Validação linguística:** ninguém identificado para validar sinais, mapeamentos aproximados nem frases.
+9. **Imagem Docker da API** com o novo contexto de build não foi construída.
+10. **Testes de front** e CI inexistentes.
+11. **Documentação para a disciplina** reescrita para o escopo novo (hipótese, personas, requisitos).
 
 ## Próximos passos sugeridos (ordem de dependência)
 
-1. **Concluir o download** dos sinalizantes 01, 02, 07, 10 (ou arranjar um espelho/disco; o Zenodo estava lento). Conferir antes a estrutura real dos ZIPs.
-2. **Rodar a extração em lote** com `--limit` pequeno primeiro; ler `extraction_log.csv` (taxa de mãos detectadas). Decidir o tratamento de frames sem corpo.
-3. **Rodar as linhas de base** nos dados reais (`train.py` imprime DTW das linhas de base e do modelo). Isso já responde se vale ter rede.
-4. **Escolher o gerador:** medoide (simples, previsível) ou modelo, conforme o DTW.
-5. **Implementar o `PoseGenerator` real** em `api/`: tabela `vocabulary.json`, política para palavras desconhecidas, concatenação com transições suaves, `fps` e duração por sinal. Atualizar `test_api.py`.
-6. **Front:** destacar a glosa em execução, controles de reprodução, avisar palavras ignoradas, exibir mensagens de erro da API.
-7. **Avatar com rig** e retargeting (se der tempo; o esqueleto já serve para demonstrar).
-8. **Validar com alguém que saiba Libras** (professor, intérprete, pessoa surda) e registrar o resultado em `docs/`.
-9. **Atualizar a documentação** (README raiz diz que o contexto da fase 1 está em `pesquisas/` — hoje está em `Documentos/`; corrigir) e reescrever hipótese/personas/requisitos para o escopo atual.
-10. **Versionar `Documentos/`** (ou decidir conscientemente não versionar; contém PDFs de 16 MB).
+1. **Concluir o download** dos sinalizantes 01, 02, 07, 10 (ou arranjar espelho/disco). Conferir a estrutura real dos ZIPs.
+2. **Rodar a extração com `--limit` pequeno**, com e sem YOLOv8, nos vídeos do MINDS-Libras; comparar as taxas de mão detectada no `extraction_log.csv`. Decidir se o recorte vale o custo (nos testes o tempo ficou parecido; o YOLOv8 roda só a cada 15 quadros).
+3. **Rodar o lote completo** do subconjunto.
+4. **Rodar as linhas de base e o treino** em dados reais (`train.py`); depois `sinaliza_model.embeddings` para diagnosticar.
+5. **Escolher o gerador:** medoide ou modelo, conforme o DTW.
+6. **Implementar o `PoseGenerator` real** em `api/` (transições suaves, duração por sinal), trocando o stub; ajustar `test_api.py`.
+7. **Calibrar o embedder semântico** (se for usá-lo): lista de sinônimos esperados e de falsos positivos; ajustar `SINALIZA_APPROX_THRESHOLD`.
+8. **Front:** destacar a glosa em execução, controles de reprodução.
+9. **Avatar com rig** e retargeting (se der tempo).
+10. **Validar com alguém que saiba Libras** (sinais, aproximações, frases) e registrar em `docs/`.
+11. **Construir a imagem Docker** da API e conferir `docker compose up --build`.
+12. **Atualizar a documentação da disciplina** para o escopo atual.
 
 ## Pergunta que o projeto precisa responder para ser defensável
 
@@ -46,7 +52,5 @@ Posição em **2026-10-19**, segundo o código e o git (5 commits, todos de 2026
 
 ## Divergências encontradas entre documentos e código
 
-- `README.md` raiz: diz que a fase 1 está em `pesquisas/` do repositório raiz da disciplina. No repositório atual a pasta é `Documentos/` (untracked).
-- `README.md` raiz, "Próximos passos" 1–3: "escolher fonte", "gerar keypoints" e "definir vocabulário" — os itens 1 e 3 **já foram decididos** em `docs/dados-e-vocabulario.md`. A lista está desatualizada.
-- `model/README.md`: diz que a estrutura interna dos ZIPs "ainda não foi conferida"; `data/README.md` diz que foi lida de ZIPs parcialmente baixados. Ambos concordam que **falta conferir em ZIP completo**.
 - As entregas da fase 1 descrevem o escopo antigo (ver [`01-escopo-atual.md`](01-escopo-atual.md)).
+- `Documentos/` (fase 1) fala em reconhecimento por câmera, MediaPipe ao vivo e LGPD de captura; nada disso existe mais no código.

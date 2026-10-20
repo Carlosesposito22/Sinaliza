@@ -43,6 +43,12 @@
 | **Retargeting** | Mapear keypoints para os ossos de um avatar com rig |
 | **GLB** | Formato de modelo 3D (glTF binário) para o avatar futuro |
 | **Stub** | Implementação provisória (`StubGenerator`): valida o fluxo, não tem conteúdo real |
+| **YOLOv8** | Detector de objetos da Ultralytics (AGPL-3.0). Aqui só localiza a **pessoa** para recortar o vídeo antes do MediaPipe |
+| **Embedding (de sinal)** | Vetor aprendido que representa cada um dos 20 sinais dentro do `MotionGenerator` |
+| **Embedding (de palavra)** | Vetor que representa uma palavra; serve para aproximar palavras fora do vocabulário de formas conhecidas (`api/app/embeddings.py`) |
+| **char-ngram** | Embedder de n-gramas de caracteres: captura forma (flexão, erro de digitação), não sentido |
+| **Aproximação (`approx`)** | Palavra fora da tabela mapeada a um sinal por similaridade de embedding; sempre sinalizada com "~" |
+| **Recorte (crop)** | Região do vídeo em volta da pessoa, calculada com o YOLOv8 e fixa por vídeo |
 | **Coarticulação** | Influência de um sinal sobre o início/fim do vizinho; é o que torna "concatenar" artificial |
 
 ## Disciplina e metodologia

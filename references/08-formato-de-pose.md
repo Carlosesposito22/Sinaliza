@@ -27,17 +27,21 @@ Sem rosto (os 468 pontos do Holistic ficam de fora). Se houver expressão facial
 
 Mão (0–20, relativo ao grupo): 0 = punho; 1–4 polegar; 5–8 indicador; 9–12 médio; 13–16 anelar; 17–20 mínimo (ponta = último de cada dedo).
 
-## Normalização (feita em `data/extract_keypoints.py::_normalize`)
+## Normalização (feita em `data/extract_keypoints.py`: `_reference` e `_normalize`)
 
 - **Origem:** ponto médio entre os quadris (23 e 24).
 - **Escala:** distância (no plano xy) entre os ombros (11 e 12) = 1.
 - **Eixos:** `x` para a direita da tela; `y` **para cima** (a imagem tem y para baixo, então inverte); `z` em direção à câmera (inverte o z do MediaPipe).
 - **Ausente = `[0, 0, 0]`.** Um ponto/mão não detectado vira zero.
+- **A conta é feita em pixels do quadro original**, não nas coordenadas 0–1 do MediaPipe (que esticam `y` em relação a `x` num quadro 16:9). Com o recorte do YOLOv8, os landmarks voltam antes para pixels do quadro original; o recorte não muda o formato.
 
-### Observações do código [lidas, não testadas em dado real]
+### Quadro sem corpo detectado
 
-- Se o corpo não for detectado no frame (`pose` toda zero) ou a largura dos ombros for ~0, `_normalize` devolve o frame **sem normalizar**. Nesse caso, mãos detectadas ficariam em coordenadas brutas de imagem (0–1), fora do espaço normalizado. É um caso de borda; vale conferir `extraction_log.csv` (taxa `pose_rate`) e considerar zerar o frame inteiro.
-- O MediaPipe devolve `z` em escala aproximada; tratar como indicativo.
+Se o corpo não é detectado num quadro (pose toda zero, ou largura dos ombros ~0), as mãos usam a **última referência válida** (origem e escala do último quadro com corpo). Antes da primeira referência, o quadro fica **zerado**. (Até 2026-10-19 esse caso devolvia as mãos em coordenadas brutas de imagem, fora do espaço normalizado; corrigido. `.npy` antigos não são comparáveis com os novos.)
+
+### Observações
+
+- O MediaPipe devolve `z` em escala aproximada (a de `x`); tratar como indicativo.
 - `model/sinaliza_model/data.py::fill_missing_hands` repete a última mão detectada nos frames em que ela é zero; mão nunca detectada fica zero.
 
 ## Payload da API
