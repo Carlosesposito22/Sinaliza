@@ -1,0 +1,43 @@
+# Riscos e questões abertas
+
+Classificação: **Alto / Médio / Baixo** é julgamento nosso **[inferido]**.
+
+## Riscos
+
+| # | Risco | Nível | Mitigação / próximo passo |
+| --- | --- | --- | --- |
+| 1 | **Ninguém valida Libras.** A métrica DTW diz que o movimento se parece com a gravação, não que seja Libras correta nem compreensível. O pivô deslocou o problema, não o eliminou | Alto | Identificar um validador (professor, intérprete, pessoa surda) antes de qualquer avaliação com usuários; nas demos, falar "sequência de sinais" e nunca "tradução" |
+| 2 | **Dados não baixados/validados.** ZIPs incompletos; extração nunca rodou em vídeo do MINDS-Libras; estrutura dos ZIPs inferida de cabeçalhos | Alto | Concluir download; rodar `--limit` pequeno; inspecionar `extraction_log.csv` |
+| 3 | **Qualidade da detecção de mãos.** Sinais dependem da configuração de mão; MediaPipe pode perder mãos (motion blur, sobreposição). Mão não detectada vira zero | Alto | Ler taxas de detecção; `fill_missing_hands` repete a última mão; avaliar sinais com baixa detecção |
+| 4 | **Modelo pode não superar o medoide.** MSE tende a média borrada; poucos sinalizantes | Médio | Já previsto: ficar com o medoide se for o caso |
+| 5 | **Concatenação de sinais ≠ Libras.** Sem gramática, sem expressão facial, sem transições naturais (coarticulação) | Médio | Documentar o limite; suavizar transições; deixar claro na interface |
+| 6 | **Vocabulário minúsculo (20 sinais)** frente aos concorrentes (38 mil). Muitas palavras caem fora; a demo pode parecer pobre | Médio | Escolher frases de demo dentro do vocabulário; política clara para palavra desconhecida; V-LIBRASIL como expansão (com restrição de licença) |
+| 7 | **Polissemia** (banco, bala): um sinal gravado para duas palavras | Baixo | Notas já no `vocabulary.json`; mostrar a glosa junto do avatar |
+| 8 | **Licenças.** V-LIBRASIL não redistribui; pt-br2libras-gloss é CC BY-SA 4.0 (share-alike pode afetar modelos treinados nele); vídeos de sinalizantes são dados pessoais | Médio | Seguir `docs/dados-e-vocabulario.md`; confirmar com o professor; atribuição do MINDS-Libras na UI/README |
+| 9 | **Coerência com a disciplina.** Entregas anteriores descrevem outro escopo; avaliadores podem esperar o jogo com câmera | Médio | Registrar a decisão com o professor (data, o que foi combinado); reescrever hipótese/requisitos; **[a confirmar]** critérios da próxima entrega |
+| 10 | **Compatibilidade de ambiente:** Python 3.13 local vs `mediapipe==0.10.21`; `numpy<2` vs torch | Baixo/Médio | Venvs separados; usar Python 3.10–3.12 para `data/` se não houver wheel **[a verificar]** |
+| 11 | **Desempenho da resposta:** JSON com todos os frames | Baixo | Arredondar casas decimais; limite de 500 caracteres já existe |
+| 12 | **Borda na normalização:** frame sem corpo detectado devolve coordenadas não normalizadas para mãos | Baixo | Zerar o frame ou descartá-lo; ver [`08-formato-de-pose.md`](08-formato-de-pose.md) |
+
+## Privacidade (LGPD) no escopo atual
+
+A fase 1 colocou a LGPD como *Must have* por causa da captura de câmera. Sem captura do usuário, o risco mudou:
+
+- **Não há mais vídeo/gesto do usuário** — o requisito de consentimento antes da captura **não se aplica** enquanto o produto não usar câmera. Se o escopo voltar a capturar, retomar R05.
+- **Texto digitado:** a API não registra nada hoje. Se passar a gravar logs de texto, definir finalidade, retenção e aviso (pode conter dado pessoal ou sensível — saúde, por exemplo, dado o contexto de uso).
+- **Dados de treino:** vídeos e keypoints de sinalizantes são dados pessoais. O dataset é CC BY 4.0, mas o conteúdo bruto não deve ser versionado (`raw/` no `.gitignore`); keypoints derivados podem ser versionados **com atribuição**.
+- A dúvida da Matriz de Pesquisa (gesto como dado biométrico sensível) segue **sem resposta** e só volta a importar se houver captura.
+
+## Questões abertas (precisam de decisão da equipe)
+
+1. **Quem valida os sinais?** (professor, intérprete, pessoa surda — e quando)
+2. **O que fazer com palavra fora do vocabulário?** Ignorar, avisar, soletrar (datilologia) — soletrar exigiria um alfabeto manual, que o MINDS-Libras **não tem**.
+3. **Qual a unidade de demonstração?** Palavras isoladas, frases curtas dentro do vocabulário, ou um modo "demo" com frases pré-definidas.
+4. **Qual o critério de sucesso do projeto?** Proposta: DTW do gerador < medoide e < média da classe em sinalizante não visto + demonstração funcional + validação qualitativa por pelo menos uma pessoa que saiba Libras.
+5. **Avatar com rig ou esqueleto?** Depende do tempo restante e de quem sabe three.js/Blender.
+6. **Prazo e entregas restantes da disciplina** (o cronograma de 8 semanas era do escopo antigo).
+7. **Personas e hipótese:** refazer para o escopo atual ou manter como contexto.
+8. **Atribuição e licença do próprio repositório** (não há `LICENSE`). **[a confirmar]**
+9. **Disco e rede** para os ~16,3 GB (e para processar vídeo 1080p com MediaPipe, que é lento em CPU).
+10. **Incluir rosto/expressão?** Cada decisão aqui muda o formato de pose e os três componentes.
+11. **Texto em português como L2 para surdos:** se o usuário final é surdo, o português escrito pode ser segunda língua — a interface e as mensagens devem ser simples e curtas. **[hipótese]**
