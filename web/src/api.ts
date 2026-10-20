@@ -19,6 +19,8 @@ export interface TranslateResponse {
   text: string;
   glosses: string[];
   matches: WordMatch[];
+  // "playback": gravações reais tocadas em sequência; "stub": aceno de teste, não corresponde aos sinais.
+  generator: string;
   pose: PoseSequence;
 }
 

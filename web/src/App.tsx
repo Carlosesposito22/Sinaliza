@@ -144,6 +144,14 @@ export function App() {
         </section>
       )}
 
+      {result && (
+        <p className="note">
+          {result.generator === "playback"
+            ? "Movimento: gravações reais de um sinalizante do V-LIBRASIL, sinal por sinal, na ordem do texto, com transições automáticas entre eles. Não é tradução para Libras."
+            : "Animação de teste (um aceno): não corresponde aos sinais mostrados."}
+        </p>
+      )}
+
       <Avatar pose={result?.pose ?? null} />
     </main>
   );
