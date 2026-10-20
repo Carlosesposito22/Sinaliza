@@ -6,7 +6,7 @@ import pytest
 
 from app.embeddings import CharNgramEmbedder, SentenceTransformerEmbedder, build_embedder
 from app.text_to_gloss import TextToGloss
-from app.vocabulary import Vocabulary, slug
+from app.vocabulary import Sign, Vocabulary, fold, slug
 
 
 @pytest.fixture(scope="module")
@@ -23,50 +23,82 @@ def kinds(matches):
     return [(m.word, m.kind, m.gloss) for m in matches]
 
 
-def test_vocabulary_forms_are_unique_and_cover_every_sign(vocabulary):
-    assert len(vocabulary.signs) == 20
-    assert len(vocabulary.by_form) == len({slug(f) for f in vocabulary.forms})
+def test_vocabulary_is_curated_unique_and_covers_the_six_contexts(vocabulary):
+    assert 100 <= len(vocabulary.signs) <= 260
+    assert set(vocabulary.contexts) == {"escola", "saúde", "serviços", "trabalho", "família", "geral"}
+    assert len(vocabulary.by_gloss) == len(vocabulary.signs)
+    assert all(sign.video_class for sign in vocabulary.signs)
+    owners = {}
     for sign in vocabulary.signs:
-        assert all(vocabulary.by_form[slug(f)] == sign.gloss for f in sign.forms)
-    assert set(vocabulary.gloss_of_form) == set(vocabulary.by_gloss)
-    assert vocabulary.contexts == ["geral", "escola", "serviços", "saúde", "trabalho", "família"]
+        for form in sign.forms:
+            assert owners.setdefault(fold(form), sign.gloss) == sign.gloss, form
 
 
-def test_exact_match_ignores_accents_and_case_and_keeps_text_order(resolver):
-    matches = resolver.resolve("MAÇA e américa, 5 alunas")
+def test_lookup_keeps_accents_and_falls_back_to_unaccented_only_when_unique():
+    vocab = Vocabulary(
+        [
+            Sign("AVÓ", ("avó",), ("família",)),
+            Sign("AVÔ", ("avô",), ("família",)),
+            Sign("MAÇÃ", ("maçã",), ("geral",)),
+        ]
+    )
+    assert vocab.lookup("avó") == "AVÓ"
+    assert vocab.lookup("AVÔ") == "AVÔ"
+    assert vocab.lookup("avo") is None  # ambíguo: não escolhe um dos dois
+    assert vocab.lookup("maca") == "MAÇÃ"  # único sem acento: aceita
+    assert slug("avó") == slug("avô")
+
+
+def test_exact_match_ignores_case_and_keeps_text_order(resolver):
+    matches = resolver.resolve("HOSPITAL e Escola, médica")
     assert kinds(matches) == [
-        ("MAÇA", "exact", "MAÇÃ"),
+        ("HOSPITAL", "exact", "HOSPITAL"),
         ("e", "function", None),
-        ("américa", "exact", "AMÉRICA"),
-        ("5", "exact", "CINCO"),
-        ("alunas", "exact", "ALUNO"),
+        ("Escola", "exact", "ESCOLA"),
+        ("médica", "exact", "MÉDICO"),
     ]
-    assert TextToGloss.glosses(matches) == ["MAÇÃ", "AMÉRICA", "CINCO", "ALUNO"]
+    assert TextToGloss.glosses(matches) == ["HOSPITAL", "ESCOLA", "MÉDICO"]
+
+
+def test_multiword_forms_match_before_single_words(resolver):
+    matches = resolver.resolve("Estou com dor de cabeça, por favor")
+    assert [(m.word, m.gloss) for m in matches if m.gloss] == [
+        ("dor de cabeça", "DOR DE CABEÇA"),
+        ("por favor", "POR FAVOR"),
+    ]
+
+
+def test_lemmatizer_maps_inflected_words(resolver):
+    matches = resolver.resolve("aconteceram comprando pagou")
+    assert TextToGloss.glosses(matches) == ["ACONTECER", "COMPRAR", "PAGAR"]
+    assert {m.kind for m in matches} == {"exact"}
+
+
+def test_lemmatizer_can_be_replaced_or_disabled(vocabulary):
+    without = TextToGloss(vocabulary, CharNgramEmbedder(), lemmatizer=None)
+    assert without.resolve("aconteceram")[0].kind != "exact"
+    fake = TextToGloss(vocabulary, CharNgramEmbedder(), lemmatizer=lambda w: "hospital")
+    assert fake.resolve("clínica")[0].gloss == "HOSPITAL"
 
 
 def test_function_and_short_words_are_not_failures(resolver):
-    matches = resolver.resolve("o de ir eu pra")
+    matches = resolver.resolve("o de eu pra está são")
     assert {m.kind for m in matches} == {"function"}
 
 
-def test_approximation_catches_inflection_and_typos_but_not_look_alikes(resolver):
-    approx = {m.word: m.gloss for m in resolver.resolve("alunoss vacinando americas baneiro") if m.kind == "approx"}
-    assert approx == {
-        "alunoss": "ALUNO",
-        "vacinando": "VACINA",
-        "americas": "AMÉRICA",
-        "baneiro": "BANHEIRO",
-    }
-    rejected = resolver.resolve("banca maquina casa hospital")
+def test_approximation_catches_typos_but_not_look_alikes(resolver):
+    approx = {m.word: m.gloss for m in resolver.resolve("escolla hospitall") if m.kind == "approx"}
+    assert approx == {"escolla": "ESCOLA", "hospitall": "HOSPITAL"}
+    rejected = resolver.resolve("banco caderno vacina cinema")
     assert {m.kind for m in rejected} == {"ignored"}
     assert all(m.gloss is None for m in rejected)
 
 
 def test_threshold_controls_approximation(vocabulary):
     strict = TextToGloss(vocabulary, CharNgramEmbedder(), threshold=0.99)
-    assert strict.resolve("alunoss")[0].kind == "ignored"
+    assert strict.resolve("escolla")[0].kind == "ignored"
     loose = TextToGloss(vocabulary, CharNgramEmbedder(), threshold=0.1)
-    assert loose.resolve("banca")[0].kind == "approx"
+    assert loose.resolve("banco")[0].kind == "approx"
 
 
 def test_empty_text_has_no_matches(resolver):
@@ -74,7 +106,7 @@ def test_empty_text_has_no_matches(resolver):
 
 
 class FakeSemanticEmbedder:
-    """Sinônimo de FILHO fica no eixo de FILHO; formas dos outros sinais, em outro; palavras alheias, em um terceiro."""
+    """Sinônimo de GAROTO fica no eixo de GAROTO; formas dos outros sinais, em outro; palavras alheias, em um terceiro."""
 
     name = "fake"
     default_threshold = 0.8
@@ -83,7 +115,7 @@ class FakeSemanticEmbedder:
         rows = []
         for word in words:
             vector = np.zeros(3, dtype=np.float32)
-            if slug(word) in {"FILHO", "FILHOS", "FILHA", "FILHAS", "GAROTO", "CRIANCA"}:
+            if slug(word) in {"GAROTO", "GAROTOS", "MENINO", "MENINOS", "GURI"}:
                 vector[0] = 1.0
             elif slug(word) == "MESA":
                 vector[2] = 1.0
@@ -96,9 +128,9 @@ class FakeSemanticEmbedder:
 def test_any_embedder_plugs_in_and_semantic_synonym_is_flagged_as_approx(vocabulary):
     resolver = TextToGloss(vocabulary, FakeSemanticEmbedder())
     assert resolver.threshold == 0.8
-    garoto = resolver.resolve("garoto")[0]
-    assert (garoto.kind, garoto.gloss) == ("approx", "FILHO")
-    assert garoto.score == pytest.approx(1.0)
+    guri = resolver.resolve("guri")[0]
+    assert (guri.kind, guri.gloss) == ("approx", "GAROTO")
+    assert guri.score == pytest.approx(1.0)
     assert resolver.resolve("mesa")[0].kind == "ignored"
 
 

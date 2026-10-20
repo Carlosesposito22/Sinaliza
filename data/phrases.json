@@ -7,9 +7,10 @@
       "label": "escola",
       "phrases": [
         {
-          "text": "O aluno precisa ir ao banheiro.",
+          "text": "A criança precisa ir ao banheiro.",
           "glosses": [
-            "ALUNO",
+            "CRIANÇA",
+            "IR",
             "BANHEIRO"
           ],
           "ignored": [
@@ -17,67 +18,110 @@
           ]
         },
         {
-          "text": "O filho precisa ir ao banheiro.",
+          "text": "O garoto precisa ir ao banheiro.",
+          "glosses": [
+            "GAROTO",
+            "IR",
+            "BANHEIRO"
+          ],
+          "ignored": [
+            "precisa"
+          ]
+        },
+        {
+          "text": "A menina precisa ir ao banheiro.",
+          "glosses": [
+            "MENINA",
+            "IR",
+            "BANHEIRO"
+          ],
+          "ignored": [
+            "precisa"
+          ]
+        },
+        {
+          "text": "O filho aprende matemática.",
           "glosses": [
             "FILHO",
-            "BANHEIRO"
+            "APRENDER",
+            "MATEMÁTICA"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "A filha aprende matemática.",
+          "glosses": [
+            "FILHA",
+            "APRENDER",
+            "MATEMÁTICA"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "A criança aprende matemática.",
+          "glosses": [
+            "CRIANÇA",
+            "APRENDER",
+            "MATEMÁTICA"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "A menina escreve no papel.",
+          "glosses": [
+            "MENINA",
+            "ESCREVER",
+            "PAPEL"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "O garoto estuda na biblioteca.",
+          "glosses": [
+            "GAROTO",
+            "ESTUDO",
+            "BIBLIOTECA"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "A criança faz o dever de casa.",
+          "glosses": [
+            "CRIANÇA",
+            "DEVER DE CASA"
           ],
           "ignored": [
-            "precisa"
+            "faz"
           ]
         },
         {
-          "text": "O aluno quer ir ao banheiro.",
+          "text": "Eu quero ensinar ciência.",
           "glosses": [
-            "ALUNO",
-            "BANHEIRO"
+            "QUER",
+            "ENSINAR",
+            "CIÊNCIA"
           ],
-          "ignored": [
-            "quer"
-          ]
+          "ignored": []
         },
         {
-          "text": "O aluno tem medo do barulho.",
+          "text": "A escola tem um teste difícil.",
           "glosses": [
-            "ALUNO",
-            "MEDO",
-            "BARULHO"
+            "ESCOLA",
+            "TER",
+            "TESTE",
+            "DIFÍCIL"
           ],
-          "ignored": [
-            "tem"
-          ]
+          "ignored": []
         },
         {
-          "text": "O aluno tem medo do sapo.",
+          "text": "O filho não compreende a resposta.",
           "glosses": [
-            "ALUNO",
-            "MEDO",
-            "SAPO"
+            "FILHO",
+            "NÃO",
+            "COMPREENDER",
+            "RESPOSTA"
           ],
-          "ignored": [
-            "tem"
-          ]
-        },
-        {
-          "text": "Cinco alunos comeram a maçã.",
-          "glosses": [
-            "CINCO",
-            "ALUNO",
-            "MAÇÃ"
-          ],
-          "ignored": [
-            "comeram"
-          ]
-        },
-        {
-          "text": "O aluno viu o sapo.",
-          "glosses": [
-            "ALUNO",
-            "SAPO"
-          ],
-          "ignored": [
-            "viu"
-          ]
+          "ignored": []
         }
       ]
     },
@@ -86,65 +130,107 @@
       "label": "saúde",
       "phrases": [
         {
-          "text": "O filho tem medo da vacina.",
+          "text": "O filho está com dor de cabeça.",
           "glosses": [
             "FILHO",
-            "MEDO",
-            "VACINA"
+            "DOR DE CABEÇA"
           ],
-          "ignored": [
-            "tem"
-          ]
+          "ignored": []
         },
         {
-          "text": "A filha tem medo da vacina.",
+          "text": "A filha está com dor de cabeça.",
+          "glosses": [
+            "FILHA",
+            "DOR DE CABEÇA"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "A criança está com dor de cabeça.",
+          "glosses": [
+            "CRIANÇA",
+            "DOR DE CABEÇA"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "A criança tem medo do hospital.",
+          "glosses": [
+            "CRIANÇA",
+            "TER",
+            "COM MEDO",
+            "HOSPITAL"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "O filho tem medo do hospital.",
           "glosses": [
             "FILHO",
-            "MEDO",
-            "VACINA"
+            "TER",
+            "COM MEDO",
+            "HOSPITAL"
           ],
-          "ignored": [
-            "tem"
-          ]
+          "ignored": []
         },
         {
-          "text": "O filho está com vontade de ir ao banheiro.",
+          "text": "O idoso tem medo do hospital.",
           "glosses": [
-            "FILHO",
-            "VONTADE",
-            "BANHEIRO"
+            "IDOSO",
+            "TER",
+            "COM MEDO",
+            "HOSPITAL"
           ],
-          "ignored": [
-            "está"
-          ]
+          "ignored": []
         },
         {
-          "text": "Você tem vontade de tomar a vacina?",
+          "text": "O médico explica o remédio.",
           "glosses": [
-            "VONTADE",
-            "VACINA"
+            "MÉDICO",
+            "EXPLICAR",
+            "MEDICAMENTO"
           ],
-          "ignored": [
-            "Você",
-            "tem",
-            "tomar"
-          ]
+          "ignored": []
         },
         {
-          "text": "Eu tenho medo do barulho.",
+          "text": "A enfermeira ajuda o doente.",
           "glosses": [
-            "MEDO",
-            "BARULHO"
+            "ENFERMEIRA",
+            "AJUDAR",
+            "DOENTE"
           ],
-          "ignored": [
-            "tenho"
-          ]
+          "ignored": []
         },
         {
-          "text": "O barulho é ruim.",
+          "text": "Eu tenho dor de garganta e tosse.",
           "glosses": [
-            "BARULHO",
-            "RUIM"
+            "TER",
+            "DOR DE GARGANTA",
+            "TOSSE"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "O idoso está cansado.",
+          "glosses": [
+            "IDOSO",
+            "CANSADO"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "É uma emergência no hospital.",
+          "glosses": [
+            "EMERGÊNCIA",
+            "HOSPITAL"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "O bebê dorme.",
+          "glosses": [
+            "BEBÊ",
+            "DORMIR"
           ],
           "ignored": []
         }
@@ -155,33 +241,75 @@
       "label": "serviços",
       "phrases": [
         {
-          "text": "O banco fica na esquina.",
+          "text": "O banheiro fica no centro.",
           "glosses": [
-            "BANCO",
-            "ESQUINA"
+            "BANHEIRO",
+            "CENTRO"
           ],
           "ignored": [
             "fica"
           ]
         },
         {
-          "text": "Eu conheço o banco da esquina.",
+          "text": "Eu quero pagar o preço.",
           "glosses": [
-            "CONHECER",
-            "BANCO",
-            "ESQUINA"
+            "QUER",
+            "PAGAR",
+            "PREÇO"
           ],
           "ignored": []
         },
         {
-          "text": "O banco tem barulho.",
+          "text": "O restaurante é caro.",
           "glosses": [
-            "BANCO",
-            "BARULHO"
+            "RESTAURANTE",
+            "CARO"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "Por favor, preciso do documento.",
+          "glosses": [
+            "POR FAVOR",
+            "DOCUMENTO"
           ],
           "ignored": [
-            "tem"
+            "preciso"
           ]
+        },
+        {
+          "text": "O policial ajuda na cidade.",
+          "glosses": [
+            "POLICIAL",
+            "AJUDAR",
+            "CIDADE"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "Eu compro café no restaurante.",
+          "glosses": [
+            "COMPRAR",
+            "CAFÉ",
+            "RESTAURANTE"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "O elevador está lento.",
+          "glosses": [
+            "ELEVADOR",
+            "LENTO"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "Obrigado, com licença.",
+          "glosses": [
+            "OBRIGADO",
+            "COM LICENÇA"
+          ],
+          "ignored": []
         }
       ]
     },
@@ -190,32 +318,67 @@
       "label": "trabalho",
       "phrases": [
         {
-          "text": "O banheiro tem barulho.",
+          "text": "A empresa tem uma reunião.",
           "glosses": [
-            "BANHEIRO",
-            "BARULHO"
+            "EMPRESA",
+            "TER",
+            "REUNIÃO"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "O chefe quer o relatório.",
+          "glosses": [
+            "CHEFE",
+            "QUER",
+            "RELATÓRIO"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "Eu trabalho com o computador.",
+          "glosses": [
+            "EMPREGO",
+            "COMPUTADOR"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "A secretária imprime o arquivo.",
+          "glosses": [
+            "SECRETÁRIA",
+            "IMPRIMIR",
+            "ARQUIVO"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "A equipe colabora no projeto.",
+          "glosses": [
+            "EQUIPE",
+            "COLABORAR",
+            "PROJETO"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "O técnico explica o cronograma.",
+          "glosses": [
+            "TÉCNICO",
+            "EXPLICAR",
+            "CRONOGRAMA"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "Eu preciso de um novo emprego.",
+          "glosses": [
+            "NOVO",
+            "EMPREGO"
           ],
           "ignored": [
-            "tem"
+            "preciso"
           ]
-        },
-        {
-          "text": "Eu conheço o banheiro do banco.",
-          "glosses": [
-            "CONHECER",
-            "BANHEIRO",
-            "BANCO"
-          ],
-          "ignored": []
-        },
-        {
-          "text": "O barulho do banheiro é ruim.",
-          "glosses": [
-            "BARULHO",
-            "BANHEIRO",
-            "RUIM"
-          ],
-          "ignored": []
         }
       ]
     },
@@ -224,72 +387,87 @@
       "label": "família",
       "phrases": [
         {
-          "text": "O filho tem vontade de conhecer a América.",
+          "text": "A mãe e o pai estão em casa.",
+          "glosses": [
+            "MÃE",
+            "PAI",
+            "CASA"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "O filho ama a família.",
           "glosses": [
             "FILHO",
-            "VONTADE",
-            "CONHECER",
-            "AMÉRICA"
+            "FAMÍLIA"
           ],
           "ignored": [
-            "tem"
+            "ama"
           ]
         },
         {
-          "text": "A filha tem vontade de conhecer a América.",
+          "text": "A tia e o tio vão à festa.",
           "glosses": [
-            "FILHO",
-            "VONTADE",
-            "CONHECER",
-            "AMÉRICA"
+            "TIA",
+            "TIO",
+            "IR",
+            "FESTA"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "O primo e a prima vão à festa.",
+          "glosses": [
+            "PRIMO",
+            "PRIMA",
+            "IR",
+            "FESTA"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "A irmã tem um bebê.",
+          "glosses": [
+            "IRMÃ",
+            "TER",
+            "BEBÊ"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "A criança brinca com o primo.",
+          "glosses": [
+            "CRIANÇA",
+            "PRIMO"
           ],
           "ignored": [
-            "tem"
+            "brinca"
           ]
         },
         {
-          "text": "O filho comeu a maçã amarela.",
+          "text": "O casamento é na igreja.",
           "glosses": [
-            "FILHO",
-            "MAÇÃ",
-            "AMARELO"
+            "CASAMENTO",
+            "IGREJA"
           ],
-          "ignored": [
-            "comeu"
-          ]
+          "ignored": []
         },
         {
-          "text": "A filha comeu a maçã amarela.",
+          "text": "O aniversário é amanhã.",
           "glosses": [
-            "FILHO",
-            "MAÇÃ",
-            "AMARELO"
+            "ANIVERSÁRIO",
+            "AMANHÃ"
           ],
-          "ignored": [
-            "comeu"
-          ]
+          "ignored": []
         },
         {
-          "text": "O filho tem medo do sapo.",
+          "text": "O amigo vai para casa.",
           "glosses": [
-            "FILHO",
-            "MEDO",
-            "SAPO"
+            "AMIGO",
+            "IR",
+            "CASA"
           ],
-          "ignored": [
-            "tem"
-          ]
-        },
-        {
-          "text": "A filha tem medo do sapo.",
-          "glosses": [
-            "FILHO",
-            "MEDO",
-            "SAPO"
-          ],
-          "ignored": [
-            "tem"
-          ]
+          "ignored": []
         }
       ]
     },
@@ -298,52 +476,83 @@
       "label": "geral",
       "phrases": [
         {
-          "text": "Eu quero conhecer a América.",
-          "glosses": [
-            "CONHECER",
-            "AMÉRICA"
-          ],
-          "ignored": [
-            "quero"
-          ]
-        },
-        {
           "text": "O sapo amarelo tem medo do barulho.",
           "glosses": [
-            "SAPO",
+            "RÃ",
             "AMARELO",
-            "MEDO",
+            "TER",
+            "COM MEDO",
             "BARULHO"
-          ],
-          "ignored": [
-            "tem"
-          ]
-        },
-        {
-          "text": "Cinco maçãs amarelas.",
-          "glosses": [
-            "CINCO",
-            "MAÇÃ",
-            "AMARELO"
           ],
           "ignored": []
         },
         {
-          "text": "O espelho está na esquina.",
+          "text": "A manhã é bonita.",
+          "glosses": [
+            "MANHÃ",
+            "BONITO"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "O gato come peixe.",
+          "glosses": [
+            "GATO",
+            "COMER",
+            "PEIXE"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "A chuva é fria.",
+          "glosses": [
+            "CHUVA",
+            "FRIO"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "Eu quero água e café.",
+          "glosses": [
+            "QUER",
+            "ÁGUA",
+            "CAFÉ"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "O espelho é grande.",
           "glosses": [
             "ESPELHO",
-            "ESQUINA"
+            "GRANDE"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "Ontem aconteceu um barulho.",
+          "glosses": [
+            "ONTEM",
+            "ACONTECER",
+            "BARULHO"
+          ],
+          "ignored": []
+        },
+        {
+          "text": "Oi, tudo bem?",
+          "glosses": [
+            "OI",
+            "BEM"
           ],
           "ignored": [
-            "está"
+            "tudo"
           ]
         },
         {
-          "text": "Aconteceu um barulho na esquina.",
+          "text": "Parabéns, a festa é bonita.",
           "glosses": [
-            "ACONTECER",
-            "BARULHO",
-            "ESQUINA"
+            "PARABÉNS",
+            "FESTA",
+            "BONITO"
           ],
           "ignored": []
         }

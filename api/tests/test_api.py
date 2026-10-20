@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.pose_format import NUM_KEYPOINTS
+from app.pose_format import LOWER_BODY_START, NUM_KEYPOINTS, POSE_COUNT
 
 client = TestClient(app)
 
@@ -13,32 +13,37 @@ def test_health():
 
 
 def test_translate_returns_glosses_matches_and_pose_sequence():
-    response = client.post("/translate", json={"text": "O filho tem medo da vacina."})
+    response = client.post("/translate", json={"text": "O filho está com dor de cabeça."})
     assert response.status_code == 200
     body = response.json()
-    assert body["glosses"] == ["FILHO", "MEDO", "VACINA"]
-    kinds = {m["word"]: m["kind"] for m in body["matches"]}
-    assert kinds == {
-        "O": "function",
-        "filho": "exact",
-        "tem": "ignored",
-        "medo": "exact",
-        "da": "function",
-        "vacina": "exact",
-    }
+    assert body["glosses"] == ["FILHO", "DOR DE CABEÇA"]
+    assert [(m["word"], m["kind"]) for m in body["matches"]] == [
+        ("O", "function"),
+        ("filho", "exact"),
+        ("está", "function"),
+        ("com", "function"),
+        ("dor de cabeça", "exact"),
+    ]
     pose = body["pose"]
     assert pose["fps"] > 0
-    assert len(pose["frames"]) == 3 * pose["fps"]
+    assert len(pose["frames"]) == 2 * pose["fps"]
     for frame in pose["frames"]:
         assert len(frame) == NUM_KEYPOINTS
         assert all(len(point) == 3 for point in frame)
 
 
-def test_translate_maps_inflection_by_embedding_and_reports_it():
-    body = client.post("/translate", json={"text": "alunoss vacinando"}).json()
-    assert body["glosses"] == ["ALUNO", "VACINA"]
-    assert [(m["word"], m["kind"]) for m in body["matches"]] == [("alunoss", "approx"), ("vacinando", "approx")]
-    assert all(0.65 <= m["score"] < 1 for m in body["matches"])
+def test_translate_uses_lemmas_for_inflected_words():
+    body = client.post("/translate", json={"text": "As crianças aconteceram."}).json()
+    assert body["glosses"] == ["CRIANÇA", "ACONTECER"]
+    assert {m["kind"] for m in body["matches"] if m["gloss"]} == {"exact"}
+
+
+def test_translate_maps_a_typo_by_embedding_and_reports_it():
+    body = client.post("/translate", json={"text": "O filho escolla"}).json()
+    assert body["glosses"] == ["FILHO", "ESCOLA"]
+    approx = [m for m in body["matches"] if m["kind"] == "approx"]
+    assert [(m["word"], m["gloss"]) for m in approx] == [("escolla", "ESCOLA")]
+    assert 0.7 <= approx[0]["score"] < 1
 
 
 def test_translate_rejects_blank_text():
@@ -57,12 +62,23 @@ def test_translate_rejects_text_without_any_known_sign():
     assert "vocabulário" in response.json()["detail"]
 
 
-def test_vocabulary_lists_the_20_signs_with_forms_and_notes():
+def test_stub_pose_has_shoulder_origin_and_no_lower_body():
+    frames = client.post("/translate", json={"text": "casa"}).json()["pose"]["frames"]
+    for frame in frames:
+        left, right = frame[11], frame[12]
+        assert abs((left[1] + right[1]) / 2) < 1e-3  # meio dos ombros em y = 0
+        assert abs((left[0] + right[0]) / 2) < 1e-3
+        assert all(point == [0.0, 0.0, 0.0] for point in frame[LOWER_BODY_START:POSE_COUNT])
+        assert frame[0][1] > 0  # nariz acima dos ombros
+
+
+def test_vocabulary_lists_signs_with_forms_notes_and_video_class():
     signs = {s["gloss"]: s for s in client.get("/vocabulary").json()["signs"]}
-    assert len(signs) == 20
-    assert signs["BALA"]["forms"] == ["bala", "balas"]
-    assert signs["BANCO"]["note"]
-    assert signs["ALUNO"]["contexts"] == ["escola"]
+    assert len(signs) >= 100
+    assert "dor de cabeça" in signs["DOR DE CABEÇA"]["forms"]
+    assert {"rã", "sapo"} <= set(signs["RÃ"]["forms"])
+    assert signs["RÃ"]["note"]
+    assert "escola" in signs["BANHEIRO"]["contexts"]
 
 
 def test_categories_follow_vocabulary_contexts_and_every_phrase_translates():

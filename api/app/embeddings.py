@@ -34,11 +34,12 @@ class Embedder(Protocol):
 
 class CharNgramEmbedder:
     name = "char-ngram"
-    # Calibrado à mão no vocabulário atual: acima de 0,65 pega flexões e erros de
-    # digitação ("alunoss", "baneiro", "vacinando") e não pega vizinhos de escrita
-    # parecida ("banca" 0,60 → BANCO, "maquina" 0,57 → ESQUINA). Precisão antes de
-    # cobertura: o que passa vira sinal na tela.
-    default_threshold = 0.65
+    # Calibrado à mão no vocabulário curado do V-LIBRASIL (210 sinais, 281 formas):
+    # 0,7 pega erros de digitação ("escolla" 0,78) e não pega vizinhos de escrita
+    # parecida ("banco" 0,64 → BRANCO, "irmao" 0,67 → IRMÃ, que é outra palavra).
+    # Precisão antes de cobertura: o que passa vira sinal na tela. Com 63 formas (20
+    # sinais) o limiar bom era 0,65; ele sobe com o tamanho do vocabulário.
+    default_threshold = 0.7
 
     def __init__(self, dims: int = 1024, ngrams: tuple[int, ...] = (2, 3, 4)):
         self.dims = dims

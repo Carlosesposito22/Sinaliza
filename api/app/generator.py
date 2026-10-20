@@ -9,7 +9,7 @@ não representa Libras.
 import math
 from typing import Protocol
 
-from .pose_format import HAND_COUNT, LAYOUT, NUM_KEYPOINTS, POSE_COUNT
+from .pose_format import HAND_COUNT, LAYOUT, LOWER_BODY_START, NUM_KEYPOINTS, POSE_COUNT
 from .schemas import PoseSequence
 
 Point = list[float]
@@ -46,6 +46,14 @@ def _rest_pose() -> list[Point]:
     mirror(27, 0.28, -2.2)
     mirror(29, 0.28, -2.3, -0.05)
     mirror(31, 0.3, -2.3, 0.2)
+
+    # Origem no meio dos ombros (docs/pose-format.md) e sem a parte de baixo do corpo,
+    # como nos dados reais da cintura para cima.
+    shoulder_y = pts[11][1]
+    for point in pts:
+        point[1] = round(point[1] - shoulder_y, 4)
+    for index in range(LOWER_BODY_START, POSE_COUNT):
+        pts[index] = [0.0, 0.0, 0.0]
     return pts
 
 

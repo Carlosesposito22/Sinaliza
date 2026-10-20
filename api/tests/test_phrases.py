@@ -37,7 +37,7 @@ def test_expand_fills_slots_in_declared_order():
 
 def test_generate_rejects_a_phrase_that_needs_embedding_approximation(vocabulary, resolver, monkeypatch):
     templates = {k: list(v) for k, v in phrases.TEMPLATES.items()}
-    templates["escola"].append(("O alunoss viu o sapo.", {}))
+    templates["escola"].append(("A escolla é grande.", {}))
     monkeypatch.setattr(phrases, "TEMPLATES", templates)
     with pytest.raises(ValueError, match="aproximada por embedding"):
         phrases.generate(vocabulary, resolver)
