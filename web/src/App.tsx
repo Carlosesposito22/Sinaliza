@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { fetchCategories, translate, type Category, type TranslateResponse, type WordMatch } from "./api";
+import { fetchCategories, fetchVocabulary, translate, type Category, type TranslateResponse, type WordMatch } from "./api";
 import { Avatar } from "./Avatar";
 
 function MatchWord({ match }: { match: WordMatch }) {
@@ -29,17 +29,21 @@ function MatchWord({ match }: { match: WordMatch }) {
 }
 
 export function App() {
-  const [text, setText] = useState("O filho tem medo da vacina.");
+  const [text, setText] = useState("O filho está com dor de cabeça.");
   const [result, setResult] = useState<TranslateResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [signCount, setSignCount] = useState<number | null>(null);
 
   useEffect(() => {
     fetchCategories()
       .then(setCategories)
       .catch(() => setCategories([]));
+    fetchVocabulary()
+      .then((signs) => setSignCount(signs.length))
+      .catch(() => setSignCount(null));
   }, []);
 
   const run = async (value: string) => {
@@ -73,8 +77,8 @@ export function App() {
     <main className="app">
       <h1>Sinaliza</h1>
       <p className="subtitle">
-        Digite um texto e veja a sequência de sinais, na ordem do texto. O vocabulário tem só 20 sinais e isto não
-        é uma tradução para Libras.
+        Digite um texto e veja a sequência de sinais, na ordem do texto. O vocabulário tem{" "}
+        {signCount ?? "poucos"} sinais e isto não é uma tradução para Libras.
       </p>
 
       {categories.length > 0 && (

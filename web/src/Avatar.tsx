@@ -3,6 +3,10 @@ import * as THREE from "three";
 import type { PoseSequence } from "./api";
 import { BONES, NUM_KEYPOINTS } from "./skeleton";
 
+// Ponto não detectado vem como [0, 0, 0]; sai de cena em vez de aparecer na origem.
+const OFFSCREEN = [0, 0, -1000];
+const isMissing = (p: number[]) => p[0] === 0 && p[1] === 0 && p[2] === 0;
+
 interface AvatarProps {
   pose: PoseSequence | null;
 }
@@ -25,7 +29,7 @@ export function Avatar({ pose }: AvatarProps) {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
-    camera.position.set(0, -0.1, 6.5);
+    camera.position.set(0, -0.45, 5.5);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -69,11 +73,12 @@ export function Avatar({ pose }: AvatarProps) {
         const index = Math.floor(elapsed * current.fps) % current.frames.length;
         const frame = current.frames[index];
         for (let i = 0; i < NUM_KEYPOINTS; i++) {
-          jointPositions.set(frame[i], i * 3);
+          jointPositions.set(isMissing(frame[i]) ? OFFSCREEN : frame[i], i * 3);
         }
         BONES.forEach(([a, b], i) => {
-          bonePositions.set(frame[a], i * 6);
-          bonePositions.set(frame[b], i * 6 + 3);
+          const hidden = isMissing(frame[a]) || isMissing(frame[b]);
+          bonePositions.set(hidden ? OFFSCREEN : frame[a], i * 6);
+          bonePositions.set(hidden ? OFFSCREEN : frame[b], i * 6 + 3);
         });
         jointGeometry.attributes.position.needsUpdate = true;
         boneGeometry.attributes.position.needsUpdate = true;

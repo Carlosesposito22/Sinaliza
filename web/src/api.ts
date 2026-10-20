@@ -34,6 +34,13 @@ export interface Category {
   phrases: Phrase[];
 }
 
+export interface SignInfo {
+  gloss: string;
+  forms: string[];
+  contexts: string[];
+  note: string | null;
+}
+
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
 export async function translate(text: string): Promise<TranslateResponse> {
@@ -54,6 +61,14 @@ export async function fetchCategories(): Promise<Category[]> {
     throw new Error(`A API respondeu ${response.status}`);
   }
   return (await response.json()).categories;
+}
+
+export async function fetchVocabulary(): Promise<SignInfo[]> {
+  const response = await fetch(`${API_URL}/vocabulary`);
+  if (!response.ok) {
+    throw new Error(`A API respondeu ${response.status}`);
+  }
+  return (await response.json()).signs;
 }
 
 // A API devolve `detail` como texto nos erros que ela mesma gera (ex.: 422 sem sinais).

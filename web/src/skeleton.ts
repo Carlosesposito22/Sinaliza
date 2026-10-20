@@ -6,6 +6,8 @@ const HAND_COUNT = 21;
 const LEFT_HAND = POSE_COUNT;
 const RIGHT_HAND = POSE_COUNT + HAND_COUNT;
 
+// Só a parte de cima do corpo: os dados vêm de vídeos da cintura para cima e os pontos
+// de quadris, pernas e pés são zerados (ver docs/pose-format.md).
 const POSE_BONES: [number, number][] = [
   [0, 11],
   [0, 12],
@@ -14,13 +16,6 @@ const POSE_BONES: [number, number][] = [
   [13, 15],
   [12, 14],
   [14, 16],
-  [11, 23],
-  [12, 24],
-  [23, 24],
-  [23, 25],
-  [25, 27],
-  [24, 26],
-  [26, 28],
 ];
 
 const HAND_BONES: [number, number][] = [
