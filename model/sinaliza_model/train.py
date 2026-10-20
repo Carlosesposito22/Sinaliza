@@ -91,6 +91,52 @@ def evaluate(
     }
 
 
+def retrieval(
+    generate: Callable[[str], np.ndarray], val: list[Sample], seq_len: int
+) -> dict:
+    """O movimento gerado para um sinal se parece mais com a gravação desse sinal do que com as dos outros?
+
+    Para cada sinalizante de validação e cada sinal dele, gera o movimento e mede o DTW até
+    as gravações **desse mesmo sinalizante** (a melhor de cada sinal). A posição do sinal
+    certo nessa lista vira `top1`, `top5` e `mean_rank` (1 = o certo é o mais parecido).
+
+    Ao contrário do DTW médio, **não premia movimento borrado**: um método que devolve a
+    mesma sequência para qualquer sinal (a média global) cai no acaso (`chance_top1`).
+    Mede se a geração carrega a identidade do sinal, não correção linguística.
+    """
+    by_signer: dict[str, list[Sample]] = {}
+    for sample in val:
+        by_signer.setdefault(sample.signer, []).append(sample)
+
+    ranks: list[int] = []
+    n_candidates: list[int] = []
+    for samples in by_signer.values():
+        references: dict[str, list[np.ndarray]] = {}
+        for sample in samples:
+            references.setdefault(sample.gloss, []).append(resample(sample.keypoints, seq_len))
+        glosses = sorted(references)
+        for gloss in glosses:
+            generated = generate(gloss)
+            distance = {
+                g: min(dtw_distance(generated, ref) for ref in refs) for g, refs in references.items()
+            }
+            target = distance[gloss]
+            # empates repartidos: o método que devolve sempre a mesma sequência não ganha por ordem alfabética
+            better = sum(d < target for g, d in distance.items() if g != gloss)
+            ties = sum(d == target for g, d in distance.items() if g != gloss)
+            ranks.append(1 + better + int(round(ties / 2)))
+            n_candidates.append(len(glosses))
+    ranks_array = np.array(ranks)
+    return {
+        "top1": float(np.mean(ranks_array <= 1)),
+        "top5": float(np.mean(ranks_array <= 5)),
+        "mean_rank": float(np.mean(ranks_array)),
+        "chance_top1": float(np.mean(1.0 / np.array(n_candidates))),
+        "chance_mean_rank": float(np.mean((np.array(n_candidates) + 1) / 2)),
+        "n": len(ranks),
+    }
+
+
 def run(
     train: list[Sample],
     val: list[Sample],
@@ -106,6 +152,8 @@ def run(
         "model": model_generator(model, glosses),
     }
     results = {name: evaluate(fn, val, seq_len) for name, fn in methods.items()}
+    for name, fn in methods.items():
+        results[name]["retrieval"] = retrieval(fn, val, seq_len)
     results["train_loss_first_last"] = [history[0], history[-1]]
     results["n_train"] = len(train)
     return model, results
@@ -153,8 +201,14 @@ def main() -> None:
     (args.out_dir / "metrics.json").write_text(
         json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8"
     )
+    chance = results["global_mean"]["retrieval"]
+    print(f"(acaso: top1 {chance['chance_top1']:.1%}, posição média {chance['chance_mean_rank']:.0f})")
     for name in ("global_mean", "class_mean", "medoid", "model"):
-        print(f"{name:12s} DTW médio = {results[name]['mean_dtw']:.4f}")
+        r = results[name]["retrieval"]
+        print(
+            f"{name:12s} DTW médio = {results[name]['mean_dtw']:.4f} | "
+            f"recuperação: top1 {r['top1']:.1%}, top5 {r['top5']:.1%}, posição média {r['mean_rank']:.1f}"
+        )
 
 
 if __name__ == "__main__":

@@ -41,7 +41,7 @@ def test_spearman_handles_monotonic_inverse_ties_and_constants():
 
 
 def test_embedding_distance_tracks_motion_distance_on_synthetic_data(tmp_path):
-    glosses = load_vocabulary(DEFAULT_VOCABULARY)
+    glosses = load_vocabulary(DEFAULT_VOCABULARY)[:20]
     samples = make_synthetic(glosses, signers=2, repetitions=2)
     model, _ = train_model(samples, glosses, seq_len=16, epochs=30)
 

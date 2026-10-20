@@ -9,17 +9,32 @@ from sinaliza_model.data import (
     load_dataset,
     load_vocabulary,
     resample,
+    file_key,
     slug,
     split_by_signer,
 )
 
-VOCABULARY = Path(__file__).resolve().parents[2] / "data" / "vocabulary.json"
+DATA = Path(__file__).resolve().parents[2] / "data"
+VOCABULARY = DATA / "vocabulary.json"
+MINDS_VOCABULARY = DATA / "vocabulary-minds.json"
 
 
-def test_vocabulary_has_20_unique_glosses():
+def test_vocabulary_has_unique_glosses_and_unique_file_keys():
     glosses = load_vocabulary(VOCABULARY)
+    assert len(glosses) >= 100
+    assert len(set(glosses)) == len(glosses)
+    assert len({file_key(g) for g in glosses}) == len(glosses)
+
+
+def test_legacy_minds_vocabulary_has_20_unique_glosses():
+    glosses = load_vocabulary(MINDS_VOCABULARY)
     assert len(glosses) == 20
     assert len(set(glosses)) == 20
+
+
+def test_file_key_matches_names_with_spaces_and_accents():
+    assert file_key("DOR DE CABEÇA") == file_key("DOR_DE_CABECA") == file_key("Dor de cabeça") == "DOR_DE_CABECA"
+    assert file_key("MAÇÃ") == "MACA"
 
 
 def test_slug_removes_accents_and_case():
@@ -65,6 +80,22 @@ def test_load_dataset_matches_vocabulary_and_skips_unknown(tmp_path):
     samples = load_dataset(tmp_path, ["MAÇÃ", "ALUNO"])
     assert sorted(s.gloss for s in samples) == ["ALUNO", "MAÇÃ"]
     assert {s.signer for s in samples} == {"01"}
+
+
+def test_load_dataset_matches_multiword_glosses_by_file_key(tmp_path):
+    seq = np.ones((6, 75, 3), np.float32)
+    folder = tmp_path / "02"
+    folder.mkdir()
+    np.save(folder / "DOR_DE_CABECA_1.npy", seq)
+    np.save(folder / "RA_1.npy", seq)
+    samples = load_dataset(tmp_path, ["DOR DE CABEÇA", "RÃ"])
+    assert sorted(s.gloss for s in samples) == ["DOR DE CABEÇA", "RÃ"]
+
+
+def test_load_dataset_rejects_glosses_with_the_same_file_key(tmp_path):
+    (tmp_path / "01").mkdir()
+    with pytest.raises(ValueError):
+        load_dataset(tmp_path, ["AVÓ", "AVÔ"])
 
 
 def test_load_dataset_rejects_wrong_shape(tmp_path):

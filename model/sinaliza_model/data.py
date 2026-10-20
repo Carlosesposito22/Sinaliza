@@ -4,11 +4,13 @@ Convenção de arquivos (saída do pipeline de data/):
 
     <raiz>/<sinalizante>/<SINAL>_<repetição>.npy      float32, formato (frames, 75, 3)
 
-O nome do sinal é comparado ao vocabulário sem acento e sem diferença de caixa
-(`MACA_1.npy` casa com MAÇÃ).
+O nome do sinal é comparado ao vocabulário por `file_key`: sem acento, sem diferença
+de caixa e com `_` no lugar de espaços (`MACA_1.npy` casa com MAÇÃ; `DOR_DE_CABECA_1.npy`
+casa com DOR DE CABEÇA).
 """
 
 import json
+import re
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
@@ -29,6 +31,14 @@ class Sample:
 def slug(text: str) -> str:
     decomposed = unicodedata.normalize("NFKD", text)
     return "".join(c for c in decomposed if not unicodedata.combining(c)).upper()
+
+
+def file_key(text: str) -> str:
+    """Nome de arquivo seguro: sem acento, maiúsculas, não alfanumérico vira `_`.
+
+    `DOR DE CABEÇA`, `DOR_DE_CABECA` e `Dor de cabeça` dão a mesma chave.
+    """
+    return re.sub(r"[^A-Z0-9]+", "_", slug(text)).strip("_")
 
 
 def load_vocabulary(path: Path) -> list[str]:
@@ -67,11 +77,13 @@ def fill_missing_hands(sequence: np.ndarray) -> np.ndarray:
 
 
 def load_dataset(root: Path, glosses: list[str]) -> list[Sample]:
-    by_slug = {slug(g): g for g in glosses}
+    by_key = {file_key(g): g for g in glosses}
+    if len(by_key) != len(glosses):
+        raise ValueError("duas glosas dão o mesmo nome de arquivo")
     samples: list[Sample] = []
     for signer_dir in sorted(p for p in Path(root).iterdir() if p.is_dir()):
         for path in sorted(signer_dir.glob("*.npy")):
-            gloss = by_slug.get(slug(path.stem.rsplit("_", 1)[0]))
+            gloss = by_key.get(file_key(path.stem.rsplit("_", 1)[0]))
             if gloss is None:
                 continue
             array = np.load(path).astype(np.float32)
