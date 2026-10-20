@@ -78,7 +78,7 @@ No escopo atual essas frentes continuam, com troca de objeto: o modelo é **gera
 | 2026-10-19 | Texto → glosa: tabela + aproximação por embedding de palavras (`char-ngram` padrão, `sentence-transformers` opcional), sempre sinalizada; palavra sem sinal é ignorada com aviso | `api/app/text_to_gloss.py` |
 | 2026-10-19 | Frases de exemplo por categoria geradas por modelos de frase e validadas contra o vocabulário (sem LLM) | `api/app/phrases.py`, `data/phrases.json` |
 | 2026-10-19 | Normalização passa a ser em pixels do quadro original; mãos sem corpo no quadro usam a última referência válida | `data/extract_keypoints.py` |
-| 2026-10-19 | Treino com **dois datasets**: MINDS-Libras e V-LIBRASIL (a pedido do avaliador, que recomendou vários datasets). Apoema-Libras560 descartado; Libras-UFPel fica como reserva. V-LIBRASIL só local, fora do repositório | `references/21-datasets-de-treino.md` |
+| 2026-10-19 | Treino com MINDS-Libras e V-LIBRASIL (a pedido do avaliador, que recomendou vários datasets); Apoema descartado. O Carlos **baixou só o V-LIBRASIL** (só local, fora do repositório); o MINDS não foi baixado | `references/21-datasets-de-treino.md` |
 
 ## Rascunho de hipótese para o escopo atual
 

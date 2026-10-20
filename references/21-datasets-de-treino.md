@@ -1,54 +1,52 @@
-# Datasets de treino: decisão e situação de acesso
+# Datasets de treino: decisão e situação
 
-O avaliador disse que usar **vários datasets** na fase de treinamento é bom. Em **2026-10-19** o Carlos escolheu, entre os candidatos que recomendamos, usar o **MINDS-Libras** e o **V-LIBRASIL**. O **Apoema-Libras560 foi considerado e descartado** pelo grupo (sem motivo registrado). Hoje são, portanto, **dois datasets**.
+O avaliador disse que usar **vários datasets** na fase de treinamento é bom. Em **2026-10-19** o Carlos escolheu o **MINDS-Libras** e o **V-LIBRASIL** (o **Apoema-Libras560 foi descartado**, sem motivo registrado). Depois, ele baixou **só o V-LIBRASIL**: o MINDS-Libras é pesado demais (64,8 GB no total). **Hoje o único dataset local é o V-LIBRASIL.** O que sobrou do MINDS é um `data/raw/minds-libras/Sinalizador01.zip` **parcial** (~446 MB de 4,43 GB, git-ignorado, pode apagar).
 
-## Decisão
+## Decisão e situação
 
-| Dataset | Papel | Conteúdo | Termos | Onde fica |
-| --- | --- | --- | --- | --- |
-| **MINDS-Libras** | Âncora | 20 sinais, 12 sinalizantes, 5 repetições, vídeo 1080p/30 fps | **CC BY 4.0**, aberto | `data/raw/minds-libras/` (dentro do repositório, git-ignorado) |
-| **V-LIBRASIL** | Amplitude | 1.364 sinais, 4.089 vídeos (3 por sinal), 3 sinalizantes ("articuladores"); termos extraídos do dataset de ASL (ASLLVD) e traduzidos | Pesquisa e educação; **sem redistribuição sem permissão**; sem uso comercial; citar a dissertação de Ailton Rodrigues (UFPE, 2021); DOI do dataset 10.21227/v589-hn68 | **Só na máquina do Carlos, fora do repositório:** `C:\Users\Carlos\Desktop\Projetos 6\Datasets\v-librasil\` (pedido do Carlos por ser pesado) |
+| Dataset | Conteúdo | Termos | Situação |
+| --- | --- | --- | --- |
+| **V-LIBRASIL** | 1.364 sinais, 3 sinalizantes ("articuladores"); termos extraídos do dataset de ASL (ASLLVD) e traduzidos | Pesquisa e educação; **sem redistribuição sem permissão**; sem uso comercial; citar a dissertação de Ailton Rodrigues (UFPE, 2021); DOI do dataset 10.21227/v589-hn68 | **Baixado pelo Carlos**, só na máquina dele, fora do repositório: `C:\Users\Carlos\Desktop\Projetos 6\Datasets\videos UFPE (V-LIBRASIL)\` |
+| **MINDS-Libras** | 20 sinais, 12 sinalizantes, 5 repetições, vídeo 1080p/30 fps; CC BY 4.0 | Aberto | **Não baixado** (só um zip parcial). Decisão em aberto: ver "Segundo dataset" |
+| ~~Apoema-Libras560~~ | 560 sinais, 7 sinalizantes, 320×240, acesso só pelo orientador | Restrito | **Descartado** |
+| Libras-UFPel Corpus | 4 surdos nativos, estúdio a 60 fps, 2.400 frases e 2.400 sinais | — | Reserva; **ainda não liberado** (contato no artigo PROPOR 2026, `aclanthology.org/2026.propor-1.112`) |
 
-Descartado: **Apoema-Libras560** (560 sinais, 7 sinalizantes, 320×240, acesso só pelo orientador). Reserva, se o grupo quiser um terceiro: **Libras-UFPel Corpus** (ainda não liberado; contato no artigo PROPOR 2026, `aclanthology.org/2026.propor-1.112`).
+## O que há no V-LIBRASIL local (conferido em 2026-10-19)
 
-## Situação em 2026-10-19
+- **Estrutura:** pasta `videos UFPE (V-LIBRASIL)\` com `data\` (**4.086** `.mp4`, 10,11 GB), `annotations.csv` (4.086 linhas: `video_id, video_name, class, user_id, width, height, fps, url_page, url_download`) e `error.csv` (3 vídeos que falharam no download: **Congelar_Articulador3, Criança_Articulador3 e Poesia_Articulador2**; o portal teria 4.089).
+- **Nomes:** `<Sinal>_Articulador<N>.mp4`. **1.364 sinais**; Articulador 1 tem 1.364 vídeos, o 2 tem 1.360 e o 3 tem 1.362. **1.358 sinais têm as 3 gravações; 6 têm 2.**
+- **Vídeo:** 1920×1080 em 39 de 40 vídeos amostrados (1 em 1280×720; o CSV registra 1280×720 em alguns), **30 a 60 fps**, duração de 3,4 a 9,5 s (mediana 5,2 s), 102 a 371 quadros. A coluna `fps` do CSV **não é confiável** (traz valores como 389 e 148).
+- **Enquadramento:** da cintura para cima. Os **quadris ficam fora do quadro** (y da imagem entre 1,02 e 1,16; visibilidade 0,5 a 0,9), então o MediaPipe os estima.
+- **Detecção (9 vídeos: Banheiro, Filho e Barulho × 3 articuladores):** MediaPipe **sem** YOLOv8: corpo 100%, mão esquerda 97%, mão direita 96%. **Com** YOLOv8: 100%, 97% e 94%, e +1,3 s por vídeo. **O YOLOv8 não ajuda neste dataset** (a pessoa já ocupa o quadro). Amostra pequena.
+- **Tempo:** ~8,7 s por vídeo sem YOLO, ou **cerca de 10 horas** para os 4.086 em um processo. A máquina tem 20 processadores lógicos.
+- **Repouso:** nos 3 vídeos em que medi, o movimento dos punhos ocupa só 4% a 34% dos quadros, e o primeiro e o último quadro com movimento ficam longe das pontas (ex.: quadros 5 a 259 de 354). Limiar de movimento arbitrário, então é indício, mas aponta que **é preciso aparar o repouso** antes de reamostrar.
+- **Variantes:** 68 classes têm desambiguação entre parênteses (`Batida (ritmo)`, `Cinza (cor)`). **"Avó" e "Avô" colidem** no nosso `slug()` (que tira acentos), então o casamento sem acento junta duas palavras diferentes.
 
-| Dataset | Situação | Próximo passo |
-| --- | --- | --- |
-| MINDS-Libras | **O Carlos baixa por conta própria** (sinalizantes 01, 02, 07 e 10, 16,3 GB). O download que eu tinha iniciado foi **interrompido a pedido dele** em 2026-10-19; sobrou um arquivo **parcial** `data/raw/minds-libras/Sinalizador01.zip` (~446 MB de 4,43 GB), que **não está completo** | Quando os zips estiverem em `data/raw/minds-libras/`, conferir os MD5 (abaixo) e extrair os keypoints (`data/extract_keypoints.py zip ...`). Os outros 8 sinalizantes (48,5 GB) só se o disco permitir |
-| V-LIBRASIL | **Não baixado.** O portal `libras.cin.ufpe.br` responde **HTTP 502** em todas as páginas (testado várias vezes, pelo WebFetch e pelo `curl` do Windows; o servidor `150.161.2.11` responde na rede, o sistema por trás é que está fora). A pasta de destino já existe e está vazia | Tentar de novo mais tarde. Quando o portal voltar, abrir `https://libras.cin.ufpe.br/` no navegador, ir na aba **Download** e baixar por articulador (segundo o IEEE DataPort: 4,78 GB, 3,31 GB e 2,46 GB, 10,55 GB no total) para a pasta acima. Ou me passar os links que eu baixo |
+## Sobreposição com os 20 sinais do MVP (que vêm do MINDS)
 
-Vias que **não** usamos para o V-LIBRASIL:
-- **IEEE DataPort:** exige login e assinatura.
-- **Cópia do Kaggle:** é de terceiro, exige conta, e os termos oficiais proíbem redistribuir.
-- **Hugging Face (MALTA-Lab/MALTA_LIBRAS):** cópia de terceiro em formato de tensores; não verificamos se contém o V-LIBRASIL.
-- O repositório `Malta-Lab/ISLR_LIBRAS` menciona um script de raspagem (`videos_download/download_videos.py`) para baixar os vídeos do portal; **não rodamos nem lemos esse script**, e só valeria revisá-lo antes de usar.
+- **Mesmo nome (7):** ACONTECER, AMARELO, BANHEIRO, BARULHO, ESPELHO, FILHO (e FILHA), RUIM.
+- **Nome parecido, outro sentido ou forma (3):** "Com medo" (MEDO), "Aluno do Segundo Ano do Ensino Médio" (ALUNO), "Maçã (rosto)" (a maçã do rosto, não a fruta).
+- **Ausentes (10):** AMÉRICA, APROVEITAR, BALA, BANCO, CINCO, CONHECER, ESQUINA, SAPO, VACINA, VONTADE.
 
-Disco livre antes dos downloads: **37,3 GB**. MINDS (16,3) + V-LIBRASIL (10,55) deixam cerca de 10 GB.
+Consequência: **`data/vocabulary.json` (os 20 do MINDS) não descreve o V-LIBRASIL**, e as **30 frases de demonstração** dependem de sinais que ele não tem (VACINA, MEDO, ALUNO, CONHECER, AMÉRICA...). Usar o V-LIBRASIL como base exige novo vocabulário e novas frases.
+
+## Segundo dataset (decisão em aberto)
+
+Com só o V-LIBRASIL, o treino tem **3 sinalizantes e uma gravação de cada por sinal**: dá para recuperação (medoide) e para validar em um sinalizante deixado de fora (2 gravações no treino por sinal), mas é pouco para rede neural. Opções:
+- **MINDS-Libras, só o sinalizante 07** (2,53 GB, o menor zip; 20 sinais × 5 repetições, MD5 `8e885f5cb6823744a583f206e4d2051c`). Dá uma checagem entre datasets nos 7 sinais em comum. Pesado, mas bem menos que os 64,8 GB.
+- **Nenhum:** ficar só com o V-LIBRASIL e dizer isso na entrega (o avaliador recomendou vários).
+- **Libras-UFPel**, quando for liberado.
 
 ## Regras de uso
 
-- **MINDS-Libras:** `data/raw/` já está no `.gitignore`. Pode versionar keypoints derivados **com atribuição** (CC BY 4.0), mas por padrão continuamos sem versionar `.npy`.
-- **V-LIBRASIL:** os vídeos ficam em `Projetos 6\Datasets`, **fora da pasta do repositório** (`Projetos 6\Sinaliza`), então o git nem os enxerga. **Não versionar vídeos nem keypoints derivados**; guardar os keypoints em `data/processed/` (git-ignorado) ou também em `Datasets\`. O repositório é um GitHub (`Carlosesposito22/Sinaliza`) e **não sei se é público**: versionar seria redistribuir.
-- V-LIBRASIL é só para pesquisa e ensino, **sem uso comercial**. Se o projeto algum dia virar produto, pedir permissão aos autores.
-- Citar cada dataset nas entregas e no README.
+- **V-LIBRASIL:** os vídeos ficam em `Projetos 6\Datasets`, **fora da pasta do repositório** (`Projetos 6\Sinaliza`), então o git nem os vê. **Não versionar vídeos nem keypoints derivados**; guardar os keypoints em `data/processed/` (git-ignorado) ou também em `Datasets\`. O repositório é um GitHub (`Carlosesposito22/Sinaliza`) e **não sei se é público**: versionar seria redistribuir.
+- Só pesquisa e ensino, **sem uso comercial**. Se o projeto algum dia virar produto, pedir permissão aos autores. Citar o dataset nas entregas e no README.
+- MINDS-Libras (se for usado): `data/raw/` já está no `.gitignore`; keypoints derivados podem ser versionados com atribuição (CC BY 4.0), mas por padrão não versionamos `.npy`.
 
-## O que checar antes de misturar os dois
+## Vias que não usamos para o V-LIBRASIL
 
-1. **Sobreposição de sinais.** Obter a **lista de sinais** do V-LIBRASIL (o portal tem busca por sinal) e cruzar com os 20 do MINDS. Sem sinais em comum não há validação entre datasets; o ganho fica no vocabulário.
-2. **Mesmo rótulo não é, necessariamente, o mesmo sinal.** Libras tem variação regional e os termos do V-LIBRASIL vêm de tradução do ASL. Alguém que saiba Libras precisa conferir os rótulos antes de juntar.
-3. **Domínios diferentes** (câmeras, fundos, pessoas): o modelo pode aprender "de qual dataset veio". Guardar o dataset de origem de cada amostra e, se possível, avaliar treinando em um e testando no outro.
-4. **O V-LIBRASIL tem um sinalizante por sinal por pessoa** (3 por sinal): serve para recuperação (medoide) e vocabulário, não para treinar rede, e não permite validar em sinalizante novo com folga (só 3 pessoas). **A resolução dos vídeos é desconhecida** (não conseguimos abrir o portal).
-5. Com **dois** datasets (e um deles com 3 pessoas), a validação entre datasets é mais fraca do que com três. Se isso incomodar, o Libras-UFPel é a opção mais forte quando for liberado.
-
-## Conferir se o download do MINDS-Libras terminou
-
-```powershell
-Get-ChildItem data\raw\minds-libras | Select-Object Name, @{n='GB';e={[math]::Round($_.Length/1GB,2)}}
-```
-
-Tamanhos esperados (Zenodo): 01 = 4,43 GB, 02 = 4,67 GB, 07 = 2,53 GB, 10 = 4,68 GB. MD5 esperados: `0259b309d2d5472f20d9842547d94a8c`, `e2b8673264ba7fca4cfc071654a099e8`, `8e885f5cb6823744a583f206e4d2051c`, `d6012f3e49e95d0cef7f6ec888743baa`. Conferir um arquivo: `Get-FileHash data\raw\minds-libras\Sinalizador07.zip -Algorithm MD5`. Se parar no meio, repetir o comando de download do `data/README.md` (o `-C -` retoma). A listagem do PowerShell pode mostrar o tamanho atrasado enquanto o curl escreve.
+IEEE DataPort (exige assinatura), cópia do Kaggle (terceiro, exige conta, termos oficiais proíbem redistribuir) e Hugging Face `MALTA-Lab/MALTA_LIBRAS` (cópia de terceiro em tensores, não verificada).
 
 ## Fontes
 
-V-LIBRASIL: `ieee-dataport.org/documents/v-librasil-new-dataset-signs-brazilian-sign-language-libras` e termos em `libras.cin.ufpe.br/pages/conditions-of-use,3` (**a página estava fora do ar; os termos vêm de resumos de busca, não da leitura direta**). MINDS-Libras: `zenodo.org/records/2667329`. Libras-UFPel: `aclanthology.org/2026.propor-1.112`. Apoema-Libras560 (descartado): `zenodo.org/records/20421823`.
+V-LIBRASIL: `ieee-dataport.org/documents/v-librasil-new-dataset-signs-brazilian-sign-language-libras`; termos em `libras.cin.ufpe.br/pages/conditions-of-use,3` (**a página estava fora do ar; os termos vêm de resumos de busca, não da leitura direta**). MINDS-Libras: `zenodo.org/records/2667329`. Libras-UFPel: `aclanthology.org/2026.propor-1.112`. Apoema-Libras560 (descartado): `zenodo.org/records/20421823`.

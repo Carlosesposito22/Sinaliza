@@ -116,7 +116,8 @@ O `requirements.txt` fixa `mediapipe==0.10.21`. As versões mais novas (testada:
   | Simulado: pessoa a 35% num quadro 1920×1080 | caixa em volta da pessoa | 97% → 99% | 25% → 33% | 40% → 46% |
 
   (sem YOLO → com YOLO). Leitura: o detector localiza a pessoa corretamente e o fluxo funciona; o ganho em mãos é **pequeno e só aparece quando a pessoa é pequena no quadro** (35%). Um único clipe, uma pessoa, sem repetição: **é indício, não conclusão**. A simulação reduz o quadro da webcam e o põe num fundo verde; não é o MINDS-Libras.
-- **Ainda não rodado:** nenhum vídeo do MINDS-Libras (o download dos ZIPs não terminou e o trecho baixado não traz o `moov` do MP4, que fica no fim do arquivo). O A/B no dataset real é a medida que decide se o YOLOv8 compensa.
+- **V-LIBRASIL (2026-10-19), 9 vídeos reais** (Banheiro, Filho e Barulho × 3 articuladores, 1080p, da cintura para cima): sem YOLOv8, corpo 100%, mão esquerda 97% e direita 96%; com YOLOv8, 100%, 97% e 94% (+1,3 s por vídeo). **Aqui o YOLOv8 não ajuda** (a pessoa já ocupa o quadro): use `--no-yolo`. O A/B no MINDS-Libras, onde a pessoa é pequena no quadro, não foi feito (o MINDS não foi baixado).
+- **Ainda não rodado:** nenhum vídeo do MINDS-Libras e a extração em lote dos 4.086 vídeos do V-LIBRASIL (o lote atual lê ZIPs do MINDS; o V-LIBRASIL é uma pasta de `.mp4` nomeados `<Sinal>_Articulador<N>.mp4`).
 
 ## Limitações conhecidas
 

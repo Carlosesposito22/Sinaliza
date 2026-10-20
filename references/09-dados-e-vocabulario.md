@@ -5,7 +5,7 @@ Resumo de `docs/dados-e-vocabulario.md` (decisão de 2026-10-14; licenças e tam
 ## Decisão
 
 1. **Movimento (glosa → pose):** **MINDS-Libras**, com os 20 sinais como vocabulário fechado do MVP.
-2. **Expansão (decidida em 2026-10-19):** acrescentar o **V-LIBRASIL** (1.364 sinais; só pesquisa e ensino, sem redistribuição) ao MINDS-Libras. O Apoema-Libras560 foi considerado e **descartado** pelo grupo. O V-LIBRASIL fica **só na máquina do Carlos, fora do repositório** (`C:\Users\Carlos\Desktop\Projetos 6\Datasets`), e não se versionam vídeos nem keypoints. Detalhes em `references/21-datasets-de-treino.md`. O vocabulário do MVP continua sendo os 20 sinais do MINDS até que a lista de sinais do V-LIBRASIL seja cruzada com a do MINDS e validada por alguém que saiba Libras.
+2. **Expansão (decidida em 2026-10-19):** acrescentar o **V-LIBRASIL** (1.364 sinais, 3 sinalizantes; só pesquisa e ensino, sem redistribuição) ao MINDS-Libras. O Apoema-Libras560 foi descartado. **O Carlos baixou só o V-LIBRASIL** (o MINDS é pesado demais), que fica **só na máquina dele, fora do repositório** (`C:\Users\Carlos\Desktop\Projetos 6\Datasets`); não se versionam vídeos nem keypoints. Detalhes em `references/21-datasets-de-treino.md`. **Atenção:** o V-LIBRASIL tem só 7 dos 20 sinais do MVP com o mesmo nome (ACONTECER, AMARELO, BANHEIRO, BARULHO, ESPELHO, FILHO, RUIM); o vocabulário do MVP (que vem do MINDS) precisa ser redefinido a partir da lista de classes do V-LIBRASIL.
 3. **Texto → glosa:** no MVP, por **tabela** (`data/vocabulary.json`). O corpus `pt-br2libras-gloss` fica para uma etapa seguinte, com modelo aprendido.
 
 ## MINDS-Libras

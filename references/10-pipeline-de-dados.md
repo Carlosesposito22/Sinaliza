@@ -51,6 +51,7 @@ python extract_keypoints.py zip raw/minds-libras/Sinalizador07.zip processed/min
 ## Estado e pendências
 
 - **YOLOv8 com pesos reais (2026-10-19):** `yolov8n.pt` baixado (6,25 MB; o download pelo Python falhou por `CERTIFICATE_VERIFY_FAILED`, foi feito com `curl.exe`; ver `data/README.md`) e rodou de ponta a ponta. Em 150 quadros de webcam (uma pessoa): sem diferença quando a pessoa ocupa o quadro (mãos 20/34% → 20/35%); em simulação com a pessoa a 50% e a 35% num quadro 1920×1080: sem ganho a 50% (39/44% → 37/45%) e **ganho pequeno a 35%** (mãos 25/40% → 33/46%, corpo 97% → 99%). Um clipe, sem repetição: **indício, não conclusão**.
+- **V-LIBRASIL (2026-10-19), 9 vídeos reais (1080p, da cintura para cima):** MediaPipe sem YOLOv8 detectou corpo 100%, mão esquerda 97% e direita 96%; com YOLOv8, 100%, 97% e 94% e +1,3 s por vídeo. **O YOLOv8 não ajudou** porque a pessoa já ocupa o quadro; para este dataset usar `--no-yolo`. ~8,7 s por vídeo (cerca de 10 h para os 4.086 em um processo; a máquina tem 20 processadores lógicos). Os quadris ficam fora do quadro. Amostra pequena. Ver `21-datasets-de-treino.md`.
 - **Verificado:** 20 testes automatizados (extrator falso, normalização em pixels, recorte, detector YOLO com `YOLO` falso, `extract()` num vídeo sintético preto com e sem detector). `pip install -r requirements.txt` funcionou em Python 3.12 (mediapipe 0.10.21, numpy 1.26.4, ultralytics 8.4.183, torch 2.14.1).
 - **Não verificado:**
   1. qualquer vídeo real do MINDS-Libras (download dos ZIPs incompleto; falta o `moov` do MP4);
