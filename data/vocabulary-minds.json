@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "status": "proposta; formas e contextos não validados por falante de Libras",
+  "source": "MINDS-Libras (Zenodo 2667329, CC BY 4.0)",
+  "signs": [
+    {"gloss": "ACONTECER", "minds_label": "Acontecer", "pt": ["acontecer", "acontece", "acontecem", "aconteceu", "aconteceram", "acontecia"], "contexts": ["geral"]},
+    {"gloss": "ALUNO", "minds_label": "Aluno", "pt": ["aluno", "alunos", "aluna", "alunas"], "contexts": ["escola"]},
+    {"gloss": "AMARELO", "minds_label": "Amarelo", "pt": ["amarelo", "amarela", "amarelos", "amarelas"], "contexts": ["geral"]},
+    {"gloss": "AMÉRICA", "minds_label": "América", "pt": ["américa", "america"], "contexts": ["geral"]},
+    {"gloss": "APROVEITAR", "minds_label": "Aproveitar", "pt": ["aproveitar", "aproveita", "aproveito", "aproveitam", "aproveitou", "aproveitei"], "contexts": ["geral"]},
+    {"gloss": "BALA", "minds_label": "Bala", "pt": ["bala", "balas"], "contexts": ["geral"], "note": "no MINDS o sinal é 'bala' de doce; não usar para projétil"},
+    {"gloss": "BANCO", "minds_label": "Banco", "pt": ["banco", "bancos"], "contexts": ["serviços"], "note": "polissemia: o sinal gravado é banco financeiro; não vale para banco de sentar"},
+    {"gloss": "BANHEIRO", "minds_label": "Banheiro", "pt": ["banheiro", "banheiros"], "contexts": ["escola", "saúde", "trabalho"]},
+    {"gloss": "BARULHO", "minds_label": "Barulho", "pt": ["barulho", "barulhos"], "contexts": ["geral"]},
+    {"gloss": "CINCO", "minds_label": "Cinco", "pt": ["cinco", "5"], "contexts": ["geral"]},
+    {"gloss": "CONHECER", "minds_label": "Conhecer", "pt": ["conhecer", "conheço", "conhece", "conhecem", "conhecemos", "conheceu", "conheci"], "contexts": ["geral"]},
+    {"gloss": "ESPELHO", "minds_label": "Espelho", "pt": ["espelho", "espelhos"], "contexts": ["geral"]},
+    {"gloss": "ESQUINA", "minds_label": "Esquina", "pt": ["esquina", "esquinas"], "contexts": ["geral"]},
+    {"gloss": "FILHO", "minds_label": "Filho", "pt": ["filho", "filhos", "filha", "filhas"], "contexts": ["família", "saúde", "escola"]},
+    {"gloss": "MAÇÃ", "minds_label": "Maçã", "pt": ["maçã", "maçãs", "maca", "macas"], "contexts": ["geral"]},
+    {"gloss": "MEDO", "minds_label": "Medo", "pt": ["medo", "medos"], "contexts": ["saúde"]},
+    {"gloss": "RUIM", "minds_label": "Ruim", "pt": ["ruim", "ruins"], "contexts": ["saúde", "geral"]},
+    {"gloss": "SAPO", "minds_label": "Sapo", "pt": ["sapo", "sapos"], "contexts": ["geral"]},
+    {"gloss": "VACINA", "minds_label": "Vacina", "pt": ["vacina", "vacinas", "vacinar", "vacinou"], "contexts": ["saúde"]},
+    {"gloss": "VONTADE", "minds_label": "Vontade", "pt": ["vontade", "vontades"], "contexts": ["geral", "saúde"]}
+  ]
+}

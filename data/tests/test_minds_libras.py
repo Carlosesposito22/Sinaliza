@@ -7,7 +7,7 @@ import numpy as np
 
 from minds_libras import detection_rates, parse_member, process_zip
 
-VOCABULARY = Path(__file__).resolve().parents[1] / "vocabulary.json"
+VOCABULARY = Path(__file__).resolve().parents[1] / "vocabulary-minds.json"
 
 
 def fake_extract(_path: Path) -> np.ndarray:

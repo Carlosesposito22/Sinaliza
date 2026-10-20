@@ -1,27 +1,2212 @@
 {
-  "version": 1,
-  "status": "proposta; formas e contextos não validados por falante de Libras",
-  "source": "MINDS-Libras (Zenodo 2667329, CC BY 4.0)",
+  "version": 2,
+  "status": "subconjunto curado do V-LIBRASIL; palavras escolhidas pela equipe, rótulos não validados por falante de Libras",
+  "source": "V-LIBRASIL (UFPE; uso só para pesquisa e ensino, sem redistribuição)",
   "signs": [
-    {"gloss": "ACONTECER", "minds_label": "Acontecer", "pt": ["acontecer", "acontece", "acontecem", "aconteceu", "aconteceram", "acontecia"], "contexts": ["geral"]},
-    {"gloss": "ALUNO", "minds_label": "Aluno", "pt": ["aluno", "alunos", "aluna", "alunas"], "contexts": ["escola"]},
-    {"gloss": "AMARELO", "minds_label": "Amarelo", "pt": ["amarelo", "amarela", "amarelos", "amarelas"], "contexts": ["geral"]},
-    {"gloss": "AMÉRICA", "minds_label": "América", "pt": ["américa", "america"], "contexts": ["geral"]},
-    {"gloss": "APROVEITAR", "minds_label": "Aproveitar", "pt": ["aproveitar", "aproveita", "aproveito", "aproveitam", "aproveitou", "aproveitei"], "contexts": ["geral"]},
-    {"gloss": "BALA", "minds_label": "Bala", "pt": ["bala", "balas"], "contexts": ["geral"], "note": "no MINDS o sinal é 'bala' de doce; não usar para projétil"},
-    {"gloss": "BANCO", "minds_label": "Banco", "pt": ["banco", "bancos"], "contexts": ["serviços"], "note": "polissemia: o sinal gravado é banco financeiro; não vale para banco de sentar"},
-    {"gloss": "BANHEIRO", "minds_label": "Banheiro", "pt": ["banheiro", "banheiros"], "contexts": ["escola", "saúde", "trabalho"]},
-    {"gloss": "BARULHO", "minds_label": "Barulho", "pt": ["barulho", "barulhos"], "contexts": ["geral"]},
-    {"gloss": "CINCO", "minds_label": "Cinco", "pt": ["cinco", "5"], "contexts": ["geral"]},
-    {"gloss": "CONHECER", "minds_label": "Conhecer", "pt": ["conhecer", "conheço", "conhece", "conhecem", "conhecemos", "conheceu", "conheci"], "contexts": ["geral"]},
-    {"gloss": "ESPELHO", "minds_label": "Espelho", "pt": ["espelho", "espelhos"], "contexts": ["geral"]},
-    {"gloss": "ESQUINA", "minds_label": "Esquina", "pt": ["esquina", "esquinas"], "contexts": ["geral"]},
-    {"gloss": "FILHO", "minds_label": "Filho", "pt": ["filho", "filhos", "filha", "filhas"], "contexts": ["família", "saúde", "escola"]},
-    {"gloss": "MAÇÃ", "minds_label": "Maçã", "pt": ["maçã", "maçãs", "maca", "macas"], "contexts": ["geral"]},
-    {"gloss": "MEDO", "minds_label": "Medo", "pt": ["medo", "medos"], "contexts": ["saúde"]},
-    {"gloss": "RUIM", "minds_label": "Ruim", "pt": ["ruim", "ruins"], "contexts": ["saúde", "geral"]},
-    {"gloss": "SAPO", "minds_label": "Sapo", "pt": ["sapo", "sapos"], "contexts": ["geral"]},
-    {"gloss": "VACINA", "minds_label": "Vacina", "pt": ["vacina", "vacinas", "vacinar", "vacinou"], "contexts": ["saúde"]},
-    {"gloss": "VONTADE", "minds_label": "Vontade", "pt": ["vontade", "vontades"], "contexts": ["geral", "saúde"]}
+    {
+      "gloss": "ESCOLA",
+      "video_class": "Escola",
+      "pt": [
+        "escola"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "ESTUDO",
+      "video_class": "Estudo",
+      "pt": [
+        "estudo",
+        "estudar"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "APRENDER",
+      "video_class": "Aprender",
+      "pt": [
+        "aprender"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "ENSINAR",
+      "video_class": "Ensinar",
+      "pt": [
+        "ensinar"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "LIVRO",
+      "video_class": "Livro",
+      "pt": [
+        "livro"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "ESCREVER",
+      "video_class": "Escrever",
+      "pt": [
+        "escrever"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "LÁPIS",
+      "video_class": "Lápis",
+      "pt": [
+        "lápis"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "PAPEL",
+      "video_class": "Papel",
+      "pt": [
+        "papel"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "GIZ",
+      "video_class": "Giz",
+      "pt": [
+        "giz"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "DEVER DE CASA",
+      "video_class": "Dever de casa",
+      "pt": [
+        "dever de casa"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "TESTE",
+      "video_class": "Teste",
+      "pt": [
+        "teste"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "MATEMÁTICA",
+      "video_class": "Matemática",
+      "pt": [
+        "matemática"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "CIÊNCIA",
+      "video_class": "Ciência",
+      "pt": [
+        "ciência"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "BIBLIOTECA",
+      "video_class": "Biblioteca",
+      "pt": [
+        "biblioteca"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "LEITURA",
+      "video_class": "Leitura",
+      "pt": [
+        "leitura"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "DICIONÁRIO",
+      "video_class": "Dicionário",
+      "pt": [
+        "dicionário"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "COLÉGIO",
+      "video_class": "Colégio",
+      "pt": [
+        "colégio"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "FACULDADE",
+      "video_class": "Faculdade",
+      "pt": [
+        "faculdade"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "UNIVERSIDADE",
+      "video_class": "Universidade",
+      "pt": [
+        "universidade"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "DISCIPLINA",
+      "video_class": "Disciplina",
+      "pt": [
+        "disciplina"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "COMPREENDER",
+      "video_class": "Compreender",
+      "pt": [
+        "compreender",
+        "entender"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "ESCOLHER",
+      "video_class": "Escolher",
+      "pt": [
+        "escolher"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "RESPOSTA",
+      "video_class": "Resposta",
+      "pt": [
+        "resposta"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "ERRO",
+      "video_class": "Erro",
+      "pt": [
+        "erro"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "CORRETO",
+      "video_class": "Correto",
+      "pt": [
+        "correto"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "DIFÍCIL",
+      "video_class": "Difícil",
+      "pt": [
+        "difícil"
+      ],
+      "contexts": [
+        "escola",
+        "geral"
+      ]
+    },
+    {
+      "gloss": "INTERVALO",
+      "video_class": "Intervalo (pra descanso)",
+      "pt": [
+        "intervalo",
+        "recreio"
+      ],
+      "contexts": [
+        "escola"
+      ],
+      "note": "classe do V-LIBRASIL: Intervalo (pra descanso)"
+    },
+    {
+      "gloss": "PESQUISAR",
+      "video_class": "Pesquisar",
+      "pt": [
+        "pesquisar"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "EXPLICAR",
+      "video_class": "Explicar",
+      "pt": [
+        "explicar"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "MEMORIZAR",
+      "video_class": "Memorizar",
+      "pt": [
+        "memorizar"
+      ],
+      "contexts": [
+        "escola"
+      ]
+    },
+    {
+      "gloss": "HOSPITAL",
+      "video_class": "Hospital",
+      "pt": [
+        "hospital"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "MÉDICO",
+      "video_class": "Médico (doutor)",
+      "pt": [
+        "médico",
+        "doutor",
+        "médica",
+        "doutora"
+      ],
+      "contexts": [
+        "saúde"
+      ],
+      "note": "classe do V-LIBRASIL: Médico (doutor)"
+    },
+    {
+      "gloss": "ENFERMEIRA",
+      "video_class": "Enfermeira",
+      "pt": [
+        "enfermeira"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "DOENTE",
+      "video_class": "Doente",
+      "pt": [
+        "doente"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "DOR DE CABEÇA",
+      "video_class": "Dor de cabeça",
+      "pt": [
+        "dor de cabeça"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "DOR DE GARGANTA",
+      "video_class": "Dor de garganta",
+      "pt": [
+        "dor de garganta"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "DOR DE OUVIDO",
+      "video_class": "Dor de ouvido",
+      "pt": [
+        "dor de ouvido"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "MEDICAMENTO",
+      "video_class": "Medicamento",
+      "pt": [
+        "medicamento",
+        "remédio",
+        "remédios"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "MEDICINA",
+      "video_class": "Medicina",
+      "pt": [
+        "medicina"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "EMERGÊNCIA",
+      "video_class": "Emergência",
+      "pt": [
+        "emergência"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "TOSSE",
+      "video_class": "Tosse",
+      "pt": [
+        "tosse"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "TERMÔMETRO",
+      "video_class": "Termômetro",
+      "pt": [
+        "termômetro"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "CIRURGIA",
+      "video_class": "Cirurgia",
+      "pt": [
+        "cirurgia"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "SANGUE",
+      "video_class": "Sangue",
+      "pt": [
+        "sangue"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "CORPO",
+      "video_class": "Corpo",
+      "pt": [
+        "corpo"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "CABEÇA",
+      "video_class": "Cabeça",
+      "pt": [
+        "cabeça"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "GARGANTA",
+      "video_class": "Garganta",
+      "pt": [
+        "garganta"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "CANSADO",
+      "video_class": "Cansado",
+      "pt": [
+        "cansado",
+        "cansada",
+        "cansados",
+        "cansadas"
+      ],
+      "contexts": [
+        "saúde",
+        "geral"
+      ]
+    },
+    {
+      "gloss": "FOME",
+      "video_class": "Fome",
+      "pt": [
+        "fome"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "COM SEDE",
+      "video_class": "Com sede",
+      "pt": [
+        "com sede",
+        "sede"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "DORMIR",
+      "video_class": "Dormir",
+      "pt": [
+        "dormir"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "RESPIRAR",
+      "video_class": "Respirar",
+      "pt": [
+        "respirar"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "ACIDENTE",
+      "video_class": "Acidente",
+      "pt": [
+        "acidente"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "MACHUCAR",
+      "video_class": "Machucar",
+      "pt": [
+        "machucar"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "PERIGO",
+      "video_class": "Perigo",
+      "pt": [
+        "perigo"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "URGENTE",
+      "video_class": "Urgente",
+      "pt": [
+        "urgente"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "GRÁVIDA",
+      "video_class": "Grávida",
+      "pt": [
+        "grávida"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "SURDO",
+      "video_class": "Surdo",
+      "pt": [
+        "surdo",
+        "surda",
+        "surdos",
+        "surdas"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "CEGO",
+      "video_class": "Cego",
+      "pt": [
+        "cego"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "CADEIRA DE RODAS",
+      "video_class": "Cadeira de rodas",
+      "pt": [
+        "cadeira de rodas"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "NERVOSO",
+      "video_class": "Nervoso",
+      "pt": [
+        "nervoso",
+        "nervosa"
+      ],
+      "contexts": [
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "COM MEDO",
+      "video_class": "Com medo",
+      "pt": [
+        "com medo",
+        "medo"
+      ],
+      "contexts": [
+        "saúde",
+        "geral"
+      ]
+    },
+    {
+      "gloss": "BANHEIRO",
+      "video_class": "Banheiro",
+      "pt": [
+        "banheiro"
+      ],
+      "contexts": [
+        "serviços",
+        "escola",
+        "saúde",
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "RESTAURANTE",
+      "video_class": "Restaurante",
+      "pt": [
+        "restaurante"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "DINHEIRO",
+      "video_class": "Dinheiro",
+      "pt": [
+        "dinheiro"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "PAGAR",
+      "video_class": "Pagar",
+      "pt": [
+        "pagar"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "PAGAMENTO",
+      "video_class": "Pagamento",
+      "pt": [
+        "pagamento"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "COMPRAR",
+      "video_class": "Comprar",
+      "pt": [
+        "comprar"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "VENDER",
+      "video_class": "Vender",
+      "pt": [
+        "vender"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "CARO",
+      "video_class": "Caro",
+      "pt": [
+        "caro",
+        "cara"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "BARATO",
+      "video_class": "Barato",
+      "pt": [
+        "barato",
+        "barata"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "PREÇO",
+      "video_class": "Preço",
+      "pt": [
+        "preço"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "CARTÃO DE CRÉDITO",
+      "video_class": "Cartão de Crédito",
+      "pt": [
+        "cartão de crédito"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "DOCUMENTO",
+      "video_class": "Documento",
+      "pt": [
+        "documento"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "FORMULÁRIO",
+      "video_class": "Formulário",
+      "pt": [
+        "formulário"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "ENDEREÇO",
+      "video_class": "Endereço",
+      "pt": [
+        "endereço"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "TELEFONE",
+      "video_class": "Telefone",
+      "pt": [
+        "telefone"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "INTERNET",
+      "video_class": "Internet",
+      "pt": [
+        "internet"
+      ],
+      "contexts": [
+        "serviços",
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "POLICIAL",
+      "video_class": "Policial",
+      "pt": [
+        "policial"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "GOVERNO",
+      "video_class": "Governo",
+      "pt": [
+        "governo"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "BOMBEIRO",
+      "video_class": "Bombeiro",
+      "pt": [
+        "bombeiro"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "TREM",
+      "video_class": "Trem",
+      "pt": [
+        "trem"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "METRÔ",
+      "video_class": "Metrô",
+      "pt": [
+        "metrô"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "CARRO",
+      "video_class": "Carro",
+      "pt": [
+        "carro"
+      ],
+      "contexts": [
+        "serviços",
+        "geral"
+      ]
+    },
+    {
+      "gloss": "MUSEU",
+      "video_class": "Museu",
+      "pt": [
+        "museu"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "IGREJA",
+      "video_class": "Igreja",
+      "pt": [
+        "igreja"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "CIDADE",
+      "video_class": "Cidade",
+      "pt": [
+        "cidade"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "CENTRO",
+      "video_class": "Centro",
+      "pt": [
+        "centro"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "ELEVADOR",
+      "video_class": "Elevador",
+      "pt": [
+        "elevador"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "ESCADA",
+      "video_class": "Escada",
+      "pt": [
+        "escada"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "ESPERAR",
+      "video_class": "Esperar",
+      "pt": [
+        "esperar",
+        "espera"
+      ],
+      "contexts": [
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "AJUDAR",
+      "video_class": "Ajudar",
+      "pt": [
+        "ajudar"
+      ],
+      "contexts": [
+        "serviços",
+        "geral"
+      ]
+    },
+    {
+      "gloss": "POR FAVOR",
+      "video_class": "Por favor",
+      "pt": [
+        "por favor"
+      ],
+      "contexts": [
+        "serviços",
+        "geral"
+      ]
+    },
+    {
+      "gloss": "OBRIGADO",
+      "video_class": "Obrigado",
+      "pt": [
+        "obrigado",
+        "obrigada"
+      ],
+      "contexts": [
+        "serviços",
+        "geral"
+      ]
+    },
+    {
+      "gloss": "COM LICENÇA",
+      "video_class": "Com licença",
+      "pt": [
+        "com licença"
+      ],
+      "contexts": [
+        "serviços",
+        "geral"
+      ]
+    },
+    {
+      "gloss": "DESCULPA",
+      "video_class": "Desculpa",
+      "pt": [
+        "desculpa",
+        "desculpe"
+      ],
+      "contexts": [
+        "serviços",
+        "geral"
+      ]
+    },
+    {
+      "gloss": "HORA",
+      "video_class": "Hora",
+      "pt": [
+        "hora",
+        "horas"
+      ],
+      "contexts": [
+        "serviços",
+        "geral"
+      ]
+    },
+    {
+      "gloss": "EMPREGO",
+      "video_class": "Emprego (trabalho)",
+      "pt": [
+        "emprego",
+        "trabalho",
+        "trabalhar"
+      ],
+      "contexts": [
+        "trabalho"
+      ],
+      "note": "classe do V-LIBRASIL: Emprego (trabalho)"
+    },
+    {
+      "gloss": "EMPRESA",
+      "video_class": "Empresa",
+      "pt": [
+        "empresa"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "CHEFE",
+      "video_class": "Chefe",
+      "pt": [
+        "chefe"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "SECRETÁRIA",
+      "video_class": "Secretária",
+      "pt": [
+        "secretária"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "SECRETÁRIO",
+      "video_class": "Secretário",
+      "pt": [
+        "secretário"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "EQUIPE",
+      "video_class": "Equipe",
+      "pt": [
+        "equipe"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "DEPARTAMENTO",
+      "video_class": "Departamento",
+      "pt": [
+        "departamento"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "COMPUTADOR",
+      "video_class": "Computador",
+      "pt": [
+        "computador"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "IMPRIMIR",
+      "video_class": "Imprimir",
+      "pt": [
+        "imprimir",
+        "imprime",
+        "imprimem"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "ARQUIVO",
+      "video_class": "Arquivo",
+      "pt": [
+        "arquivo"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "RELATÓRIO",
+      "video_class": "Relatório",
+      "pt": [
+        "relatório"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "PROJETO",
+      "video_class": "Projeto",
+      "pt": [
+        "projeto"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "CRONOGRAMA",
+      "video_class": "Cronograma",
+      "pt": [
+        "cronograma"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "PROFISSÃO",
+      "video_class": "Profissão",
+      "pt": [
+        "profissão"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "SERVIÇO",
+      "video_class": "Serviço",
+      "pt": [
+        "serviço"
+      ],
+      "contexts": [
+        "trabalho",
+        "serviços"
+      ]
+    },
+    {
+      "gloss": "DEMITIR",
+      "video_class": "Demitir",
+      "pt": [
+        "demitir"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "CURRÍCULO",
+      "video_class": "Currículo",
+      "pt": [
+        "currículo"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "COLABORAR",
+      "video_class": "Colaborar",
+      "pt": [
+        "colaborar"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "ENTREVISTA",
+      "video_class": "Entrevista",
+      "pt": [
+        "entrevista"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "REUNIÃO",
+      "video_class": "Reunião",
+      "pt": [
+        "reunião"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "ESPECIALISTA",
+      "video_class": "Especialista",
+      "pt": [
+        "especialista"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "TÉCNICO",
+      "video_class": "Técnico",
+      "pt": [
+        "técnico"
+      ],
+      "contexts": [
+        "trabalho"
+      ]
+    },
+    {
+      "gloss": "FAMÍLIA",
+      "video_class": "Família",
+      "pt": [
+        "família"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "MÃE",
+      "video_class": "Mãe",
+      "pt": [
+        "mãe"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "PAI",
+      "video_class": "Pai",
+      "pt": [
+        "pai",
+        "pais"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "FILHO",
+      "video_class": "Filho",
+      "pt": [
+        "filho",
+        "filhos"
+      ],
+      "contexts": [
+        "família",
+        "saúde",
+        "escola"
+      ]
+    },
+    {
+      "gloss": "FILHA",
+      "video_class": "Filha",
+      "pt": [
+        "filha",
+        "filhas"
+      ],
+      "contexts": [
+        "família",
+        "saúde",
+        "escola"
+      ]
+    },
+    {
+      "gloss": "IRMÃ",
+      "video_class": "Irmã",
+      "pt": [
+        "irmã",
+        "irmãs"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "TIO",
+      "video_class": "Tio",
+      "pt": [
+        "tio"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "TIA",
+      "video_class": "Tia",
+      "pt": [
+        "tia"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "PRIMO",
+      "video_class": "Primo",
+      "pt": [
+        "primo"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "PRIMA",
+      "video_class": "Prima",
+      "pt": [
+        "prima"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "SOBRINHO",
+      "video_class": "Sobrinho",
+      "pt": [
+        "sobrinho"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "SOBRINHA",
+      "video_class": "Sobrinha",
+      "pt": [
+        "sobrinha"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "BEBÊ",
+      "video_class": "Bebê",
+      "pt": [
+        "bebê",
+        "bebês"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "CRIANÇA",
+      "video_class": "Criança",
+      "pt": [
+        "criança",
+        "crianças"
+      ],
+      "contexts": [
+        "família",
+        "escola"
+      ]
+    },
+    {
+      "gloss": "GAROTO",
+      "video_class": "Garoto (menino)",
+      "pt": [
+        "garoto",
+        "menino",
+        "meninos",
+        "garotos"
+      ],
+      "contexts": [
+        "família",
+        "escola"
+      ],
+      "note": "classe do V-LIBRASIL: Garoto (menino)"
+    },
+    {
+      "gloss": "MENINA",
+      "video_class": "Menina",
+      "pt": [
+        "menina"
+      ],
+      "contexts": [
+        "família",
+        "escola"
+      ]
+    },
+    {
+      "gloss": "HOMEM",
+      "video_class": "Homem",
+      "pt": [
+        "homem",
+        "homens"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "MULHER",
+      "video_class": "Mulher",
+      "pt": [
+        "mulher",
+        "mulheres"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "CASAMENTO",
+      "video_class": "Casamento",
+      "pt": [
+        "casamento"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "SE CASAR",
+      "video_class": "Se casar",
+      "pt": [
+        "se casar"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "NAMORAR",
+      "video_class": "Namorar",
+      "pt": [
+        "namorar"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "AMIGO",
+      "video_class": "Amigo",
+      "pt": [
+        "amigo",
+        "amiga",
+        "amigas"
+      ],
+      "contexts": [
+        "família",
+        "escola"
+      ]
+    },
+    {
+      "gloss": "MELHOR AMIGO",
+      "video_class": "Melhor amigo",
+      "pt": [
+        "melhor amigo"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "IDOSO",
+      "video_class": "Idoso",
+      "pt": [
+        "idoso",
+        "idosa",
+        "idosos",
+        "idosas"
+      ],
+      "contexts": [
+        "família",
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "JOVEM",
+      "video_class": "Jovem",
+      "pt": [
+        "jovem",
+        "jovens"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "ADULTO",
+      "video_class": "Adulto",
+      "pt": [
+        "adulto"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "CASA",
+      "video_class": "Casa",
+      "pt": [
+        "casa"
+      ],
+      "contexts": [
+        "família",
+        "geral"
+      ]
+    },
+    {
+      "gloss": "ANIVERSÁRIO",
+      "video_class": "Aniversário",
+      "pt": [
+        "aniversário"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "NATAL",
+      "video_class": "Natal",
+      "pt": [
+        "natal"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "FESTA",
+      "video_class": "Festa",
+      "pt": [
+        "festa"
+      ],
+      "contexts": [
+        "família"
+      ]
+    },
+    {
+      "gloss": "SIM",
+      "video_class": "Sim",
+      "pt": [
+        "sim"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "NÃO",
+      "video_class": "Não",
+      "pt": [
+        "não"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "BEM",
+      "video_class": "Bem",
+      "pt": [
+        "bem"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "RUIM",
+      "video_class": "Ruim",
+      "pt": [
+        "ruim",
+        "ruins"
+      ],
+      "contexts": [
+        "geral",
+        "saúde"
+      ]
+    },
+    {
+      "gloss": "FELIZ",
+      "video_class": "Feliz",
+      "pt": [
+        "feliz",
+        "felizes"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "TRISTE",
+      "video_class": "Triste",
+      "pt": [
+        "triste",
+        "tristes"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "GRANDE",
+      "video_class": "Grande (enorme)",
+      "pt": [
+        "grande",
+        "enorme"
+      ],
+      "contexts": [
+        "geral"
+      ],
+      "note": "classe do V-LIBRASIL: Grande (enorme)"
+    },
+    {
+      "gloss": "PEQUENO",
+      "video_class": "Pequeno",
+      "pt": [
+        "pequeno",
+        "pequena",
+        "pequenos",
+        "pequenas"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "NOVO",
+      "video_class": "Novo",
+      "pt": [
+        "novo",
+        "nova",
+        "novos",
+        "novas"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "BONITO",
+      "video_class": "Bonito",
+      "pt": [
+        "bonito",
+        "bonita",
+        "bonitos",
+        "bonitas"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "FEIO",
+      "video_class": "Feio",
+      "pt": [
+        "feio",
+        "feia"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "QUENTE",
+      "video_class": "Quente",
+      "pt": [
+        "quente"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "FRIO",
+      "video_class": "Frio",
+      "pt": [
+        "frio",
+        "fria"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "RÁPIDO",
+      "video_class": "Rápido",
+      "pt": [
+        "rápido",
+        "rápida"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "LENTO",
+      "video_class": "Lento",
+      "pt": [
+        "lento",
+        "lenta"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "ONTEM",
+      "video_class": "Ontem",
+      "pt": [
+        "ontem"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "AMANHÃ",
+      "video_class": "Amanhã",
+      "pt": [
+        "amanhã"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "AGORA",
+      "video_class": "Agora",
+      "pt": [
+        "agora"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "MANHÃ",
+      "video_class": "Manhã",
+      "pt": [
+        "manhã"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "TARDE",
+      "video_class": "Tarde",
+      "pt": [
+        "tarde"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "NOITE",
+      "video_class": "Noite",
+      "pt": [
+        "noite"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "DIA",
+      "video_class": "Dia",
+      "pt": [
+        "dia",
+        "dias"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "ÁGUA",
+      "video_class": "Água",
+      "pt": [
+        "água"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "CAFÉ",
+      "video_class": "Café",
+      "pt": [
+        "café"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "PÃO",
+      "video_class": "Pão",
+      "pt": [
+        "pão"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "LEITE",
+      "video_class": "Leite",
+      "pt": [
+        "leite"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "COMER",
+      "video_class": "Comer",
+      "pt": [
+        "comer"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "BEBIDA",
+      "video_class": "Bebida",
+      "pt": [
+        "bebida"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "FRUTA",
+      "video_class": "Fruta",
+      "pt": [
+        "fruta"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "BANANA",
+      "video_class": "Banana",
+      "pt": [
+        "banana"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "LARANJA",
+      "video_class": "Laranja",
+      "pt": [
+        "laranja"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "ABACAXI",
+      "video_class": "Abacaxi",
+      "pt": [
+        "abacaxi"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "BARULHO",
+      "video_class": "Barulho",
+      "pt": [
+        "barulho",
+        "barulhos"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "ACONTECER",
+      "video_class": "Acontecer",
+      "pt": [
+        "acontecer"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "AMARELO",
+      "video_class": "Amarelo",
+      "pt": [
+        "amarelo",
+        "amarela",
+        "amarelos",
+        "amarelas"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "AZUL",
+      "video_class": "Azul",
+      "pt": [
+        "azul"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "VERDE",
+      "video_class": "Verde",
+      "pt": [
+        "verde"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "VERMELHO",
+      "video_class": "Vermelho",
+      "pt": [
+        "vermelho",
+        "vermelha"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "BRANCO",
+      "video_class": "Branco",
+      "pt": [
+        "branco",
+        "branca"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "PRETO",
+      "video_class": "Preto",
+      "pt": [
+        "preto",
+        "preta"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "ESPELHO",
+      "video_class": "Espelho",
+      "pt": [
+        "espelho",
+        "espelhos"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "GATO",
+      "video_class": "Gato",
+      "pt": [
+        "gato"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "CAVALO",
+      "video_class": "Cavalo",
+      "pt": [
+        "cavalo"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "PEIXE",
+      "video_class": "Peixe",
+      "pt": [
+        "peixe"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "PÁSSARO",
+      "video_class": "Pássaro",
+      "pt": [
+        "pássaro"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "RÃ",
+      "video_class": "Rã (sapo)",
+      "pt": [
+        "rã",
+        "sapo",
+        "sapos"
+      ],
+      "contexts": [
+        "geral"
+      ],
+      "note": "classe do V-LIBRASIL: Rã (sapo)"
+    },
+    {
+      "gloss": "SOL",
+      "video_class": "Sol",
+      "pt": [
+        "sol"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "LUA",
+      "video_class": "Lua",
+      "pt": [
+        "lua"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "CHUVA",
+      "video_class": "Chuva",
+      "pt": [
+        "chuva"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "IR",
+      "video_class": "Ir",
+      "pt": [
+        "ir"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "QUER",
+      "video_class": "Quer",
+      "pt": [
+        "quer",
+        "querer"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "GOSTAR",
+      "video_class": "Gostar",
+      "pt": [
+        "gostar"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "OI",
+      "video_class": "Oi",
+      "pt": [
+        "oi"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "PARABÉNS",
+      "video_class": "Parabéns",
+      "pt": [
+        "parabéns"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "VER",
+      "video_class": "Ver",
+      "pt": [
+        "ver"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "OUVIR",
+      "video_class": "Ouvir",
+      "pt": [
+        "ouvir"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "DIZER",
+      "video_class": "Dizer",
+      "pt": [
+        "dizer"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "SABER",
+      "video_class": "Saber",
+      "pt": [
+        "saber"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "TER",
+      "video_class": "Ter",
+      "pt": [
+        "ter"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "DAR",
+      "video_class": "Dar",
+      "pt": [
+        "dar"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    },
+    {
+      "gloss": "PEGAR",
+      "video_class": "Pegar",
+      "pt": [
+        "pegar"
+      ],
+      "contexts": [
+        "geral"
+      ]
+    }
   ]
 }

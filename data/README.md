@@ -8,9 +8,12 @@ Preparação dos dados de treino: vídeos de sinais → sequências de keypoints
 data/
   raw/                    ZIPs e vídeos originais (não versionado)
   processed/              arrays .npy gerados (não versionado)
-  vocabulary.json         os 20 sinais do MVP
+  vocabulary.json         vocabulário do MVP: 210 sinais curados do V-LIBRASIL (gerado por build_vocabulary.py)
+  vocabulary-minds.json   vocabulário antigo, os 20 sinais do MINDS-Libras (usado pelo comando `zip` e pelos testes)
   phrases.json            frases de demonstração por categoria (gerado por api/app/phrases.py)
-  extract_keypoints.py    extração: YOLOv8 (recorte) + MediaPipe Holistic (um vídeo ou lote)
+  build_vocabulary.py     gera vocabulary.json a partir das classes do V-LIBRASIL (tabela de curadoria)
+  extract_keypoints.py    extração: MediaPipe Holistic, YOLOv8 opcional (um vídeo, ZIP do MINDS ou pasta do V-LIBRASIL)
+  vlibrasil.py            lote do V-LIBRASIL: seleção pelo vocabulário, paralelismo, aparar repouso
   person_crop.py          detector de pessoa com YOLOv8 e cálculo do recorte
   minds_libras.py         leitura dos ZIPs do MINDS-Libras e layout de saída
   tests/
@@ -18,9 +21,18 @@ data/
 
 ## Fonte e vocabulário
 
-Decididos em [`docs/dados-e-vocabulario.md`](../docs/dados-e-vocabulario.md): MINDS-Libras (CC BY 4.0) com os 20 sinais listados em [`vocabulary.json`](vocabulary.json).
+Decididos em [`docs/dados-e-vocabulario.md`](../docs/dados-e-vocabulario.md): o treino usa o **V-LIBRASIL** (só pesquisa e ensino, sem redistribuição; os vídeos ficam fora do repositório, em `C:\Users\Carlos\Desktop\Projetos 6\Datasets`) com os 210 sinais curados de [`vocabulary.json`](vocabulary.json). O MINDS-Libras (CC BY 4.0, 20 sinais) não foi baixado; as seções sobre ele abaixo valem se for usado.
 
-## Download do subconjunto inicial
+### V-LIBRASIL: extração em lote
+
+```powershell
+py -3.12 -m venv .venv ; .venv\Scripts\Activate.ps1 ; pip install -r requirements.txt
+python extract_keypoints.py vlibrasil "<pasta>/videos UFPE (V-LIBRASIL)/data" "<pasta>/processed/v-librasil" --workers 6
+```
+
+Extrai só os sinais de `vocabulary.json` (629 vídeos), **sem YOLOv8**, com `--upper-body` e `--target-fps 30`, e **apara o repouso** do começo e do fim. Saída: `<saída>/<NN>/<GLOSA>_1.npy` (NN = 01 a 03) e `extraction_log.csv`; retomável. Guarde a saída **fora do repositório** (`Projetos 6\Datasets\processed\v-librasil`). Para mudar o vocabulário, edite a tabela `CURATED` de `build_vocabulary.py` e rode `python build_vocabulary.py "<pasta>/annotations.csv"`.
+
+## MINDS-Libras: download do subconjunto inicial (opcional)
 
 Sinalizantes 01, 02, 07 e 10, cerca de 16,3 GB no total, de [zenodo.org/records/2667329](https://zenodo.org/records/2667329):
 
