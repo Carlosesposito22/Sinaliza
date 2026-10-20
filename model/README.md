@@ -35,6 +35,7 @@ Grava `checkpoints/model.pt` e `checkpoints/metrics.json` (ignorados pelo git).
 | `sinaliza_model/network.py` | `MotionGenerator`: embedding do sinal + GRU → `seq_len` frames |
 | `sinaliza_model/train.py` | Treino, avaliação contra as linhas de base e CLI |
 | `sinaliza_model/synthetic.py` | Dados sintéticos para testar o pipeline |
+| `sinaliza_model/embeddings.py` | Inspeção dos embeddings de sinal: vizinhos mais próximos e correlação com o DTW entre os movimentos |
 
 ## Convenção de dados
 
@@ -52,6 +53,19 @@ global_mean  >  medoid  ≳  class_mean  ≈  model
 - `medoid` é a recuperação: a melhor gravação de treino de cada sinal.
 - `class_mean` é a média das gravações de cada sinal normalizadas no tempo.
 - O modelo atual é regressão com MSE e tende a convergir para algo próximo da `class_mean`. Um modelo só se justifica se superar a `medoid` e a `class_mean` **nos dados reais**. Nos sintéticos esse resultado não vale como evidência.
+
+## Embeddings de sinal
+
+A primeira camada do `MotionGenerator` é um `nn.Embedding(num_glosses, hidden)`: cada um dos 20 sinais vira um vetor aprendido, e é ele que condiciona o movimento gerado. Para olhar essa geometria depois do treino:
+
+```powershell
+python -m sinaliza_model.embeddings checkpoints/model.pt
+python -m sinaliza_model.embeddings checkpoints/model.pt --data-root ../data/processed/minds-libras
+```
+
+Mostra os vizinhos mais próximos de cada sinal (cosseno) e, com `--data-root`, a correlação de Spearman entre a distância no embedding e o DTW entre as médias de movimento. Serve para **diagnosticar o treino** (embeddings colapsados, por exemplo). Com 20 sinais e poucos sinalizantes, vizinhança no embedding reflete o que o modelo precisou para reduzir o MSE, não semelhança linguística. Ainda não rodado em dados reais.
+
+Os embeddings de **palavras** usados para aproximar palavras fora do vocabulário ficam na API (`api/app/embeddings.py`), não aqui.
 
 ## Limites
 
