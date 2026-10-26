@@ -32,6 +32,8 @@ O contrato entre `model/`, `api/` e `web/` é o **formato de pose** descrito em 
 docker compose up --build
 ```
 
+Isso basta num clone novo: o build do front baixa sozinho os sinais do VLibras do vocabulário (precisa de internet no primeiro build; depois fica em cache).
+
 Para a API tocar as gravações reais (e não o aceno de teste), aponte `SINALIZA_MOTIONS_DIR` para a pasta com o `motions.npz` (derivado do V-LIBRASIL, fora do repositório; ver `references/12-api.md`):
 
 ```powershell
@@ -42,7 +44,7 @@ docker compose up --build
 - Front: `http://localhost:5173`
 - API: `http://localhost:8000` (documentação em `/docs`)
 
-O front é servido pelo nginx e repassa `/api/*` para a API, então não há CORS. Para parar: `Ctrl+C` e `docker compose down`. O Docker Desktop precisa estar em execução. O contexto de build da API é a raiz do repositório, porque a imagem leva `data/vocabulary.json` e `data/phrases.json`.
+O front é servido pelo nginx e repassa `/api/*` para a API, então não há CORS. Para parar: `Ctrl+C` e `docker compose down`. O Docker Desktop precisa estar em execução. O contexto de build da API e do front é a raiz do repositório: a API leva `data/vocabulary.json` e `data/phrases.json`, e o front usa o vocabulário para baixar os sinais.
 
 Os serviços `model/` e `data/` não entram no compose: são ferramentas de linha de comando (treino e extração), não servidores.
 
@@ -77,7 +79,7 @@ npm run dev
 
 Abre em `http://localhost:5173`. Para apontar para outra API, defina `VITE_API_URL`. Testes: `npm test`.
 
-O avatar é o player do **VLibras** (Ícaro, Hosana ou Guga; `web/public/vlibras/`, LGPL-3.0), que toca as glosas. Ele e os sinais rodam localmente; os sinais ficam fora do git, então num clone novo rode `npm run signs` em `web/` uma vez (só essa etapa precisa de internet). Créditos e licenças em [`docs/creditos-e-licencas.md`](docs/creditos-e-licencas.md). O avatar anterior (Rocketbox) está em [`historico/avatar-rocketbox/`](historico/avatar-rocketbox/README.md).
+O avatar é o player do **VLibras** (Ícaro, Hosana ou Guga; `web/public/vlibras/`, LGPL-3.0), que toca as glosas. Ele e os sinais rodam localmente; os sinais ficam fora do git, então, fora do Docker, rode `npm run signs` em `web/` uma vez (só essa etapa precisa de internet); no Docker, o build já faz isso. Créditos e licenças em [`docs/creditos-e-licencas.md`](docs/creditos-e-licencas.md). O avatar anterior (Rocketbox) está em [`historico/avatar-rocketbox/`](historico/avatar-rocketbox/README.md).
 
 ## Próximos passos
 

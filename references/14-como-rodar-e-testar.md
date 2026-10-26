@@ -11,8 +11,10 @@ docker compose up --build
 - Front: http://localhost:5173
 - API: http://localhost:8000 (docs em `/docs`)
 - Parar: `Ctrl+C` e `docker compose down`. Docker Desktop precisa estar rodando.
+- Num clone novo basta esse comando: o build do front baixa os sinais do VLibras do vocabulário (`npm run signs` dentro do `web/Dockerfile`, numa camada que fica em cache). Precisa de internet só nesse passo. **Verificado em 2026-10-25** com um clone limpo: 209 sinais baixados no build, API saudável, e o avatar toca "O filho está com dor de cabeça." com os sinais vindos do nginx.
+- Sem `SINALIZA_MOTIONS_DIR`, a API usa o aceno de teste; isso não aparece na tela, porque o avatar do VLibras não usa a sequência de keypoints.
 - `model/` e `data/` **não** entram no compose (são CLIs).
-- O build da API usa a **raiz do repositório** como contexto (a imagem leva `data/vocabulary.json` e `data/phrases.json`). Verificado em 2026-10-19: `docker compose up --build` constrói as duas imagens (api 358 MB, web 103 MB), a API fica saudável e `/health`, `/translate`, `/vocabulary` e `/categories` respondem direto (porta 8000) e pelo proxy do nginx (`localhost:5173/api/...`); o front carrega as categorias. O primeiro build revelou que o `numpy` faltava no `api/requirements.txt` (nos testes locais ele vinha do Python do sistema); corrigido.
+- Os builds da API e do front usam a **raiz do repositório** como contexto (`.dockerignore` na raiz; o front precisa de `data/vocabulary.json`). Histórico: o build da API usa a raiz (a imagem leva `data/vocabulary.json` e `data/phrases.json`). Verificado em 2026-10-19: `docker compose up --build` constrói as duas imagens (api 358 MB, web 103 MB), a API fica saudável e `/health`, `/translate`, `/vocabulary` e `/categories` respondem direto (porta 8000) e pelo proxy do nginx (`localhost:5173/api/...`); o front carrega as categorias. O primeiro build revelou que o `numpy` faltava no `api/requirements.txt` (nos testes locais ele vinha do Python do sistema); corrigido.
 
 ## API
 
