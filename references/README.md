@@ -39,7 +39,7 @@ Esta pasta existe para que uma sessão nova do Claude (ou uma pessoa nova na equ
 | [`10-pipeline-de-dados.md`](10-pipeline-de-dados.md) | `data/`: vídeo → keypoints |
 | [`11-modelo-ml.md`](11-modelo-ml.md) | `model/`: gerador, linhas de base, métrica DTW |
 | [`12-api.md`](12-api.md) | `api/`: endpoints, gerador stub, como plugar o modelo |
-| [`13-web.md`](13-web.md) | `web/`: front React + three.js e o avatar em esqueleto |
+| [`13-web.md`](13-web.md) | `web/`: front React e o avatar do VLibras (local) |
 | [`14-como-rodar-e-testar.md`](14-como-rodar-e-testar.md) | Comandos, venvs, Docker, testes |
 
 ### Situação e trabalho

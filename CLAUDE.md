@@ -25,6 +25,7 @@ Leia `references/README.md` (índice). Para começar:
 9. `data/vocabulary.json` vem de `data/build_vocabulary.py` (tabela `CURATED`); ao mudar ele ou `api/app/phrases.py`, rode `python -m app.phrases` e commite `data/phrases.json`.
 10. Formato de pose: origem no meio dos **ombros**; índices 23–32 zerados em vídeo da cintura para cima; tratar `[0, 0, 0]` como ausente.
 11. Avalie geração com a **recuperação** (`retrieval`), não só com o DTW médio: o DTW premia movimento borrado.
+12. O avatar é o player do VLibras (LGPL-3.0) rodando **localmente** (`web/public/vlibras/`); os sinais vêm de `npm run signs` e **não são versionados** (`web/public/vlibras/signs/`). O avatar antigo (Rocketbox) está em `historico/avatar-rocketbox/` e não é compilado.
 
 ## Convenções
 

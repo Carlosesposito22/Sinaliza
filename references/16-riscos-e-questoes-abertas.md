@@ -43,7 +43,7 @@ A fase 1 colocou a LGPD como *Must have* por causa da captura de câmera. Sem ca
 2. ~~O que fazer com palavra fora do vocabulário?~~ **Decidido em 2026-10-19:** aproximar por embedding (sinalizado com "~") ou ignorar com aviso; soletrar não é possível (o MINDS-Libras não tem o alfabeto manual). Falta validar com falante de Libras e decidir se o embedder semântico entra.
 3. ~~Qual a unidade de demonstração?~~ **Encaminhado:** frases de exemplo por categoria (`data/phrases.json`). Falta o professor confirmar se é isso que ele quis dizer com "geração de textos a partir de categorias".
 4. **Qual o critério de sucesso do projeto?** Proposta: DTW do gerador < medoide e < média da classe em sinalizante não visto + demonstração funcional + validação qualitativa por pelo menos uma pessoa que saiba Libras.
-5. **Avatar com rig ou esqueleto?** Depende do tempo restante e de quem sabe three.js/Blender.
+5. ~~Avatar com rig ou esqueleto?~~ **Resolvido em 2026-10-25:** player do VLibras, local (ver `13-web.md`). Avatar próprio fica para depois do MVP.
 6. **Prazo e entregas restantes da disciplina** (o cronograma de 8 semanas era do escopo antigo).
 7. **Personas e hipótese:** refazer para o escopo atual ou manter como contexto.
 8. **Atribuição e licença do próprio repositório** (não há `LICENSE`). **[a confirmar]**

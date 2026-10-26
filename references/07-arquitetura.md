@@ -17,7 +17,7 @@ Em tempo de **execução** só `web/` e `api/` participam. `model/` e `data/` s�
 | Pasta | Tecnologia | Papel | Estado (2026-10-19) |
 | --- | --- | --- | --- |
 | `api/` | Python 3.11, FastAPI, pydantic v2, NumPy | `POST /translate`: texto → glosas (tabela + embeddings) → pose; `GET /vocabulary`, `GET /categories` | Toca gravações reais (`MotionPlayback`) quando há arquivo de movimentos; senão, `StubGenerator` (aceno de teste) |
-| `web/` | React 18, Vite 5, TypeScript 5.6, three.js 0.169 | Formulário de texto e avatar 3D (Rocketbox, FBX) | Funcional |
+| `web/` | React 18, Vite 5, TypeScript 5.6, player Unity WebGL do VLibras | Formulário de texto e avatar do VLibras (local) | Funcional |
 | `model/` | PyTorch, NumPy | Treino do gerador sinal → pose; linhas de base; DTW | Esqueleto testado só com dados **sintéticos** |
 | `data/` | **YOLOv8 (Ultralytics)** + MediaPipe Holistic 0.10.21, OpenCV, NumPy `<2` | Vídeo → recorte da pessoa → keypoints normalizados; leitura dos ZIPs do MINDS-Libras | Script pronto e testado com detector falso; **nunca rodado em vídeo real nem com pesos do YOLOv8** |
 | `docs/` | Markdown | Contrato do formato de pose; decisão de dados | Atualizados em 2026-10-14 |
@@ -42,7 +42,7 @@ Ao alterar o layout, grep por `75`, `33`, `21` e `HAND_COUNT`.
 - **`PoseGenerator`** (`api/app/generator.py`) — `Protocol` só com `generate(glosses) -> PoseSequence`. O modelo (ou o medoide) entra implementando isso e substituindo `generator` em `api/app/main.py`. O texto vira glosas antes, em `TextToGloss`.
 - **`Embedder`** (`api/app/embeddings.py`) — `Protocol` com `embed(words)`; `char-ngram` (padrão) e `sentence-transformers` (opcional), escolhidos por `SINALIZA_EMBEDDER`.
 - **`Detector`** (`data/person_crop.py`) — qualquer função `frame -> Box | None`; `YoloPersonDetector` é a implementação com YOLOv8.
-- **`Avatar`** (`web/src/Avatar.tsx`) — entrada única `PoseSequence`. Hoje desenha um personagem Rocketbox (`RocketboxAvatar.tsx` + `retarget.ts`) e cai no esqueleto (`SkeletonAvatar.tsx`) se o modelo não carregar; o modelo fica em `web/public/avatar/`.
+- **`VLibrasAvatar`** (`web/src/VLibrasAvatar.tsx`) — entrada: as glosas. Toca os sinais no player do VLibras (`vlibras.ts`), servido localmente com os sinais em `web/public/vlibras/signs/`. A `PoseSequence` da API não é mais desenhada; o avatar anterior, que a usava, está em `historico/avatar-rocketbox/`.
 - **`vocabulary.json`** (`data/`) — fonte única do vocabulário; lido por `data/minds_libras.py`, `model/sinaliza_model/data.py` e `api/app/vocabulary.py`. A imagem Docker da API o copia (contexto de build na raiz).
 - **`phrases.json`** (`data/`) — frases de exemplo por categoria, gerado por `python -m app.phrases` em `api/`; lido por `GET /categories`.
 

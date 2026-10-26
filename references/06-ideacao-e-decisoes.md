@@ -79,6 +79,8 @@ No escopo atual essas frentes continuam, com troca de objeto: o modelo é **gera
 | 2026-10-19 | Frases de exemplo por categoria geradas por modelos de frase e validadas contra o vocabulário (sem LLM) | `api/app/phrases.py`, `data/phrases.json` |
 | 2026-10-19 | Normalização passa a ser em pixels do quadro original; mãos sem corpo no quadro usam a última referência válida | `data/extract_keypoints.py` |
 | 2026-10-19 | Treino com MINDS-Libras e V-LIBRASIL (a pedido do avaliador, que recomendou vários datasets); Apoema descartado. O Carlos **baixou só o V-LIBRASIL** (só local, fora do repositório); o MINDS não foi baixado | `references/21-datasets-de-treino.md` |
+| 2026-10-25 | **Avatar do MVP: o player do VLibras, versão de 2026-09-29** (`vlibras-web-browsers`, LGPL-3.0), com os personagens Ícaro (padrão), Hosana e Guga, tocando as nossas glosas. **Roda localmente:** o player e os sinais do vocabulário são servidos pelo nosso servidor, sem o widget hospedado do VLibras. Motivo: os dedos do avatar Rocketbox, animados por keypoints do MediaPipe, seguiam imprecisos, e o VLibras tem sinais animados por especialistas. O Rocketbox e o retargeting foram para `historico/avatar-rocketbox/`. **Para depois do MVP:** o Carlos avalia criar um avatar próprio (o projeto Unity dos personagens do VLibras não é público) | `web/src/vlibras.ts`, `references/13-web.md` |
+| 2026-10-25 | Consequência para o ML: o movimento mostrado deixa de vir das gravações e do modelo. A API continua gerando a sequência de keypoints (`pose`) e o modelo continua sendo avaliado (DTW, recuperação), mas isso não aparece no avatar. **A confirmar:** como apresentar a parte de ML à disciplina | `references/11-modelo-ml.md` |
 
 ## Rascunho de hipótese para o escopo atual
 

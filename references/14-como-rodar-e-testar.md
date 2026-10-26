@@ -43,9 +43,10 @@ Os testes da API rodaram no Python 3.13 do sistema (fastapi, httpx, numpy, pytes
 ```powershell
 cd web
 npm install
+npm run signs      # uma vez: baixa os sinais do vocabulário para public/vlibras/signs/ (fora do git)
 npm run dev        # http://localhost:5173
 npm run build      # tsc --noEmit && vite build (passa)
-npm test             # vitest: 11 testes do retargeting do avatar (passam)
+npm test           # vitest: 3 testes do mapeamento das glosas (passam)
 ```
 
 Para outra API: `VITE_API_URL`. CORS da API só libera `localhost:5173`/`127.0.0.1:5173`. Para ver o front funcionando, suba a API (porta 8000) e o `npm run dev`.
