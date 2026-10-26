@@ -24,7 +24,8 @@ Posição em **2026-10-19**, segundo o código e o git. Os 5 commits originais s
 3. ~~Gerador real~~ **feito em 2026-10-20 (reprodução de gravações):** a API toca a gravação real de um sinalizante do V-LIBRASIL para cada sinal, com transições interpoladas (`MotionPlayback`). Limites: sinais isolados, uma pessoa, sem gramática nem expressão facial, sem coarticulação aprendida; sem arquivo de movimentos, cai no aceno de teste.
 4. **Embedder semântico não testado:** `sentence-transformers` só foi testado com modelo falso; o limiar 0,7 não está calibrado. O `char-ngram` está calibrado à mão (0,65) em poucos exemplos.
 5. **Modelo treinado:** **primeiro resultado em dado real (2026-10-20, 3 folds)**: o modelo **não supera a média por sinal** (recuperação top-1 6,7% contra 7,6%; acaso 0,5%) e a vantagem dele no DTW médio é compatível com borrão. Pela regra do projeto, o modelo não se justifica; ver `11-modelo-ml.md`.
-6. ~~Avatar com rig~~ **feito em 2026-10-20:** rapaz realista (Microsoft Rocketbox, FBX, MIT) animado pelos keypoints, com retargeting próprio (braços, mãos e dedos). **Não mexem:** tronco, cabeça e rosto (sem expressão facial). Ver `13-web.md`.
+6. ~~Avatar com rig~~ **feito em 2026-10-20:** rapaz realista (Microsoft Rocketbox, FBX, MIT) animado pelos keypoints, com retargeting próprio (braços, mãos e dedos). **2026-10-21:** movimento refeito (z do braço pelo comprimento do osso, suavização, cotovelo como dobradiça, pronação no antebraço, giro de cabeça e rolagem do peito, pausa entre repetições). **2026-10-25:** substituído pelo player do VLibras e guardado em `historico/avatar-rocketbox/` (ver 6b).
+6b. **Avatar do VLibras (2026-10-25):** é o avatar do MVP (Ícaro, Hosana ou Guga), rodando localmente com os sinais do vocabulário; o Rocketbox foi para `historico/avatar-rocketbox/`. Em aberto: como apresentar a parte de ML, que não aparece mais no avatar; avatar próprio fica para depois do MVP. Ver `13-web.md`.
 7. **Controles de reprodução e destaque da glosa atual** no front.
 8. **Validação linguística:** ninguém identificado para validar sinais, mapeamentos aproximados nem frases.
 9. **Testes de front** e CI inexistentes.
@@ -40,7 +41,7 @@ Posição em **2026-10-19**, segundo o código e o git. Os 5 commits originais s
 6. ~~Implementar o `PoseGenerator` real~~ **feito** (ver item 3). Falta **destacar a glosa em execução** e **controles de reprodução** no front.
 7. **Calibrar o embedder semântico** (se for usá-lo): lista de sinônimos esperados e de falsos positivos; ajustar `SINALIZA_APPROX_THRESHOLD`.
 8. **Front:** destacar a glosa em execução, controles de reprodução.
-9. ~~Avatar com rig e retargeting~~ **feito** (ver item 6). Falta mexer tronco e cabeça e, se houver dados, expressão facial.
+9. ~~Avatar com rig e retargeting~~ **feito** e depois substituído pelo VLibras (ver itens 6 e 6b).
 10. **Validar com alguém que saiba Libras** (sinais, aproximações, frases) e registrar em `docs/`.
 11. **Atualizar a documentação da disciplina** para o escopo atual.
 

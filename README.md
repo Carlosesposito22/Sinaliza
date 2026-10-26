@@ -17,7 +17,7 @@ texto ──► api (FastAPI) ──► texto → glosas ──► gerador de po
 | Pasta | Papel | Estado |
 | --- | --- | --- |
 | `api/` | Serviço HTTP. Texto → glosas (tabela + embeddings) → poses. Frases de exemplo por categoria | Funcional com gerador **stub** |
-| `web/` | Front (React + Vite + three.js). Envia texto, mostra como cada palavra virou sinal e anima o avatar | Funcional, avatar 3D (Rocketbox) |
+| `web/` | Front (React + Vite). Envia texto, mostra como cada palavra virou sinal e toca os sinais no avatar do VLibras | Funcional, avatar do VLibras rodando localmente |
 | `model/` | Treino do modelo sinal → pose, com linhas de base e métrica DTW; inspeção dos embeddings | Esqueleto testado com dados sintéticos |
 | `data/` | Vocabulário curado (210 sinais do V-LIBRASIL) e extração de keypoints com MediaPipe Holistic (YOLOv8 opcional) | Pronto; o V-LIBRASIL fica só local, fora do repositório (ver `references/21-datasets-de-treino.md`) |
 | `docs/` | Contrato do formato de pose e decisões | `pose-format.md`, `dados-e-vocabulario.md` |
@@ -77,10 +77,10 @@ npm run dev
 
 Abre em `http://localhost:5173`. Para apontar para outra API, defina `VITE_API_URL`. Testes: `npm test`.
 
-O avatar é o modelo Rocketbox em `web/public/avatar/` (créditos e licenças em [`docs/creditos-e-licencas.md`](docs/creditos-e-licencas.md)); sem ele, o front desenha o esqueleto.
+O avatar é o player do **VLibras** (Ícaro, Hosana ou Guga; `web/public/vlibras/`, LGPL-3.0), que toca as glosas. Ele e os sinais rodam localmente; os sinais ficam fora do git, então num clone novo rode `npm run signs` em `web/` uma vez (só essa etapa precisa de internet). Créditos e licenças em [`docs/creditos-e-licencas.md`](docs/creditos-e-licencas.md). O avatar anterior (Rocketbox) está em [`historico/avatar-rocketbox/`](historico/avatar-rocketbox/README.md).
 
 ## Próximos passos
 
 1. Validar os sinais com alguém que saiba Libras e destacar a glosa em execução no avatar.
 2. Decidir se entra um segundo dataset (mais sinalizantes ou gravações por sinal é o que mudaria o resultado do modelo).
-3. Mexer tronco e cabeça do avatar (hoje só braços, mãos e dedos) e, se houver dados, a expressão facial.
+3. Expressão facial do avatar, se houver dados (hoje mexem braços, mãos, dedos, cabeça e um pouco do peito).

@@ -32,7 +32,7 @@ Amanda Montarroios, Bruno Assunção, Caio Ferreira, Carlos Espósito, Fabiana S
 Sinaliza/
   Documentos/     entregas da fase 1 (docx, pdf, xlsx) — NÃO versionadas ainda (untracked)
   api/            FastAPI: POST /translate, gerador stub
-  web/            React + Vite + three.js: formulário + avatar em esqueleto
+  web/            React + Vite: formulário + avatar do VLibras (local)
   model/          PyTorch: gerador sinal → pose, linhas de base, DTW
   data/           MediaPipe Holistic: vídeo → keypoints; vocabulary.json
   docs/           pose-format.md, dados-e-vocabulario.md
