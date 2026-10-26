@@ -23,7 +23,9 @@ services:
 
   web:
     build:
-      context: ./web
+      # Raiz do repositório: o build baixa os sinais do VLibras a partir de data/vocabulary.json.
+      context: .
+      dockerfile: web/Dockerfile
       args:
         VITE_API_URL: /api
     ports:

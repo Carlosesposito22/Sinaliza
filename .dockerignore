@@ -1,4 +1,4 @@
-# Usado pelo build da API (contexto na raiz). O front tem o seu em web/.dockerignore.
+# Usado pelos builds da API e do front (os dois com contexto na raiz).
 **/.venv/
 **/__pycache__/
 **/*.pyc
@@ -11,3 +11,8 @@ references/
 data/raw/
 data/processed/
 model/
+# Os sinais do VLibras são baixados dentro do build do front.
+web/public/vlibras/signs/
+historico/
+**/*.pt
+**/*.task
