@@ -25,3 +25,6 @@ model/checkpoints/
 .vscode/
 .idea/
 .DS_Store
+
+# Sinais do dicionário do VLibras (baixados por `npm run signs`; sem licença de redistribuição)
+web/public/vlibras/signs/

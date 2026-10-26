@@ -15,8 +15,12 @@ const FINGER_PART: Record<string, string> = {
   Distal: "2",
 };
 
+// Tronco e cabeça: o Bip01 tem Spine, Spine1 e Spine2 (o peito, pai das clavículas).
+const BODY: Record<string, string> = { upperChest: "Bip01_Spine2", neck: "Bip01_Neck", head: "Bip01_Head" };
+
 /** Nome padronizado (`leftIndexProximal`) -> nome do osso no Rocketbox (`Bip01_L_Finger1`), ou null. */
 export function rocketboxBoneName(name: string): string | null {
+  if (BODY[name]) return BODY[name];
   const match = /^(left|right)(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)(Metacarpal|Proximal|Intermediate|Distal)?$/.exec(name);
   if (!match) return null;
   const [, side, part, phalanx] = match;
