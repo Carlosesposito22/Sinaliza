@@ -8,6 +8,7 @@ Transforma vídeos de sinais em sequências de keypoints no [formato de pose](08
 | --- | --- |
 | `extract_keypoints.py` | CLI com dois comandos: `video` (um vídeo → um `.npy`) e `zip` (um ZIP do MINDS-Libras → pasta de `.npy`). Contém `extract()`, `_reference()`, `_normalize()` |
 | `person_crop.py` | `Box`, `union`, `expand`, `estimate_crop`, `YoloPersonDetector` (YOLOv8, classe `person`) |
+| `hand_world.py` | `HandWorldTracker` (HandLandmarker do MediaPipe Tasks), `world_depth`, `assign_hands`, `merge_hand`, `apply_world_hands`: z das mãos pelos *world landmarks* (`--hand-world`) |
 | `minds_libras.py` | Leitura dos ZIPs, parsing dos nomes, layout de saída, log de detecção, `process_zip()` |
 | `vocabulary.json` | Os 20 sinais; usado para filtrar o que extrair |
 | `phrases.json` | Frases de demonstração por categoria (gerado em `api/`; ver [`12-api.md`](12-api.md)) |
@@ -27,6 +28,38 @@ python extract_keypoints.py vlibrasil "<pasta>/data" <saída> --workers 6
 - Saída `<saída>/<NN>/<GLOSA>_1.npy` (NN = 01..03; glosa sem acento, `_` entre palavras), mais `extraction_log.csv` (`frames_raw`, `frames_kept`, taxas de detecção). **Retomável**; um vídeo com erro não derruba o lote (conta em `failed`).
 - `--workers N` usa processos em paralelo. **Mais processos não é sempre mais rápido**: cada processo do MediaPipe usa várias threads.
 - `build_vocabulary.py` gera o `vocabulary.json` a partir de `annotations.csv` e da tabela de curadoria `CURATED`.
+
+## Mãos com world landmarks (`--hand-world`, 2026-10-21)
+
+O z das mãos do Holistic é **relativo ao punho e comprimido** (no V-LIBRASIL, o mesmo osso de dedo ia de 0,34 a 0,76 da palma em 3D), e o avatar herdava isso: dedos dobrando de lado. Com `--hand-world`, o **HandLandmarker** do MediaPipe Tasks (mesmo pacote `mediapipe==0.10.21`, modelo `hand_landmarker.task`, Apache 2.0, ~7,8 MB, ignorado pelo git) roda no mesmo quadro e devolve a mão em **3D métrico** (*world landmarks*). Para cada mão (`hand_world.py`):
+
+- as duas detecções e os punhos próximos (até 8% da largura do recorte): **x e y do Holistic, z do world**, na escala da imagem (mínimos quadrados entre o xy do world e o do Holistic), relativo ao punho;
+- só o HandLandmarker achou: x e y das landmarks de imagem dele, z do world;
+- só o Holistic achou: fica como está.
+
+A mão é atribuída ao lado pelo **punho da pose** mais próximo (15 esquerdo, 16 direito), não pela lateralidade do modelo (que supõe imagem espelhada). A pose, o aparo e o número de quadros não mudam.
+
+```powershell
+curl.exe -L --fail -o hand_landmarker.task https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task
+python extract_keypoints.py vlibrasil "<pasta>/data" "<pasta>/processed/v-librasil-world" --hand-world --workers 8
+```
+
+O modelo é passado ao MediaPipe pelo conteúdo, não pelo caminho: no Windows o MediaPipe 0.10.21 junta o caminho absoluto ao da instalação e falha (`errno=22`). Em saída por pipe no PowerShell/Git Bash, defina `PYTHONIOENCODING=utf-8` (o log usa "→").
+
+**Piloto (16 arquivos, 5 sinais × 3 sinalizantes), comparado com a extração só com o Holistic:**
+
+| Medida | Holistic | + world landmarks |
+| --- | --- | --- |
+| Quadros com a mão detectada | 92,2% | **97,4%** |
+| Eixo de dobra da junta do meio alinhado ao anatômico (1 = perfeito) | 0,68 (~47° de erro) | **0,93 (~22°)** |
+| Dobra para o lado da palma | 89,9% | 92,4% |
+| Extensão do z da mão / palma | 0,59 (comprimido) | **0,97** |
+| Variação do comprimento dos ossos (coef. de variação) | 0,207 | 0,196 |
+| Variação de z de um quadro para o outro / palma | 0,025 | 0,041 |
+
+Tempo: ~4 s por vídeo por processo (15 vídeos em 57 s com 5 processos).
+
+**Lote completo (2026-10-25):** os 629 vídeos do vocabulário foram reextraídos para `processed/v-librasil-world` (sem falhas). Nos 616 arquivos comparáveis: mão detectada 92,5% → **96,0%**; alinhamento do eixo de dobra da junta do meio 0,66 → **0,91**; extensão do z da mão / palma 0,57 → **0,97**; coef. de variação dos ossos 0,198 → 0,190. O arquivo de movimentos novo está em `Datasets/motions-world/motions.npz` (o antigo, em `Datasets/motions/`, ficou intacto); para usá-lo no Docker, `SINALIZA_MOTIONS_DIR=<...>/Datasets/motions-world`. No avatar, a melhora é sutil à vista e não foi medida contra os sinais corretos.
 
 ## Por que YOLOv8 aqui
 
