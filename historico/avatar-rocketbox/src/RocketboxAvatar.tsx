@@ -4,6 +4,7 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import type { PoseSequence } from "./api";
 import { NUM_KEYPOINTS } from "./skeleton";
 import { idlePoints, Retargeter, samplePose } from "./retarget";
+import { prepareMotion, sampleBody, type PreparedMotion } from "./motion";
 import { rocketboxLookup } from "./rocketbox";
 
 const BASE = `${import.meta.env.BASE_URL}avatar/`;
@@ -18,6 +19,10 @@ const TEXTURES: Record<string, { file: string; transparent?: boolean }> = {
 
 const MODEL_SCALE = 0.01; // o modelo está em centímetros
 
+// Constante de tempo (s) da suavização das rotações: igual em qualquer taxa de quadros do monitor.
+const SMOOTHING_SECONDS = 0.02;
+const IDLE_SMOOTHING_SECONDS = 0.1;
+
 interface AvatarProps {
   pose: PoseSequence | null;
   onError?: (error: unknown) => void;
@@ -27,13 +32,13 @@ interface AvatarProps {
 // chama `onError` e quem usa troca pelo esqueleto.
 export function RocketboxAvatar({ pose, onError }: AvatarProps) {
   const mountRef = useRef<HTMLDivElement>(null);
-  const poseRef = useRef<PoseSequence | null>(pose);
+  const motionRef = useRef<PreparedMotion | null>(null);
   const startRef = useRef(0);
   const errorRef = useRef(onError);
   errorRef.current = onError;
 
   useEffect(() => {
-    poseRef.current = pose;
+    motionRef.current = pose && pose.frames.length > 0 ? prepareMotion(pose) : null;
     startRef.current = performance.now();
   }, [pose]);
 
@@ -61,6 +66,7 @@ export function RocketboxAvatar({ pose, onError }: AvatarProps) {
     let disposed = false;
     const textures: THREE.Texture[] = [];
     const buffer = new Float32Array(NUM_KEYPOINTS * 3);
+    const bodyBuffer = new Float32Array(4);
     const idle = idlePoints();
     const clock = new THREE.Clock();
 
@@ -146,15 +152,20 @@ export function RocketboxAvatar({ pose, onError }: AvatarProps) {
 
     let raf = 0;
     const tick = () => {
-      clock.getDelta();
+      const dt = Math.min(clock.getDelta(), 0.1);
       if (model && retargeter) {
-        const current = poseRef.current;
-        if (current && current.frames.length > 0) {
+        const motion = motionRef.current;
+        if (motion) {
+          const alpha = 1 - Math.exp(-dt / SMOOTHING_SECONDS);
           const elapsed = (performance.now() - startRef.current) / 1000;
-          samplePose(current.frames, current.fps, elapsed, buffer);
-          retargeter.apply(buffer, 0.6);
+          samplePose(motion.frames, motion.fps, elapsed, buffer);
+          sampleBody(motion.body, motion.fps, elapsed, bodyBuffer);
+          retargeter.applyBody(bodyBuffer, alpha);
+          retargeter.apply(buffer, alpha);
         } else {
-          retargeter.apply(idle, 0.15);
+          const alpha = 1 - Math.exp(-dt / IDLE_SMOOTHING_SECONDS);
+          retargeter.applyBody(null, alpha);
+          retargeter.apply(idle, alpha);
         }
       }
       renderer.render(scene, camera);

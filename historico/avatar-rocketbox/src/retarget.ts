@@ -22,8 +22,32 @@ export const POSE_RIGHT_SHOULDER = 12;
 export const LEFT_HAND_START = 33;
 export const RIGHT_HAND_START = 54;
 
-// Os keypoints z do MediaPipe são ruidosos; reduzi-los evita braços "para dentro da tela".
-export const DEFAULT_Z_SCALE = 0.6;
+// O z do braço já chega refeito por `prepareMotion` (motion.ts); aqui ele entra como está.
+export const DEFAULT_Z_SCALE = 1;
+
+// O avatar olha para +z. Na pose de repouso, o cotovelo dobra levando o antebraço para a frente.
+const FORWARD = new THREE.Vector3(0, 0, 1);
+// Abaixo de ~5° de dobra o plano do cotovelo é ruído; acima de ~20°, vale inteiro.
+const HINGE_MIN = Math.sin(5 * (Math.PI / 180));
+const HINGE_FULL = Math.sin(20 * (Math.PI / 180));
+// Parte do giro da mão (pronação) que vai para o antebraço, como no braço de verdade; o resto fica no punho.
+const FOREARM_TWIST_SHARE = 0.5;
+// Parte da rotação da cabeça feita pelo pescoço.
+const NECK_SHARE = 0.4;
+
+// Limites anatômicos dos dedos (fora o polegar), em radianos. Flexão positiva = para a palma.
+const DEG = Math.PI / 180;
+const FINGER_LIMITS = {
+  mcpFlex: [-30 * DEG, 95 * DEG], // base do dedo: flexiona e abre um pouco para os lados
+  mcpSpread: 20 * DEG,
+  pip: [-5 * DEG, 110 * DEG], // juntas do meio e da ponta: dobradiças
+  dip: [-5 * DEG, 90 * DEG],
+} as const;
+// A junta da ponta acompanha a do meio (~2/3 dela) na mão de verdade; a medida dela é a mais ruidosa.
+const DIP_COUPLING = 2 / 3;
+const DIP_MEASURED_SHARE = 0.5;
+// Polegar: só limita a dobra entre ossos vizinhos.
+const THUMB_MAX_BEND = 75 * DEG;
 
 type Side = "left" | "right";
 
@@ -49,6 +73,9 @@ const FINGER_BONES: { name: string; bones: [string, number, number][] }[] = [
   { name: "Ring", bones: [["Proximal", 13, 14], ["Intermediate", 14, 15], ["Distal", 15, 16]] },
   { name: "Little", bones: [["Proximal", 17, 18], ["Intermediate", 18, 19], ["Distal", 19, 20]] },
 ];
+
+// Ossos de tronco e cabeça movidos por `applyBody` (o rig pode não ter algum: fica parado).
+const BODY_BONES: BoneName[] = ["upperChest", "neck", "head"];
 
 const HAND_WRIST = 0;
 const HAND_INDEX_MCP = 5;
@@ -120,6 +147,67 @@ export function twistBetween(axis: THREE.Vector3, from: THREE.Vector3, to: THREE
   return new THREE.Quaternion().setFromAxisAngle(axis, angle);
 }
 
+/** Componente de `q` que gira em torno de `axis` (unitário): o "twist" da decomposição swing-twist. */
+export function twistAbout(q: THREE.Quaternion, axis: THREE.Vector3): THREE.Quaternion {
+  const d = q.x * axis.x + q.y * axis.y + q.z * axis.z;
+  const twist = new THREE.Quaternion(axis.x * d, axis.y * d, axis.z * d, q.w);
+  if (twist.lengthSq() < 1e-12) return new THREE.Quaternion();
+  return twist.normalize();
+}
+
+/** Rotação que leva o par ortonormal (`a`, `b`) até (`c`, `d`). */
+export function alignPair(a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3, d: THREE.Vector3): THREE.Quaternion {
+  const from = new THREE.Matrix4().makeBasis(a, b, new THREE.Vector3().crossVectors(a, b));
+  const to = new THREE.Matrix4().makeBasis(c, d, new THREE.Vector3().crossVectors(c, d));
+  return new THREE.Quaternion().setFromRotationMatrix(to.multiply(from.transpose()));
+}
+
+function clampRange(value: number, [min, max]: readonly [number, number]): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+/** `along` girado de `angle` na direção de `toward` (os dois unitários e perpendiculares). */
+function rotateIn(along: THREE.Vector3, toward: THREE.Vector3, angle: number): THREE.Vector3 {
+  return along.clone().multiplyScalar(Math.cos(angle)).addScaledVector(toward, Math.sin(angle));
+}
+
+/**
+ * Direções possíveis para as três falanges de um dedo (indicador a mindinho), a partir das medidas.
+ * `base`: punho → base do dedo; `volar`: para onde a palma olha; `measured`: as três falanges
+ * medidas (unitárias). A base flexiona e abre um pouco para os lados; as juntas do meio e da ponta
+ * são dobradiças que só dobram para a palma (a parte lateral da medida, que é ruído, sai).
+ */
+export function constrainFinger(base: THREE.Vector3, volar: THREE.Vector3, measured: THREE.Vector3[]): THREE.Vector3[] {
+  const along = base.clone().addScaledVector(volar, -base.dot(volar)).normalize();
+  const vol = volar.clone().addScaledVector(along, -volar.dot(along)).normalize();
+  const lateral = new THREE.Vector3().crossVectors(along, vol);
+  const [m1, m2, m3] = measured;
+
+  const flex = clampRange(Math.atan2(m1.dot(vol), m1.dot(along)), FINGER_LIMITS.mcpFlex);
+  const spreadLimit = FINGER_LIMITS.mcpSpread;
+  const spread = Math.max(-spreadLimit, Math.min(spreadLimit, Math.asin(Math.max(-1, Math.min(1, m1.dot(lateral))))));
+  const d1 = rotateIn(rotateIn(along, vol, flex), lateral, spread);
+  // a "palma" do dedo depois da base (perpendicular a d1): para onde as dobradiças seguintes dobram
+  const v1 = rotateIn(vol, along, -flex);
+
+  const pip = clampRange(Math.atan2(m2.dot(v1), m2.dot(d1)), FINGER_LIMITS.pip);
+  const d2 = rotateIn(d1, v1, pip);
+  const v2 = rotateIn(v1, d1, -pip);
+
+  const dipMeasured = Math.atan2(m3.dot(v2), m3.dot(d2));
+  const dip = clampRange(DIP_MEASURED_SHARE * dipMeasured + (1 - DIP_MEASURED_SHARE) * DIP_COUPLING * pip, FINGER_LIMITS.dip);
+  return [d1, d2, rotateIn(d2, v2, dip)];
+}
+
+/** `dir` com no máximo `maxAngle` de dobra em relação a `previous` (os dois unitários). */
+export function limitBend(previous: THREE.Vector3, dir: THREE.Vector3, maxAngle: number): THREE.Vector3 {
+  const angle = previous.angleTo(dir);
+  if (angle <= maxAngle) return dir.clone();
+  const axis = new THREE.Vector3().crossVectors(previous, dir);
+  if (axis.lengthSq() < 1e-12) return dir.clone();
+  return previous.clone().applyAxisAngle(axis.normalize(), maxAngle);
+}
+
 interface RestHand {
   forward: THREE.Vector3;
   normal: THREE.Vector3;
@@ -133,6 +221,7 @@ export class Retargeter {
   private readonly restWorld = new Map<BoneName, THREE.Quaternion>();
   private readonly restLocal = new Map<BoneName, THREE.Quaternion>();
   private readonly restHand = new Map<Side, RestHand>();
+  private readonly restHinge = new Map<Side, THREE.Vector3>();
   private readonly chains: Record<Side, { arm: ChainBone[]; hand: BoneName; fingers: ChainBone[] }>;
 
   /** `root` é um nó acima do esqueleto: as matrizes do mundo são atualizadas a partir dele. */
@@ -148,7 +237,10 @@ export class Retargeter {
       for (const { bone } of bones) this.recordRestDirection(bone, bones, hand);
       for (const name of [...bones.map((b) => b.bone), hand]) this.recordRestRotation(name);
       this.recordRestHand(side);
+      const upper = this.restDir.get(arm[0].bone);
+      if (upper) this.restHinge.set(side, new THREE.Vector3().crossVectors(upper, FORWARD).normalize());
     }
+    for (const name of BODY_BONES) this.recordRestRotation(name);
   }
 
   private buildChains(side: Side) {
@@ -239,16 +331,45 @@ export class Retargeter {
     node.updateMatrixWorld(true);
   }
 
-  /** `parentBone`: o osso da cadeia que é pai deste (null se o pai não é movido por nós, como a clavícula). */
-  private aim(chainBone: ChainBone, parentBone: BoneName | null, points: ArrayLike<number>, alpha: number): void {
-    const rest = this.restDir.get(chainBone.bone);
-    if (!rest) return;
-    if (isMissing(points, chainBone.from) || isMissing(points, chainBone.to)) return;
+  /** Direção medida do osso (de `from` a `to`), ou null se faltar ponto. */
+  private measured(chainBone: ChainBone, points: ArrayLike<number>): THREE.Vector3 | null {
+    if (isMissing(points, chainBone.from) || isMissing(points, chainBone.to)) return null;
     const from = readPoint(points, chainBone.from, this.zScale, new THREE.Vector3());
-    const to = readPoint(points, chainBone.to, this.zScale, new THREE.Vector3());
-    const target = to.sub(from);
-    if (target.lengthSq() < 1e-10) return;
-    this.setWorldDelta(chainBone.bone, swingOver(this.delta(parentBone), rest, target), alpha);
+    const target = readPoint(points, chainBone.to, this.zScale, new THREE.Vector3()).sub(from);
+    return target.lengthSq() < 1e-10 ? null : target.normalize();
+  }
+
+  /** Rotação (no mundo, relativa ao repouso) que aponta o osso para a direção medida, mantendo o giro do pai. */
+  private aimDelta(
+    chainBone: ChainBone,
+    parentDelta: THREE.Quaternion,
+    points: ArrayLike<number>,
+    direction?: THREE.Vector3,
+  ): THREE.Quaternion | null {
+    const rest = this.restDir.get(chainBone.bone);
+    const target = direction ?? this.measured(chainBone, points);
+    if (!rest || !target) return null;
+    return swingOver(parentDelta, rest, target);
+  }
+
+  /**
+   * Braço: além de apontar para o cotovelo, gira em torno de si mesmo para o cotovelo dobrar no
+   * plano certo (o cotovelo é uma dobradiça: só flexiona). Sem isso o antebraço dobra de lado.
+   */
+  private upperArmDelta(side: Side, points: ArrayLike<number>): THREE.Quaternion | null {
+    const [upper, lower] = this.chains[side].arm;
+    const swing = this.aimDelta(upper, new THREE.Quaternion(), points);
+    const rest = this.restDir.get(upper.bone);
+    const hinge = this.restHinge.get(side);
+    const u = this.measured(upper, points);
+    const f = this.measured(lower, points);
+    if (!swing || !rest || !hinge || !u || !f) return swing;
+    const bend = new THREE.Vector3().crossVectors(u, f);
+    const amount = bend.length();
+    const weight = Math.min(1, Math.max(0, (amount - HINGE_MIN) / (HINGE_FULL - HINGE_MIN)));
+    if (weight <= 0) return swing;
+    const hinged = alignPair(rest, hinge, u, bend.divideScalar(amount));
+    return swing.slerp(hinged, weight * weight * (3 - 2 * weight));
   }
 
   private handPresent(side: Side, points: ArrayLike<number>): boolean {
@@ -260,19 +381,49 @@ export class Retargeter {
   apply(points: ArrayLike<number>, alpha = 1): void {
     for (const side of ["left", "right"] as Side[]) {
       const { arm, hand, fingers } = this.chains[side];
-      this.aim(arm[0], null, points, alpha);
-      this.aim(arm[1], arm[0].bone, points, alpha);
-      this.applyHand(side, hand, arm[1].bone, fingers, points, alpha);
+      const upper = this.upperArmDelta(side, points);
+      if (upper) this.setWorldDelta(arm[0].bone, upper, alpha);
+      const forearm = this.aimDelta(arm[1], this.delta(arm[0].bone), points);
+      this.applyHand(side, hand, arm[1].bone, forearm, fingers, points, alpha);
     }
   }
 
-  private applyHand(side: Side, handBone: BoneName, forearm: BoneName, fingers: ChainBone[], points: ArrayLike<number>, alpha: number): void {
+  /**
+   * Cabeça e tronco: `angles` = [guinada, inclinação, rolagem, rolagem do peito] em radianos, em
+   * torno dos eixos do mundo (y, x, z); null volta ao repouso. Chame antes de `apply` (o peito
+   * é pai dos braços).
+   */
+  applyBody(angles: ArrayLike<number> | null, alpha = 1): void {
+    if (!angles) {
+      for (const name of BODY_BONES) {
+        const node = this.node(name);
+        const local = this.restLocal.get(name);
+        if (node && local) node.quaternion.slerp(local, alpha);
+      }
+      return;
+    }
+    const head = new THREE.Quaternion().setFromEuler(new THREE.Euler(angles[1], angles[0], angles[2], "YXZ"));
+    const chest = new THREE.Quaternion().setFromAxisAngle(FORWARD, angles[3]);
+    this.setWorldDelta("upperChest", chest, alpha);
+    this.setWorldDelta("neck", new THREE.Quaternion().slerp(head, NECK_SHARE), alpha);
+    this.setWorldDelta("head", head, alpha);
+  }
+
+  private applyHand(
+    side: Side,
+    handBone: BoneName,
+    forearm: BoneName,
+    forearmTarget: THREE.Quaternion | null,
+    fingers: ChainBone[],
+    points: ArrayLike<number>,
+    alpha: number,
+  ): void {
     const rest = this.restHand.get(side);
-    if (!this.node(handBone)?.parent || !rest) return;
-    const parentDelta = this.delta(forearm);
-    if (!this.handPresent(side, points)) {
+    if (!this.node(handBone)?.parent || !rest || !this.handPresent(side, points)) {
+      if (forearmTarget) this.setWorldDelta(forearm, forearmTarget, alpha);
+      if (!this.node(handBone)?.parent) return;
       // mão não detectada: acompanha o antebraço e os dedos voltam ao repouso
-      this.setWorldDelta(handBone, parentDelta, alpha);
+      this.setWorldDelta(handBone, this.delta(forearm), alpha);
       for (const { bone } of fingers) {
         const node = this.node(bone);
         const local = this.restLocal.get(bone);
@@ -280,19 +431,54 @@ export class Retargeter {
       }
       return;
     }
+    const parentDelta = forearmTarget ?? this.delta(forearm);
     const o = HAND_OFFSET[side];
     const read = (i: number) => readPoint(points, o + i, this.zScale, new THREE.Vector3());
     const target = palmFrame(read(HAND_WRIST), read(HAND_INDEX_MCP), read(HAND_MIDDLE_MCP), read(HAND_LITTLE_MCP));
     const swung = swingOver(parentDelta, rest.forward, target.forward);
     const normalNow = rest.normal.clone().applyQuaternion(swung);
-    const twist = twistBetween(target.forward, normalNow, target.normal);
-    this.setWorldDelta(handBone, twist.multiply(swung), alpha);
+    const handDelta = twistBetween(target.forward, normalNow, target.normal).multiply(swung);
+    if (forearmTarget) {
+      // pronação: parte do giro da mão em torno do antebraço passa para o antebraço (que não muda de direção)
+      const axis = this.restDir.get(forearm)?.clone().applyQuaternion(forearmTarget).normalize();
+      const extra = handDelta.clone().multiply(forearmTarget.clone().invert());
+      const share = axis ? new THREE.Quaternion().slerp(twistAbout(extra, axis), FOREARM_TWIST_SHARE) : new THREE.Quaternion();
+      this.setWorldDelta(forearm, share.multiply(forearmTarget), alpha);
+    }
+    this.setWorldDelta(handBone, handDelta, alpha);
+    // a palma olha para +normal na mão esquerda e para −normal na direita (palmFrame é espelhado)
+    const volar = side === "left" ? target.normal : target.normal.clone().negate();
+    const directions = this.fingerDirections(side, points, volar);
     let previous: ChainBone | null = null;
     for (const finger of fingers) {
       const parent = previous && sameFinger(previous.bone, finger.bone) ? previous.bone : handBone;
-      this.aim(finger, parent, points, alpha);
+      const delta = this.aimDelta(finger, this.delta(parent), points, directions.get(finger.bone));
+      if (delta) this.setWorldDelta(finger.bone, delta, alpha);
       previous = finger;
     }
+  }
+
+  /** Direções das falanges já com os limites anatômicos; dedo com ponto ausente fica de fora (usa a medida). */
+  private fingerDirections(side: Side, points: ArrayLike<number>, volar: THREE.Vector3): Map<BoneName, THREE.Vector3> {
+    const o = HAND_OFFSET[side];
+    const directions = new Map<BoneName, THREE.Vector3>();
+    const point = (i: number) => readPoint(points, o + i, this.zScale, new THREE.Vector3());
+    for (const finger of FINGER_BONES) {
+      const indices = [finger.bones[0][1], ...finger.bones.map(([, , to]) => to)];
+      if (indices.some((i) => isMissing(points, o + i)) || isMissing(points, o + HAND_WRIST)) continue;
+      const measured = finger.bones.map(([, from, to]) => point(to).sub(point(from)).normalize());
+      let constrained: THREE.Vector3[];
+      if (finger.name === "Thumb") {
+        const second = limitBend(measured[0], measured[1], THUMB_MAX_BEND);
+        constrained = [measured[0], second, limitBend(second, measured[2], THUMB_MAX_BEND)];
+      } else {
+        const base = point(finger.bones[0][1]).sub(point(HAND_WRIST));
+        if (base.lengthSq() < 1e-10) continue;
+        constrained = constrainFinger(base.normalize(), volar, measured);
+      }
+      finger.bones.forEach(([part], i) => directions.set(`${side}${finger.name}${part}`, constrained[i]));
+    }
+    return directions;
   }
 }
 

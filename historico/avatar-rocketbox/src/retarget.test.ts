@@ -6,7 +6,10 @@ import {
   palmFrame,
   samplePose,
   swingOver,
+  twistAbout,
   twistBetween,
+  constrainFinger,
+  limitBend,
   Retargeter,
   LEFT_HAND_START,
   RIGHT_HAND_START,
@@ -81,6 +84,55 @@ describe("palmFrame e twistBetween", () => {
     close(v(1, 0, 0).applyQuaternion(q), v(1, 0, 0));
     expect(twistBetween(v(1, 0, 0), v(1, 0, 0), v(0, 1, 0)).w).toBeCloseTo(1, 5); // sem componente perpendicular
   });
+
+  it("twistAbout separa o giro em torno do eixo de uma rotação composta", () => {
+    const twist = new THREE.Quaternion().setFromAxisAngle(v(1, 0, 0), 0.8);
+    const swing = new THREE.Quaternion().setFromAxisAngle(v(0, 0, 1), 0.5);
+    const part = twistAbout(swing.multiply(twist), v(1, 0, 0));
+    expect(2 * Math.acos(part.w)).toBeCloseTo(0.8, 5);
+  });
+});
+
+describe("constrainFinger e limitBend", () => {
+  // dedo apontando para +x, palma olhando para -y (volar)
+  const base = v(1, 0, 0);
+  const volar = v(0, -1, 0);
+  const angleIn = (dir: THREE.Vector3, along: THREE.Vector3, toward: THREE.Vector3) => Math.atan2(dir.dot(toward), dir.dot(along));
+
+  it("dedo esticado continua esticado", () => {
+    const [d1, d2, d3] = constrainFinger(base, volar, [v(1, 0, 0), v(1, 0, 0), v(1, 0, 0)]);
+    close(d1, v(1, 0, 0));
+    close(d2, v(1, 0, 0));
+    close(d3, v(1, 0, 0));
+  });
+
+  it("junta do meio é dobradiça: a parte lateral da medida sai", () => {
+    // falange do meio dobrada 60° para a palma e 30° para o lado (impossível)
+    const bent = v(Math.cos(Math.PI / 3), -Math.sin(Math.PI / 3), 0).applyAxisAngle(v(0, -1, 0), Math.PI / 6);
+    const [, d2] = constrainFinger(base, volar, [v(1, 0, 0), bent.normalize(), bent]);
+    expect(Math.abs(d2.z)).toBeLessThan(1e-6); // sem componente lateral (z é o lado aqui)
+    expect(d2.y).toBeLessThan(-0.5); // continua dobrada para a palma
+  });
+
+  it("não dobra para trás nem passa do limite", () => {
+    const back = v(Math.cos(1), Math.sin(1), 0); // 57° para o dorso da mão
+    const [, d2] = constrainFinger(base, volar, [v(1, 0, 0), back, back]);
+    expect(angleIn(d2, v(1, 0, 0), volar)).toBeCloseTo(-5 * (Math.PI / 180), 5);
+    const [d1] = constrainFinger(base, volar, [v(0, 0, 1), v(0, 0, 1), v(0, 0, 1)]); // base aberta 90° para o lado
+    expect(Math.asin(Math.abs(d1.z))).toBeCloseTo(20 * (Math.PI / 180), 5);
+  });
+
+  it("a ponta acompanha a junta do meio", () => {
+    const pip = v(0, -1, 0); // 90° na junta do meio
+    const [, d2, d3] = constrainFinger(base, volar, [v(1, 0, 0), pip, pip]); // ponta medida reta
+    close(d2, pip);
+    expect(d2.angleTo(d3)).toBeCloseTo(0.5 * (2 / 3) * (Math.PI / 2), 5);
+  });
+
+  it("limitBend corta a dobra no máximo", () => {
+    close(limitBend(v(1, 0, 0), v(0, 1, 0), Math.PI / 4), v(Math.SQRT1_2, Math.SQRT1_2, 0));
+    close(limitBend(v(1, 0, 0), v(1, 1, 0).normalize(), Math.PI / 2), v(1, 1, 0).normalize());
+  });
 });
 
 // Um esqueleto mínimo em pose T, olhando para +z. `skewed` dá a cada osso uma rotação de repouso
@@ -125,6 +177,8 @@ function fakeRig(skewed: boolean): { root: THREE.Object3D; lookup: (name: string
     const proximalThumb = add(`${side}ThumbProximal`, metacarpal, [sign * 0.02, 0, 0.02]);
     add(`${side}ThumbDistal`, proximalThumb, [sign * 0.02, 0, 0.02]);
   }
+  const neck = add("neck", chest, [0, 0.05, 0]);
+  add("head", neck, [0, 0.1, 0]);
   root.updateMatrixWorld(true);
   return {
     root,
@@ -214,6 +268,56 @@ describe.each([
     expect(RIGHT_HAND_START).toBe(54);
   });
 
+  it("cotovelo é dobradiça: com o braço para baixo e o antebraço para a frente, o braço gira para dobrar para a frente", () => {
+    const { root, bone, delta, retargeter } = make();
+    const points = idlePoints();
+    const set = (i: number, p: [number, number, number]) => points.set(p, i * 3);
+    set(11, [0.2, 0, 0]);
+    set(13, [0.2, -0.3, 0]);
+    set(15, [0.2, -0.3, 0.25]);
+    retargeter.apply(points);
+    root.updateMatrixWorld(true);
+
+    close(direction(bone("leftUpperArm"), bone("leftLowerArm")), v(0, -1, 0), 1e-4);
+    close(direction(bone("leftLowerArm"), bone("leftHand")), v(0, 0, 1), 1e-4);
+    // eixo de flexão em repouso: braço (+x) × frente (+z) = -y; agora tem que ser braço (-y) × antebraço (+z) = -x
+    close(v(0, -1, 0).applyQuaternion(delta("leftUpperArm")), v(-1, 0, 0), 1e-4);
+    // o antebraço só flexiona: gira em torno desse eixo em relação ao braço
+    const relative = delta("leftLowerArm").multiply(delta("leftUpperArm").invert());
+    close(v(-1, 0, 0).applyQuaternion(relative), v(-1, 0, 0), 1e-4);
+  });
+
+  it("pronação: metade do giro da mão vai para o antebraço, sem mudar a direção dele", () => {
+    const { root, bone, delta, retargeter } = make();
+    const points = idlePoints();
+    const set = (i: number, p: [number, number, number]) => points.set(p, i * 3);
+    set(11, [0.2, 0, 0]);
+    set(13, [0.5, 0, 0]);
+    set(15, [0.75, 0, 0]);
+    const o = LEFT_HAND_START;
+    set(o + 0, [0.75, 0, 0]);
+    set(o + 5, [0.83, 0.02, 0]);
+    set(o + 9, [0.84, 0, 0]);
+    set(o + 17, [0.825, -0.02, 0]);
+    retargeter.apply(points);
+    root.updateMatrixWorld(true);
+
+    close(direction(bone("leftLowerArm"), bone("leftHand")), v(1, 0, 0), 1e-4);
+    const forearmTwist = twistAbout(delta("leftLowerArm"), v(1, 0, 0));
+    expect(2 * Math.acos(Math.min(1, Math.abs(forearmTwist.w)))).toBeCloseTo(Math.PI / 4, 3);
+  });
+
+  it("cabeça: a guinada gira a cabeça em torno de +y, com parte no pescoço", () => {
+    const { root, delta, retargeter } = make();
+    retargeter.applyBody([0.3, 0, 0, 0]);
+    root.updateMatrixWorld(true);
+    close(v(0, 0, 1).applyQuaternion(delta("head")), v(Math.sin(0.3), 0, Math.cos(0.3)), 1e-4);
+    close(v(0, 0, 1).applyQuaternion(delta("neck")), v(Math.sin(0.12), 0, Math.cos(0.12)), 1e-4);
+    retargeter.applyBody(null);
+    root.updateMatrixWorld(true);
+    expect(Math.abs(delta("head").w)).toBeGreaterThan(0.9999);
+  });
+
   it("suavização (alpha < 1) anda só parte do caminho até a nova rotação", () => {
     const { root, bone, retargeter } = make();
     retargeter.apply(idlePoints(), 0.3);
@@ -245,8 +349,14 @@ describe("rocketboxBoneName", () => {
     expect(rocketboxBoneName("rightThumbDistal")).toBe("Bip01_R_Finger02");
   });
 
+  it("tronco e cabeça: Spine2, Neck, Head", () => {
+    expect(rocketboxBoneName("upperChest")).toBe("Bip01_Spine2");
+    expect(rocketboxBoneName("neck")).toBe("Bip01_Neck");
+    expect(rocketboxBoneName("head")).toBe("Bip01_Head");
+  });
+
   it("nomes que o rig não tem viram null", () => {
-    expect(rocketboxBoneName("head")).toBeNull();
+    expect(rocketboxBoneName("leftUpperLeg")).toBeNull();
     expect(rocketboxBoneName("leftIndexMetacarpal")).toBeNull();
     expect(rocketboxBoneName("leftThumbIntermediate")).toBeNull();
   });

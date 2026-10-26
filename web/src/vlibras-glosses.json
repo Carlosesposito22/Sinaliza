@@ -1,0 +1,13 @@
+{
+  "_comment": "Glosas do vocabulário que não existem no dicionário do VLibras (conferido em 2026-10-25) e os sinais que tocam no lugar. Proposta não validada: ninguém da equipe sabe Libras.",
+  "split": {
+    "DEVER DE CASA": ["DEVER", "CASA"],
+    "DOR DE CABEÇA": ["DOR", "CABEÇA"],
+    "DOR DE GARGANTA": ["DOR", "GARGANTA"],
+    "DOR DE OUVIDO": ["DOR", "OUVIDO"],
+    "COM SEDE": ["SEDE"],
+    "COM MEDO": ["MEDO"],
+    "SE CASAR": ["CASAR"],
+    "MELHOR AMIGO": ["MELHOR", "AMIGO"]
+  }
+}
