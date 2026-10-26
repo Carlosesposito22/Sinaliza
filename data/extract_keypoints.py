@@ -134,15 +134,21 @@ def extract(
     crop_every: int = 15,
     upper_body: bool = False,
     target_fps: float | None = None,
+    hand_model: Path | None = None,
 ) -> np.ndarray:
     """Keypoints normalizados de um vídeo.
 
     Com `detector`, o vídeo é recortado em volta da pessoa. O recorte (ou o quadro
     inteiro, sem detector) é reduzido a `max_width` antes do MediaPipe. Com
     `target_fps`, processa só um quadro a cada `round(fps_do_vídeo / target_fps)`.
+    Com `hand_model`, o z das mãos vem dos world landmarks do HandLandmarker (hand_world.py).
     """
+    import contextlib
+
     import cv2
     import mediapipe as mp
+
+    from hand_world import HandWorldTracker, apply_world_hands
 
     box: Box | None = None
     if detector is not None:
@@ -153,12 +159,14 @@ def extract(
     capture = cv2.VideoCapture(str(video_path))
     if not capture.isOpened():
         raise FileNotFoundError(f"não foi possível abrir {video_path}")
-    stride = stride_for(capture.get(cv2.CAP_PROP_FPS), target_fps)
+    source_fps = capture.get(cv2.CAP_PROP_FPS) or 30.0
+    stride = stride_for(source_fps, target_fps)
 
     frames = []
     last_reference: Reference | None = None
     index = -1
-    with mp.solutions.holistic.Holistic(model_complexity=1) as holistic:
+    hands_context = HandWorldTracker(hand_model) if hand_model else contextlib.nullcontext()
+    with mp.solutions.holistic.Holistic(model_complexity=1) as holistic, hands_context as tracker:
         while True:
             if not capture.grab():
                 break
@@ -174,7 +182,8 @@ def extract(
             size = (x1 - x0, y1 - y0)
             if region.shape[1] > max_width:
                 region = cv2.resize(region, (max_width, round(region.shape[0] * max_width / region.shape[1])))
-            result = holistic.process(cv2.cvtColor(region, cv2.COLOR_BGR2RGB))
+            rgb = cv2.cvtColor(region, cv2.COLOR_BGR2RGB)
+            result = holistic.process(rgb)
             frame = np.concatenate(
                 [
                     _landmarks_to_array(result.pose_landmarks, POSE_COUNT, (x0, y0), size),
@@ -182,6 +191,9 @@ def extract(
                     _landmarks_to_array(result.right_hand_landmarks, HAND_COUNT, (x0, y0), size),
                 ]
             )
+            if tracker is not None:
+                hands = tracker.detect(rgb, round(index * 1000 / source_fps), (x0, y0), size)
+                frame = apply_world_hands(frame, hands, POSE_COUNT, size[0])
             if upper_body:
                 frame = _drop_lower_body(frame)
             last_reference = _reference(frame) or last_reference
@@ -214,6 +226,12 @@ def _add_extraction_options(parser: argparse.ArgumentParser, yolo_default: bool 
     parser.add_argument("--crop-every", type=int, default=15, help="detecta a pessoa a cada N quadros para montar o recorte")
     parser.add_argument("--upper-body", action="store_true", help="zera quadris, pernas e pés (vídeo da cintura para cima)")
     parser.add_argument("--target-fps", type=float, default=None, help="processa só um quadro a cada fps/target (ex.: 30)")
+    parser.add_argument(
+        "--hand-world",
+        action="store_true",
+        help="z das mãos pelos world landmarks do HandLandmarker (precisa de --hand-model; ver hand_world.py)",
+    )
+    parser.add_argument("--hand-model", type=Path, default=None, help="modelo hand_landmarker.task (padrão: data/hand_landmarker.task)")
 
 
 def main() -> None:
@@ -244,6 +262,11 @@ def main() -> None:
     folder.set_defaults(upper_body=True, target_fps=30.0)
 
     args = parser.parse_args()
+    hand_model = None
+    if args.hand_world:
+        from hand_world import DEFAULT_HAND_MODEL
+
+        hand_model = args.hand_model or DEFAULT_HAND_MODEL
 
     if args.command == "vlibrasil":
         from vlibrasil import process_folder
@@ -265,6 +288,7 @@ def main() -> None:
                 crop_every=args.crop_every,
                 upper_body=args.upper_body,
                 target_fps=args.target_fps,
+                hand_model=str(hand_model) if hand_model else None,
             ),
         )
         print(counts)
@@ -274,7 +298,7 @@ def main() -> None:
 
     def run(path: Path) -> np.ndarray:
         return extract(
-            path, args.max_width, detector, args.crop_margin, args.crop_every, args.upper_body, args.target_fps
+            path, args.max_width, detector, args.crop_margin, args.crop_every, args.upper_body, args.target_fps, hand_model
         )
 
     if args.command == "video":

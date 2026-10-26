@@ -150,6 +150,7 @@ def _extract_job(job: tuple[str, dict]) -> tuple[str, np.ndarray | None, str]:
             options["crop_every"],
             options["upper_body"],
             options["target_fps"],
+            Path(options["hand_model"]) if options.get("hand_model") else None,
         )
         return path, keypoints, ""
     except Exception as error:  # noqa: BLE001 - um vídeo ruim não pode derrubar o lote

@@ -17,6 +17,7 @@ model/checkpoints/
 *.npy
 *.pt
 *.pth
+*.task
 
 # Ambiente / editor
 .env

@@ -23,6 +23,16 @@ data/
 
 Decididos em [`docs/dados-e-vocabulario.md`](../docs/dados-e-vocabulario.md): o treino usa o **V-LIBRASIL** (só pesquisa e ensino, sem redistribuição; os vídeos ficam fora do repositório, em `C:\Users\Carlos\Desktop\Projetos 6\Datasets`) com os 210 sinais curados de [`vocabulary.json`](vocabulary.json). O MINDS-Libras (CC BY 4.0, 20 sinais) não foi baixado; as seções sobre ele abaixo valem se for usado.
 
+### V-LIBRASIL: mãos com world landmarks (recomendado)
+
+`--hand-world` usa também o **HandLandmarker** do MediaPipe para o z das mãos (3D métrico, sem o achatamento do Holistic; ver `hand_world.py` e `references/10-pipeline-de-dados.md`). Baixe o modelo uma vez para `data/` (ignorado pelo git):
+
+```powershell
+curl.exe -L --fail -o hand_landmarker.task https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task
+$env:PYTHONIOENCODING = "utf-8"
+python extract_keypoints.py vlibrasil "<pasta>/videos UFPE (V-LIBRASIL)/data" "<pasta>/processed/v-librasil-world" --hand-world --workers 8
+```
+
 ### V-LIBRASIL: extração em lote
 
 ```powershell
