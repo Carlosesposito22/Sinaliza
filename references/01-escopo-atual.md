@@ -25,9 +25,12 @@ Conversa com o professor, relatada pelo Carlos: **ninguém da equipe sabe Libras
 
 > Nota de honestidade: o novo escopo não elimina a limitação de Libras, só a desloca. A métrica DTW mede fidelidade ao movimento gravado, **não correção linguística**. Ver [`16-riscos-e-questoes-abertas.md`](16-riscos-e-questoes-abertas.md).
 
+> **Atualização 2026-10-28: o ML principal passou a ser o texto → glosa.** A pesquisa em [`Pesquisas/`](../Pesquisas/) mostrou que descartar palavras de uma lista fixa e tocar um sinal por palavra produz português sinalizado. Os requisitos de ML da disciplina pedem modelos clássicos rastreados (Airflow, MLflow, Optuna, k-fold, painel). O plano está em [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md): classificadores treinados no corpus VLibrasBD (glosado por intérpretes) decidem quais palavras viram sinal, e depois o sentido dos homônimos e as marcas de negação e intensidade. O gerador de movimento (DTW) continua como experimento. O sistema embarcado e o MQTT da rubrica não são requisito do grupo. **[a confirmar com o professor]**
+
 ### Dentro do escopo
 
-- Texto em português → sequência de glosas: por tabela em `data/vocabulary.json` e, para palavras fora dela, por aproximação com embeddings (sempre sinalizada ao usuário).
+- **ML texto → glosa** (plano em [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md)): classificador por palavra (manter ou descartar) treinado no VLibrasBD, com baseline, três modelos comparados, Optuna e validação cruzada no MLflow; pipeline no Airflow; integração na API; painel; tudo no Docker Compose. **Planejado, não implementado.**
+- Texto em português → sequência de glosas: por tabela em `data/vocabulary.json` e, para palavras fora dela, por aproximação com embeddings (sempre sinalizada ao usuário). É o que existe hoje e vira a linha de base sem ML do plano.
 - Frases de exemplo por categoria (escola, saúde, serviços, trabalho, família, geral), só com o vocabulário.
 - Extração dos dados com YOLOv8 (recorte da pessoa) + MediaPipe.
 - Glosas → sequência de poses (corpo + mãos), por gerador (stub hoje; modelo ou medoide depois).
@@ -42,7 +45,8 @@ Conversa com o professor, relatada pelo Carlos: **ninguém da equipe sabe Libras
 - Tela de consentimento LGPD **para captura de câmera** (não há captura do usuário no novo escopo — ver [`16-riscos-e-questoes-abertas.md`](16-riscos-e-questoes-abertas.md) para o que ainda se aplica à privacidade).
 - Expressão facial e gramática de Libras (ordem, uso do espaço): o MVP concatena sinais isolados na ordem do texto.
 - Expansão do vocabulário além dos 20 sinais (V-LIBRASIL fica como possibilidade futura, com restrições de licença).
-- Texto → glosa por modelo aprendido (corpus `pt-br2libras-gloss` reservado para etapa seguinte).
+- ~~Texto → glosa por modelo aprendido~~ **entrou no escopo em 2026-10-28** (ver acima). Continua fora: ordem dos sinais aprendida (só com o PTT5/ByT5 opcional) e uso do espaço.
+- Sistema embarcado e broker MQTT da rubrica de ML: não são requisito do grupo (informado pelo Carlos em 2026-10-28). **[a confirmar com o professor]** se o MQTT também sai.
 
 ### O que sobrevive da fase 1
 

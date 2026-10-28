@@ -6,7 +6,7 @@ Resumo de `docs/dados-e-vocabulario.md` (decisão de 2026-10-14; licenças e tam
 
 1. **Movimento (glosa → pose):** **MINDS-Libras**, com os 20 sinais como vocabulário fechado do MVP.
 2. **Expansão (decidida em 2026-10-19):** acrescentar o **V-LIBRASIL** (1.364 sinais, 3 sinalizantes; só pesquisa e ensino, sem redistribuição) ao MINDS-Libras. O Apoema-Libras560 foi descartado. **O Carlos baixou só o V-LIBRASIL** (o MINDS é pesado demais), que fica **só na máquina dele, fora do repositório** (`C:\Users\Carlos\Desktop\Projetos 6\Datasets`); não se versionam vídeos nem keypoints. Detalhes em `references/21-datasets-de-treino.md`. **Atenção:** o V-LIBRASIL tem só 7 dos 20 sinais do MVP com o mesmo nome (ACONTECER, AMARELO, BANHEIRO, BARULHO, ESPELHO, FILHO, RUIM); o vocabulário do MVP (que vem do MINDS) precisa ser redefinido a partir da lista de classes do V-LIBRASIL.
-3. **Texto → glosa:** no MVP, por **tabela** (`data/vocabulary.json`). O corpus `pt-br2libras-gloss` fica para uma etapa seguinte, com modelo aprendido.
+3. **Texto → glosa:** no MVP, por **tabela** (`data/vocabulary.json`). Desde 2026-10-28 o corpus `pt-br2libras-gloss` (VLibrasBD) é o **bootstrap dataset do ML** texto → glosa: ver [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md). Ainda não baixado.
 
 ## MINDS-Libras
 
@@ -30,7 +30,7 @@ Na rede testada, o Zenodo serviu ~130–210 KB/s (cerca de um dia para os 16,3 G
 | Fonte | Conteúdo | Motivo |
 | --- | --- | --- |
 | V-LIBRASIL | 1.364 termos, 3 articuladores, 4.089 vídeos | Só pesquisa/educação; **não redistribuir sem permissão**; uso comercial exige autorização. Melhor candidato para ampliar o vocabulário |
-| pt-br2libras-gloss (Mendeley) | 127.349 pares português ↔ glosa | CC BY-SA 4.0. É texto, não movimento; serve para texto → glosa. Convenção de glosas não detalhada |
+| pt-br2libras-gloss (Mendeley) | 127.349 pares português ↔ glosa | CC BY-SA 4.0. É texto, não movimento; serve para texto → glosa. Glosado à mão por intérpretes; notação descrita no [relatório técnico do Zenodo](https://zenodo.org/records/15399589). Dataset do ML texto → glosa desde 2026-10-28 |
 | Libras-UFPel Corpus | 4.800 registros (2.400 frases + 2.400 sinais), 4 sinalizantes surdos nativos | Sem link de download nem licença encontrados; vale pedir aos autores — único com **frases** |
 | LIBRAS-UFOP | 56 sinais com RGB-D e esqueleto | Sem autores nem acesso encontrados |
 

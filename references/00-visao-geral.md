@@ -4,7 +4,7 @@
 
 **Sinaliza** é um projeto da disciplina **Projetos 6** (Grupo 10, curso de Ciência da Computação). A versão atual é uma ferramenta que **recebe um texto em português e o traduz para movimento em Libras (Língua Brasileira de Sinais)**, exibido por um avatar na tela.
 
-Tecnicamente: texto → sequência de glosas (sinais) → sequência de poses (keypoints de corpo e mãos) → animação de um avatar. O componente de ML é um gerador de movimento condicionado ao sinal, treinado em gravações reais de sinalizantes (dataset MINDS-Libras).
+Tecnicamente: texto → sequência de glosas (sinais) → avatar do VLibras, que toca os sinais. Desde 2026-10-28 o componente de ML planejado é o **texto → glosa**: classificadores treinados no corpus VLibrasBD (glosado por intérpretes) decidem quais palavras viram sinal, com o ciclo completo exigido pela disciplina (Airflow, MLflow, Optuna, validação cruzada, painel). Ver [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md). O gerador de movimento treinado em gravações reais (V-LIBRASIL) continua como experimento ([`11-modelo-ml.md`](11-modelo-ml.md)).
 
 > Pivô importante: o projeto **nasceu** como um jogo que reconhece, pela câmera, o sinal feito pelo usuário. Esse escopo foi **reduzido**. Veja [`01-escopo-atual.md`](01-escopo-atual.md).
 

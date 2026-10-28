@@ -37,6 +37,7 @@ Dizer **"surdo" / "pessoa surda"**. Não usar **"deficiente auditivo"** nem **"s
 9. Ao mudar `data/vocabulary.json` ou os modelos de frase em `api/app/phrases.py`, rode `python -m app.phrases` e commite `data/phrases.json` (um teste confere).
 10. O YOLOv8 (Ultralytics, **AGPL-3.0**) fica só na extração offline em `data/`; não o coloque na API nem na imagem Docker sem reavaliar a licença com o professor.
 11. Distinga **fato verificado**, **inferido** e **a confirmar** ao resumir — como fazem estes arquivos.
+12. **Não terceirize o ML texto → glosa.** O modelo que decide a glosa é treinado por nós, no nosso pipeline (ver [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md)). O `vlibras-translate` só entra como linha de base externa; o player do VLibras só toca as glosas.
 
 ## Ambiente
 
@@ -64,3 +65,5 @@ Perguntas que valem a pena, porque o código não responde:
 | Plugar o modelo na API | [`12-api.md`](12-api.md) |
 | Rodar algo | [`14-como-rodar-e-testar.md`](14-como-rodar-e-testar.md) |
 | O que falta | [`15-estado-atual-e-proximos-passos.md`](15-estado-atual-e-proximos-passos.md) |
+| Plano de ML e requisitos da disciplina | [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md) |
+| Por que não usar só palavras-chave | `Pesquisas/Relatório de Pesquisa - Texto para Libras.md` |

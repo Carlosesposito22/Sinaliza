@@ -13,7 +13,8 @@ Esta pasta existe para que uma sessão nova do Claude (ou uma pessoa nova na equ
 1. [`00-visao-geral.md`](00-visao-geral.md) — o que é o Sinaliza, em uma página.
 2. [`01-escopo-atual.md`](01-escopo-atual.md) — **o escopo vigente** e o que mudou em relação às entregas. Onde houver conflito entre este arquivo e os docs da fase 1, vale este.
 3. [`15-estado-atual-e-proximos-passos.md`](15-estado-atual-e-proximos-passos.md) — o que funciona, o que é stub, o que falta.
-4. [`17-convencoes-e-regras-para-claude.md`](17-convencoes-e-regras-para-claude.md) — como trabalhar neste repositório.
+4. [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md) — o plano de ML vigente e o que falta para cumprir os requisitos da disciplina. A pesquisa que o motivou está em [`../Pesquisas/`](../Pesquisas/).
+5. [`17-convencoes-e-regras-para-claude.md`](17-convencoes-e-regras-para-claude.md) — como trabalhar neste repositório.
 
 ## Índice completo
 
@@ -37,7 +38,8 @@ Esta pasta existe para que uma sessão nova do Claude (ou uma pessoa nova na equ
 | [`08-formato-de-pose.md`](08-formato-de-pose.md) | O contrato único entre `model/`, `api/` e `web/` |
 | [`09-dados-e-vocabulario.md`](09-dados-e-vocabulario.md) | MINDS-Libras, os 20 sinais, licenças, limites |
 | [`10-pipeline-de-dados.md`](10-pipeline-de-dados.md) | `data/`: vídeo → keypoints |
-| [`11-modelo-ml.md`](11-modelo-ml.md) | `model/`: gerador, linhas de base, métrica DTW |
+| [`11-modelo-ml.md`](11-modelo-ml.md) | `model/`: gerador de movimento, linhas de base, métrica DTW (experimento; a entrega de ML agora é o 22) |
+| [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md) | **Plano de ML vigente:** texto → glosa por classificação no VLibrasBD, mapa dos requisitos de ML da disciplina e fases |
 | [`12-api.md`](12-api.md) | `api/`: endpoints, gerador stub, como plugar o modelo |
 | [`13-web.md`](13-web.md) | `web/`: front React e o avatar do VLibras (local) |
 | [`14-como-rodar-e-testar.md`](14-como-rodar-e-testar.md) | Comandos, venvs, Docker, testes |

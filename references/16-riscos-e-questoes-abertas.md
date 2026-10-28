@@ -26,6 +26,10 @@ Classificação: **Alto / Médio / Baixo** é julgamento nosso **[inferido]**.
 | 21 | **Mãos não detectadas:** 70 gravações com a mão esquerda abaixo de 80% (49 na direita); não se sabe quantas são sinais de uma mão só | Médio | Olhar os casos com taxa baixa |
 | 14 | **Ganho do YOLOv8 não medido no dataset real.** Em teste com um clipe de webcam e uma simulação 1080p o ganho em mãos foi pequeno e só com a pessoa pequena no quadro; recorte fixo assume câmera parada | Médio | A/B com `--limit` pequeno e `--no-yolo` nos vídeos do MINDS-Libras; olhar `extraction_log.csv` |
 | 15 | **Aproximação por embedding pode errar:** o usuário vê um sinal que não corresponde à palavra (ex.: parecido na escrita, ou "perto" no sentido com o embedder semântico) | Médio | Sempre marcada com "~" e aviso; limiar conservador (0,65 no `char-ngram`); embedder semântico precisa de calibração antes de uso; validar com falante de Libras |
+| 22 | **Rótulos ruidosos no ML texto → glosa:** a rotulagem por lema marca como "descartada" a palavra que o intérprete trocou por sinônimo | Médio | Conferir 200 rótulos à mão e reportar a taxa de erro (ver `22-plano-ml-texto-glosa.md`) |
+| 23 | **O classificador não muda a ordem dos sinais:** decide quais palavras entram, mas a ordem continua a do português | Médio | Declarar na apresentação; PTT5/ByT5 como extensão opcional |
+| 24 | **Peso da infraestrutura de ML** (Postgres, MLflow, Airflow, painel) na máquina da equipe | Médio | Documentar memória mínima; Airflow em modo standalone ou LocalExecutor |
+| 25 | **Plano de ML ainda não validado pelo professor** (classificação como "modelo adequado", embarcado e MQTT fora) | Alto | Levar `22-plano-ml-texto-glosa.md` ao professor antes de implementar |
 | 16 | **Frases de exemplo dão falsa impressão de cobertura:** os modelos de frase foram escritos para caber nos 20 sinais | Baixo | Mostram palavras ignoradas (`ignored`); aviso "não é tradução para Libras" no subtítulo |
 
 ## Privacidade (LGPD) no escopo atual
