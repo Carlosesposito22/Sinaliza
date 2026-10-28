@@ -1,5 +1,7 @@
 # model
 
+> Desde 2026-10-28 este gerador de movimento é um experimento, não a entrega de ML do projeto. A entrega de ML é o texto → glosa por classificação: ver [`references/22-plano-ml-texto-glosa.md`](../references/22-plano-ml-texto-glosa.md).
+
 Modelo sinal (gloss) → sequência de poses. O treino está pronto como esqueleto e foi exercitado só com **dados sintéticos**; os vídeos reais ainda não foram processados.
 
 ## Como rodar

@@ -1,5 +1,22 @@
 # Estado atual e próximos passos
 
+> **Atualização 2026-10-28.** A entrega de ML passou a ser o **texto → glosa por classificação** ([`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md)). Nada dele está implementado ainda. Situação frente aos requisitos de ML da disciplina:
+>
+> | Requisito | Situação |
+> | --- | --- |
+> | Bootstrap dataset (VLibrasBD) + persistência no banco | Falta |
+> | Airflow + notebook de EDA + preparação | Falta |
+> | Baseline no MLflow | Falta |
+> | Três modelos comparados com gráficos | Falta |
+> | Optuna | Falta |
+> | Validação cruzada e generalização | Falta |
+> | Modelo integrado à API, consumindo frases novas | Falta |
+> | Docker Compose com Postgres, MLflow, Airflow, API, web e painel | Parcial (só `api` e `web`) |
+> | Painel | Falta |
+> | Embarcado + MQTT | Não se aplica ao grupo **[a confirmar com o professor quanto ao MQTT]** |
+>
+> **Próximos passos:** seguir as fases de [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md), começando por validar o plano com o professor e baixar o VLibrasBD para a EDA. O restante deste arquivo descreve o estado em 2026-10-19/25, ainda válido para os componentes que existem.
+
 Posição em **2026-10-19**, segundo o código e o git. Os 5 commits originais são de 2026-10-14; depois vieram 2 commits de documentação (`Documentos/`, `references/`, `CLAUDE.md`). As implementações das sugestões do orientador (YOLOv8, embeddings, frases por categoria) estão **no working tree, ainda sem commit**.
 
 ## O que está pronto

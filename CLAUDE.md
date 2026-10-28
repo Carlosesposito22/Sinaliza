@@ -1,6 +1,6 @@
 # Sinaliza
 
-Projeto de Projetos 6 (Grupo 10): ferramenta que recebe **texto em português** e mostra a **sequência de sinais de Libras** correspondente em um avatar. O ML gera movimento a partir do texto (dataset MINDS-Libras, vocabulário fechado de 20 sinais).
+Projeto de Projetos 6 (Grupo 10): ferramenta que recebe **texto em português** e mostra a **sequência de sinais de Libras** correspondente em um avatar (o player do VLibras). Desde 2026-10-28 o ML planejado é o **texto → glosa por classificação**, treinado no corpus VLibrasBD, com Airflow, MLflow, Optuna, validação cruzada e painel: ver `references/22-plano-ml-texto-glosa.md`. O gerador de movimento em `model/` (V-LIBRASIL, DTW) ficou como experimento.
 
 O escopo foi reduzido depois de conversa com o professor: o projeto **não** reconhece mais o sinal feito pelo usuário via câmera. As entregas em `Documentos/` descrevem o escopo antigo.
 
@@ -10,6 +10,7 @@ Leia `references/README.md` (índice). Para começar:
 
 - `references/01-escopo-atual.md`: escopo vigente. Prevalece sobre `Documentos/`.
 - `references/15-estado-atual-e-proximos-passos.md`: o que funciona, o que é stub, o que falta.
+- `references/22-plano-ml-texto-glosa.md`: plano de ML vigente e mapa dos requisitos de ML da disciplina.
 - `references/17-convencoes-e-regras-para-claude.md`: convenções completas.
 
 ## Regras principais
@@ -26,6 +27,7 @@ Leia `references/README.md` (índice). Para começar:
 10. Formato de pose: origem no meio dos **ombros**; índices 23–32 zerados em vídeo da cintura para cima; tratar `[0, 0, 0]` como ausente.
 11. Avalie geração com a **recuperação** (`retrieval`), não só com o DTW médio: o DTW premia movimento borrado.
 12. O avatar é o player do VLibras (LGPL-3.0) rodando **localmente** (`web/public/vlibras/`); os sinais vêm de `npm run signs` e **não são versionados** (`web/public/vlibras/signs/`). O avatar antigo (Rocketbox) está em `historico/avatar-rocketbox/` e não é compilado.
+13. Não terceirize o ML texto → glosa: o modelo que decide a glosa é treinado por nós. O `vlibras-translate` só entra como linha de base externa de avaliação.
 
 ## Convenções
 

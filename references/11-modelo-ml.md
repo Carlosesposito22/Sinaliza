@@ -1,5 +1,7 @@
 # Modelo de ML (`model/`)
 
+> **Desde 2026-10-28 este modelo não é a entrega principal de ML.** O avatar é o VLibras (os movimentos não vêm daqui), o modelo não superou a média por sinal e a rubrica pede classificadores rastreados. A entrega de ML passou a ser o texto → glosa por classificação: ver [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md). O conteúdo abaixo continua válido como registro do experimento e da validação por sinalizante não visto.
+
 Modelo **sinal (glosa) → sequência de poses**. Pacote Python `sinaliza_model`. Exercitado até agora **só com dados sintéticos**; os vídeos reais não foram processados.
 
 ## Arquivos

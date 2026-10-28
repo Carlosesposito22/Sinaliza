@@ -24,7 +24,8 @@
 | **Libras Aventura** | Jogo que reconhece o alfabeto com sensores de movimento |
 | **MINDS-Libras** | Dataset aberto (CC BY 4.0): 20 sinais, 12 sinalizantes, 5 repetições, 1080p/30 fps |
 | **V-LIBRASIL** | Dataset de 1.364 sinais; uso restrito (sem redistribuição) |
-| **pt-br2libras-gloss** | Corpus de 127.349 pares português ↔ glosa (texto) |
+| **pt-br2libras-gloss** | Corpus de 127.349 pares português ↔ glosa (texto), também chamado **VLibrasBD**; glosado por intérpretes; dataset do ML texto → glosa |
+| **Português sinalizado** | Sinais da Libras usados na ordem e na gramática do português, sem o uso do espaço e sem as expressões não manuais; prática da Comunicação Total, rejeitada pela comunidade surda. É o que a conversão por palavras-chave produz (ver `Pesquisas/`) |
 | **E.I.T.A! Recife / Summer Job** | Programas de inovação aberta da Prefeitura do Recife citados na pesquisa documental |
 
 ## ML e visão computacional
