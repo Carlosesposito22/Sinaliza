@@ -18,3 +18,7 @@ O avatar Rocketbox (Microsoft, MIT) usado de 2026-10-20 a 2026-10-25 está em `h
 ## Dados de treino
 
 Ver [`references/21-datasets-de-treino.md`](../references/21-datasets-de-treino.md): o V-LIBRASIL só vale para pesquisa e ensino, sem redistribuição, e fica fora do repositório. Os movimentos que a API toca (`motions.npz`) são derivados dele e também ficam fora.
+
+## VLibrasBD (corpus de texto → glosa)
+
+Licença CC BY-SA 4.0. **Decisão (2026-11-02):** cumprimos a licença dando os devidos créditos ao VLibrasBD e a seus autores pelo uso da base, no repositório, nos notebooks e na apresentação. Não há tratamento adicional do share-alike. Ao baixar o corpus (Fase 1), copiar aqui o nome exato, os autores e o link da fonte.
