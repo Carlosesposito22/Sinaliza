@@ -9,11 +9,26 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./postgres/init-mlflow.sql:/docker-entrypoint-initdb.d/init-mlflow.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U sinaliza -d sinaliza"]
       interval: 5s
       timeout: 3s
       retries: 10
+
+  mlflow:
+    build: mlflow
+    command: >
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri postgresql://sinaliza:${POSTGRES_PASSWORD:-sinaliza}@postgres:5432/mlflow
+      --artifacts-destination /mlartifacts --serve-artifacts
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlartifacts:/mlartifacts
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   api:
     build:
@@ -52,3 +67,4 @@ services:
 
 volumes:
   pgdata:
+  mlartifacts:
