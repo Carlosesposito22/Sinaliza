@@ -181,8 +181,8 @@ Cada fase termina com algo demonstrável. As fases 7 a 10 podem começar em para
 
 - [ ] **Transversal (R0), pedido do orientador:** documentar de ponta a ponta onde o ML é aplicado e como a pipeline funciona; ver `23-checklist-requisitos-ml.md`. Vale desde a Fase 1, não só no fim.
 - [x] **0. Validar com o professor:** abordagem por glosa aprovada pelo orientador (2026-11-02); embarcado e MQTT fora. Licença do corpus decidida: só dar os créditos.
-- [ ] **1. Dados:** baixar o VLibrasBD, script de ingestão com hash, tabela no Postgres, notebook de EDA.
-- [ ] **2. Rotulagem e preparação:** alinhamento por lema (T1), conferência manual de 200 rótulos, atributos, divisão treino/teste agrupada por frase, notebook de preparação com justificativas.
+- [x] **1. Dados** (2026-11-02): VLibrasBD baixado, ingestão com hash, tabela no Postgres, notebook de EDA. Ver [`24-pipeline-de-dados-ponta-a-ponta.md`](24-pipeline-de-dados-ponta-a-ponta.md).
+- [x] **2. Rotulagem e preparação** (2026-11-02): alinhamento por lema (T1), atributos, divisão agrupada por frase, notebook de preparação. **Pendente: conferência manual de 200 rótulos** (a equipe preenche `amostra_conferencia_200.csv`).
 - [ ] **3. Baseline:** Regressão Logística e lista fixa, ambas no MLflow.
 - [ ] **4. Comparação:** Árvore de Decisão, Random Forest e KNN no MLflow; gráficos; análise crítica.
 - [ ] **5. Otimização:** Optuna sobre o melhor modelo, todos os trials no MLflow.
