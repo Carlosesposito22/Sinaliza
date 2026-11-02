@@ -28,3 +28,7 @@ model/checkpoints/
 
 # Sinais do dicionário do VLibras (baixados por `npm run signs`; sem licença de redistribuição)
 web/public/vlibras/signs/
+
+# Banco local do MLflow (o servidor do compose usa o Postgres)
+mlflow.db
+mlruns/

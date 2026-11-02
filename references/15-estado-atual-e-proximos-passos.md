@@ -6,12 +6,12 @@
 > | --- | --- |
 > | Bootstrap dataset (VLibrasBD) + persistência no banco | **Feito em 2026-11-02** (`textgloss/ingest.py`, Postgres) |
 > | Airflow + notebook de EDA + preparação | Notebooks e preparação **feitos em 2026-11-02**; falta Airflow e a conferência manual de 200 rótulos |
-> | Baseline no MLflow | Falta |
+> | Baseline no MLflow | **Feito em 2026-11-02** (F1-macro 0,876 contra 0,822 da lista fixa) |
 > | Três modelos comparados com gráficos | Falta |
 > | Optuna | Falta |
 > | Validação cruzada e generalização | Falta |
 > | Modelo integrado à API, consumindo frases novas | Falta |
-> | Docker Compose com Postgres, MLflow, Airflow, API, web e painel | Parcial (`api`, `web` e `postgres`) |
+> | Docker Compose com Postgres, MLflow, Airflow, API, web e painel | Parcial (`api`, `web`, `postgres` e `mlflow`) |
 > | Painel | Falta |
 > | Embarcado + MQTT | Fora do escopo (decisão do Carlos; ver `23-checklist-requisitos-ml.md`) |
 >

@@ -36,12 +36,12 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 | --- | --- | --- | --- |
 | 1 | Infraestrutura inicial + bootstrap dataset + persistência | 0, 1 | Parcial (corpus no Postgres; falta simulador de uso) |
 | 2 | Pipeline de dados no Airflow + notebook de EDA e preparação | 1, 2, 7 | Parcial (notebooks e preparação prontos; falta Airflow e a conferência manual) |
-| 3 | Modelo baseline + MLflow | 3 | Não iniciado |
+| 3 | Modelo baseline + MLflow | 3 | **Feito** (2026-11-02): F1-macro 0,876 contra 0,822 da lista fixa |
 | 4 | Três modelos comparados + gráficos + análise crítica | 4 | Não iniciado |
 | 5 | Otimização de hiperparâmetros (Optuna) | 5 | Não iniciado |
 | 6 | Validação cruzada e generalização | 6 | Não iniciado |
 | 7 | Integração do modelo ao pipeline | 8 | Não iniciado |
-| 8 | Conteinerização com Docker Compose | 9 | Parcial (`api`, `web` e `postgres`) |
+| 8 | Conteinerização com Docker Compose | 9 | Parcial (`api`, `web`, `postgres` e `mlflow`) |
 | 9 | Dashboard integrado | 10 | Não iniciado |
 | 10 | Apresentação da solução completa | 11 | Não iniciado |
 
@@ -75,11 +75,11 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
 > Treinamento de um modelo baseline adequado ao problema definido (ex.: KNN, Regressão Linear, Regressão Logística ou Árvore de Decisão). A equipe deverá justificar a escolha do modelo, apresentar as métricas obtidas em um conjunto de validação e registrar parâmetros, métricas e artefatos do experimento utilizando MLflow.
 
-- [ ] Servidor MLflow no ar
-- [ ] Regressão Logística treinada (e lista fixa como referência sem ML)
-- [ ] Justificativa escrita da escolha
-- [ ] Métricas em conjunto de validação
-- [ ] Parâmetros, métricas e artefatos registrados no MLflow
+- [x] Servidor MLflow no ar (serviço `mlflow` no compose, backend Postgres, http://localhost:5000)
+- [x] Regressão Logística treinada (e lista fixa como referência sem ML): `python -m textgloss.train baseline`
+- [x] Justificativa escrita da escolha (`references/25-baseline-t1.md`)
+- [x] Métricas em conjunto de validação (F1-macro 0,876; ROC-AUC 0,944)
+- [x] Parâmetros, métricas e artefatos registrados no MLflow (experimento `t1-manter-descartar`)
 
 ## 4. Comparação de modelos
 
@@ -130,7 +130,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
 - [x] Serviços `api` e `web` (verificado em 2026-10-19; falta reverificar com a versão final)
 - [x] `postgres` (compose, healthcheck; 2026-11-02)
-- [ ] `mlflow`
+- [x] `mlflow` (compose, backend no Postgres; 2026-11-02)
 - [ ] `airflow`
 - [ ] `dashboard`
 - [ ] Um único comando sobe tudo, testado em máquina limpa

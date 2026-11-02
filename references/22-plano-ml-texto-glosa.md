@@ -183,7 +183,7 @@ Cada fase termina com algo demonstrável. As fases 7 a 10 podem começar em para
 - [x] **0. Validar com o professor:** abordagem por glosa aprovada pelo orientador (2026-11-02); embarcado e MQTT fora. Licença do corpus decidida: só dar os créditos.
 - [x] **1. Dados** (2026-11-02): VLibrasBD baixado, ingestão com hash, tabela no Postgres, notebook de EDA. Ver [`24-pipeline-de-dados-ponta-a-ponta.md`](24-pipeline-de-dados-ponta-a-ponta.md).
 - [x] **2. Rotulagem e preparação** (2026-11-02): alinhamento por lema (T1), atributos, divisão agrupada por frase, notebook de preparação. **Pendente: conferência manual de 200 rótulos** (a equipe preenche `amostra_conferencia_200.csv`).
-- [ ] **3. Baseline:** Regressão Logística e lista fixa, ambas no MLflow.
+- [x] **3. Baseline** (2026-11-02): Regressão Logística e lista fixa no MLflow. Ver [`25-baseline-t1.md`](25-baseline-t1.md).
 - [ ] **4. Comparação:** Árvore de Decisão, Random Forest e KNN no MLflow; gráficos; análise crítica.
 - [ ] **5. Otimização:** Optuna sobre o melhor modelo, todos os trials no MLflow.
 - [ ] **6. Validação:** k-fold agrupado, estabilidade entre dobras, sobreajuste, fora do domínio, teste final; avaliação ponta a ponta contra a lista fixa e o `vlibras-translate`.

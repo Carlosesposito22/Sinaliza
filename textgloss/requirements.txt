@@ -10,3 +10,4 @@ seaborn>=0.13
 jupyter>=1.1
 nbconvert>=7.16
 pytest>=8
+mlflow==3.17.2
