@@ -7,7 +7,7 @@
 > | Bootstrap dataset (VLibrasBD) + persistência no banco | **Feito em 2026-11-02** (`textgloss/ingest.py`, Postgres) |
 > | Airflow + notebook de EDA + preparação | Notebooks e preparação **feitos em 2026-11-02**; falta Airflow e a conferência manual de 200 rótulos |
 > | Baseline no MLflow | **Feito em 2026-11-02** (F1-macro 0,876 contra 0,822 da lista fixa) |
-> | Três modelos comparados com gráficos | Falta |
+> | Três modelos comparados com gráficos | **Feito em 2026-11-02** (melhor: Regressão Logística, F1-macro 0,876) |
 > | Optuna | Falta |
 > | Validação cruzada e generalização | Falta |
 > | Modelo integrado à API, consumindo frases novas | Falta |
