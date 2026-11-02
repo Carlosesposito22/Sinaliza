@@ -40,6 +40,7 @@ Esta pasta existe para que uma sessão nova do Claude (ou uma pessoa nova na equ
 | [`10-pipeline-de-dados.md`](10-pipeline-de-dados.md) | `data/`: vídeo → keypoints |
 | [`11-modelo-ml.md`](11-modelo-ml.md) | `model/`: gerador de movimento, linhas de base, métrica DTW (experimento; a entrega de ML agora é o 22) |
 | [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md) | **Plano de ML vigente:** texto → glosa por classificação no VLibrasBD, mapa dos requisitos de ML da disciplina e fases |
+| [`23-checklist-requisitos-ml.md`](23-checklist-requisitos-ml.md) | **Checklist dos 10 entregáveis de ML que dão a nota**, com texto original e subitens para marcar |
 | [`12-api.md`](12-api.md) | `api/`: endpoints, gerador stub, como plugar o modelo |
 | [`13-web.md`](13-web.md) | `web/`: front React e o avatar do VLibras (local) |
 | [`14-como-rodar-e-testar.md`](14-como-rodar-e-testar.md) | Comandos, venvs, Docker, testes |

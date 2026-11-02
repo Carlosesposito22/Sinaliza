@@ -13,7 +13,7 @@
 > | Modelo integrado à API, consumindo frases novas | Falta |
 > | Docker Compose com Postgres, MLflow, Airflow, API, web e painel | Parcial (só `api` e `web`) |
 > | Painel | Falta |
-> | Embarcado + MQTT | Não se aplica ao grupo **[a confirmar com o professor quanto ao MQTT]** |
+> | Embarcado + MQTT | Fora do escopo (decisão do Carlos; ver `23-checklist-requisitos-ml.md`) |
 >
 > **Próximos passos:** seguir as fases de [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md), começando por validar o plano com o professor e baixar o VLibrasBD para a EDA. O restante deste arquivo descreve o estado em 2026-10-19/25, ainda válido para os componentes que existem.
 

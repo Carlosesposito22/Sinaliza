@@ -1,0 +1,137 @@
+# Checklist dos requisitos de ML (entregáveis CC)
+
+Estes 10 entregáveis são os que **dão a nota** do projeto na parte de Machine Learning. O texto de cada um é o da disciplina, copiado sem alteração. Abaixo de cada um, os subitens são a nossa decomposição (proposta) e o mapeamento para as fases de [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md).
+
+**Como usar:** marque `[x]` só quando o item estiver feito **e verificável** (código no repositório, execução registrada, artefato existente). Ao marcar, anote a data e a evidência (arquivo, run do MLflow, commit). Mantenha o quadro-resumo em dia e reflita mudanças em [`15-estado-atual-e-proximos-passos.md`](15-estado-atual-e-proximos-passos.md).
+
+## Fora do escopo: sistema embarcado e MQTT
+
+**Decisão (Carlos, 2026-10-28; reconfirmada em 2026-11-02):** o requisito de **sistema embarcado** não faz parte do grupo, e por consequência o **broker MQTT** (que na rubrica serve só ao embarcado) também não entra. Motivo registrado: o embarcado não é do grupo; não foi dada outra justificativa técnica. A fonte de dados novos é a própria API (frases enviadas pela interface ou por um simulador de uso).
+
+Nos textos dos entregáveis abaixo, os trechos ~~riscados~~ são os que ficam de fora. Não há subitens de embarcado/MQTT no checklist.
+
+**Pendência com o professor [a confirmar]:** classificação texto → glosa conta como "problema de ML adequado".
+
+## Quadro-resumo (atualizado em 2026-11-02)
+
+| # | Entregável | Fase do plano | Situação |
+| --- | --- | --- | --- |
+| 1 | Infraestrutura inicial + bootstrap dataset + aquisição/persistência | 0, 1 | Não iniciado |
+| 2 | Pipeline de dados no Airflow + notebook de EDA e preparação | 1, 2, 7 | Não iniciado |
+| 3 | Modelo baseline + MLflow | 3 | Não iniciado |
+| 4 | Três modelos comparados + gráficos + análise crítica | 4 | Não iniciado |
+| 5 | Otimização de hiperparâmetros (Optuna) | 5 | Não iniciado |
+| 6 | Validação cruzada e generalização | 6 | Não iniciado |
+| 7 | Integração do modelo ao pipeline | 8 | Não iniciado |
+| 8 | Conteinerização com Docker Compose | 9 | Parcial (só `api` e `web`) |
+| 9 | Dashboard integrado | 10 | Não iniciado |
+| 10 | Apresentação da solução completa | 11 | Não iniciado |
+
+---
+
+## 1. Infraestrutura inicial e bootstrap dataset
+
+> Implementação da infraestrutura inicial da solução. A equipe deverá disponibilizar um conjunto de dados inicial (bootstrap dataset) que permita o desenvolvimento e validação da solução desde as primeiras etapas do projeto, ~~além de implementar a infraestrutura de aquisição de dados utilizando um sistema embarcado físico ou simulado. A solução deverá demonstrar a publicação dos dados por meio de MQTT (ou tecnologia equivalente), bem como sua recepção~~ e persistência em um mecanismo de armazenamento adequado.
+
+- [ ] Validar com o professor que o problema (classificação texto → glosa) é adequado
+- [ ] Baixar o VLibrasBD (bootstrap dataset) e registrar hash/licença
+- [ ] Banco (Postgres) e tabela do corpus criados
+- [ ] Script de ingestão do corpus no banco
+- [ ] Simulador de uso que envia frases novas à API (fonte de dados novos no lugar do embarcado)
+- [ ] Persistência das frases recebidas no banco
+
+## 2. Pipeline de dados (Airflow) e EDA
+
+> Implementação do pipeline de dados. A equipe deverá desenvolver um fluxo automatizado utilizando Apache Airflow para orquestrar as etapas de ingestão, preparação e disponibilização dos dados para treinamento do modelo. A entrega deverá incluir um notebook contendo a análise exploratória (EDA) do bootstrap dataset, as etapas de preparação dos dados (limpeza, normalização, encoding, tratamento de valores ausentes etc.) e a justificativa das principais decisões adotadas.
+
+- [ ] DAG de ingestão (`vlibrasbd_ingestao`)
+- [ ] DAG de preparação (`preparacao_t1`)
+- [ ] Notebook 01: EDA do VLibrasBD
+- [ ] Notebook 02: preparação (limpeza, normalização, encoding, ausentes) com justificativas
+- [ ] Rotulagem T1 por alinhamento de lemas + conferência manual de 200 rótulos
+- [ ] Divisão treino/teste agrupada por frase
+- [ ] Dados preparados disponibilizados para o treino
+
+## 3. Modelo baseline
+
+> Treinamento de um modelo baseline adequado ao problema definido (ex.: KNN, Regressão Linear, Regressão Logística ou Árvore de Decisão). A equipe deverá justificar a escolha do modelo, apresentar as métricas obtidas em um conjunto de validação e registrar parâmetros, métricas e artefatos do experimento utilizando MLflow.
+
+- [ ] Servidor MLflow no ar
+- [ ] Regressão Logística treinada (e lista fixa como referência sem ML)
+- [ ] Justificativa escrita da escolha
+- [ ] Métricas em conjunto de validação
+- [ ] Parâmetros, métricas e artefatos registrados no MLflow
+
+## 4. Comparação de modelos
+
+> Treinamento e comparação de, no mínimo, três modelos distintos, utilizando as métricas previamente definidas. Todos os experimentos deverão ser registrados no MLflow. A entrega deverá incluir visualizações adequadas ao problema (matriz de confusão, curvas ROC/AUC, gráficos de erro, resíduos etc.) e uma análise crítica comparando o desempenho dos modelos avaliados.
+
+- [ ] Métricas definidas antes dos experimentos
+- [ ] Árvore de Decisão treinada e registrada
+- [ ] Random Forest treinado e registrado
+- [ ] KNN treinado e registrado
+- [ ] Matriz de confusão por modelo
+- [ ] Curvas ROC/AUC (e PR)
+- [ ] Gráficos de erro
+- [ ] Notebook 03: análise crítica comparando os modelos
+
+## 5. Otimização de hiperparâmetros
+
+> Aplicação de técnicas de otimização de hiperparâmetros (Grid Search, Random Search ou Otimização Bayesiana com Optuna) sobre o modelo selecionado. A equipe deverá documentar a estratégia adotada, os parâmetros avaliados, os resultados obtidos e registrar todos os experimentos no MLflow.
+
+- [ ] Modelo a otimizar escolhido (o melhor da comparação)
+- [ ] Estudo Optuna rodado
+- [ ] Todos os trials registrados no MLflow
+- [ ] Documento: estratégia, espaço de busca, resultados
+
+## 6. Validação cruzada e generalização
+
+> Avaliação do modelo utilizando validação cruzada (k-fold ou stratified k-fold, quando aplicável), acompanhada de análise da estabilidade dos resultados, identificação de evidências de overfitting ou underfitting e discussão da capacidade de generalização do modelo.
+
+- [ ] `StratifiedGroupKFold` (agrupado por frase) executado
+- [ ] Estabilidade entre dobras (média, desvio)
+- [ ] Curva de aprendizado / evidências de overfitting ou underfitting
+- [ ] Teste fora do domínio
+- [ ] Teste final no conjunto separado
+- [ ] Discussão escrita de generalização
+
+## 7. Integração do modelo ao pipeline
+
+> Integração do modelo treinado à infraestrutura de aquisição de dados. A equipe deverá integrar o modelo treinado à infraestrutura de aquisição de dados, demonstrando que o pipeline é capaz de consumir automaticamente novos dados ~~provenientes do sistema embarcado (ou~~ simulador~~)~~, executar as etapas de processamento necessárias e produzir inferências utilizando o modelo validado.
+
+- [ ] Modelo carregado do MLflow pela API
+- [ ] Classificador em `textgloss/infer.py` usado no `/translate`
+- [ ] Frases novas (do simulador) gravadas no banco
+- [ ] DAG `monitoramento` consome novas frases, processa e grava inferências
+- [ ] Demonstração automática ponta a ponta
+
+## 8. Conteinerização (Docker Compose)
+
+> Conteinerização da solução utilizando Docker Compose. A equipe deverá disponibilizar um ambiente reproduzível contendo os principais serviços da arquitetura (~~broker MQTT,~~ banco de dados, Airflow, MLflow, API e demais componentes necessários), permitindo a execução completa da solução por meio de um único comando.
+
+- [x] Serviços `api` e `web` (verificado em 2026-10-19; falta reverificar com a versão final)
+- [ ] `postgres`
+- [ ] `mlflow`
+- [ ] `airflow`
+- [ ] `dashboard`
+- [ ] Um único comando sobe tudo, testado em máquina limpa
+
+## 9. Dashboard
+
+> Desenvolvimento de um dashboard integrado à solução, capaz de consumir dados provenientes da infraestrutura de aquisição (~~via MQTT e/ou~~ API), apresentar indicadores relevantes da aplicação, visualizar as inferências realizadas pelo modelo e monitorar o funcionamento da solução em tempo de execução.
+
+- [ ] Painel (Streamlit) consumindo API e banco
+- [ ] Indicadores relevantes da aplicação
+- [ ] Visualização das inferências do modelo
+- [ ] Versão do modelo e métricas do último treino (lidas do MLflow)
+- [ ] Estado dos serviços (API, banco, MLflow) em tempo de execução
+
+## 10. Apresentação da solução completa
+
+> Apresentação da solução completa, demonstrando o funcionamento integrado de toda a arquitetura: ~~aquisição dos dados pelo sistema embarcado, comunicação via MQTT,~~ armazenamento, orquestração do pipeline com Apache Airflow, treinamento e rastreamento de experimentos com MLflow, implantação da solução utilizando Docker Compose, disponibilização das inferências por meio da API e visualização dos resultados no dashboard. A equipe deverá justificar as principais decisões técnicas e discutir as limitações da solução.
+
+- [ ] Roteiro da demonstração ponta a ponta
+- [ ] Ensaio com `docker compose up` do zero
+- [ ] Justificativa das decisões técnicas
+- [ ] Limitações discutidas (ordem dos sinais, ausência de validação por pessoas surdas, ruído da rotulagem, escopo sem embarcado/MQTT e o porquê)
+- [ ] Slides/apresentação pronta

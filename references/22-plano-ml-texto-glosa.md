@@ -1,6 +1,6 @@
 # Plano de ML: texto → glosa por classificação
 
-Decidido em **2026-10-28** pelo Carlos, depois da pesquisa sobre como converter português em Libras ([`Pesquisas/`](../Pesquisas/)) e da revisão dos requisitos de Machine Learning da disciplina. **[a confirmar com o professor]**: se as tarefas de classificação abaixo contam como "modelo adequado ao problema" e se o sistema embarcado e o MQTT ficam fora (ver a seção "Requisitos que não se aplicam").
+Decidido em **2026-10-28** pelo Carlos, depois da pesquisa sobre como converter português em Libras ([`Pesquisas/`](../Pesquisas/)) e da revisão dos requisitos de Machine Learning da disciplina. **[a confirmar com o professor]**: se as tarefas de classificação abaixo contam como "modelo adequado ao problema" (o sistema embarcado e o MQTT estão fora do escopo: ver "Requisitos que não se aplicam").
 
 Este arquivo é o plano de referência para a parte de ML. Ele substitui o gerador de movimento ([`11-modelo-ml.md`](11-modelo-ml.md)) como entrega principal de ML. O gerador continua no repositório como experimento.
 
@@ -173,13 +173,13 @@ Painel (proposta: Streamlit, lendo o banco e a API) com:
 
 ## Requisitos que não se aplicam
 
-O Carlos informou em 2026-10-28 que **o requisito de sistema embarcado não é do grupo**. Por consequência, este plano também deixa de fora o **broker MQTT**, que na rubrica serve ao embarcado. A fonte de dados novos passa a ser a própria API (frases enviadas pela interface ou pelo simulador). **[a confirmar com o professor]**: se o broker MQTT também é dispensado no Docker Compose e no painel.
+O Carlos informou em 2026-10-28 que **o requisito de sistema embarcado não é do grupo**. Por consequência, este plano também deixa de fora o **broker MQTT**, que na rubrica serve ao embarcado. A fonte de dados novos passa a ser a própria API (frases enviadas pela interface ou pelo simulador). Decisão confirmada pelo Carlos em 2026-11-02: MQTT fora também do Docker Compose e do painel. Motivo registrado: o embarcado não é do grupo.
 
 ## Fases (ordem sugerida)
 
 Cada fase termina com algo demonstrável. As fases 7 a 10 podem começar em paralelo com as primeiras.
 
-- [ ] **0. Validar com o professor:** classificação texto → glosa como problema de ML; embarcado e MQTT fora; licença CC BY-SA do corpus.
+- [ ] **0. Validar com o professor:** classificação texto → glosa como problema de ML; (embarcado e MQTT já decididos como fora); licença CC BY-SA do corpus.
 - [ ] **1. Dados:** baixar o VLibrasBD, script de ingestão com hash, tabela no Postgres, notebook de EDA.
 - [ ] **2. Rotulagem e preparação:** alinhamento por lema (T1), conferência manual de 200 rótulos, atributos, divisão treino/teste agrupada por frase, notebook de preparação com justificativas.
 - [ ] **3. Baseline:** Regressão Logística e lista fixa, ambas no MLflow.
