@@ -25,7 +25,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [ ] **R0.2** Seção "Onde está o ML": qual tarefa de classificação, quais atributos, quais rótulos, quais modelos, onde o modelo decide algo na saída final.
 - [ ] **R0.3** Cada etapa da pipeline com entrada, saída, onde roda (Airflow, notebook, API) e como reproduzir.
 - [ ] **R0.4** README do repositório aponta para esse documento e para o checklist.
-- [ ] **R0.5** (notebooks 01 e 02 feitos; faltam os de modelos e os DAGs) Notebooks e DAGs com texto explicando o que e por quê, não só código.
+- [ ] **R0.5** (notebooks 01, 02 e 03 feitos; faltam os DAGs) Notebooks e DAGs com texto explicando o que e por quê, não só código.
 - [ ] **R0.6** Apresentação final percorre esse mesmo fluxo (liga com o entregável 10).
 
 > Em 2026-11-02 o Carlos relatou que o orientador concordou que a glosa é a forma mais adequada. A formulação exata do modelo (classificação por palavra, T1) é escolha nossa dentro desse caminho e deve ser justificada no baseline (entregável 3).
@@ -37,7 +37,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 | 1 | Infraestrutura inicial + bootstrap dataset + persistência | 0, 1 | Parcial (corpus no Postgres; falta simulador de uso) |
 | 2 | Pipeline de dados no Airflow + notebook de EDA e preparação | 1, 2, 7 | Parcial (notebooks e preparação prontos; falta Airflow e a conferência manual) |
 | 3 | Modelo baseline + MLflow | 3 | **Feito** (2026-11-02): F1-macro 0,876 contra 0,822 da lista fixa |
-| 4 | Três modelos comparados + gráficos + análise crítica | 4 | Não iniciado |
+| 4 | Três modelos comparados + gráficos + análise crítica | 4 | **Feito** (2026-11-02): Regressão Logística 0,876 > Árvore 0,870 > Random Forest 0,852 > KNN 0,846 |
 | 5 | Otimização de hiperparâmetros (Optuna) | 5 | Não iniciado |
 | 6 | Validação cruzada e generalização | 6 | Não iniciado |
 | 7 | Integração do modelo ao pipeline | 8 | Não iniciado |
@@ -85,14 +85,14 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
 > Treinamento e comparação de, no mínimo, três modelos distintos, utilizando as métricas previamente definidas. Todos os experimentos deverão ser registrados no MLflow. A entrega deverá incluir visualizações adequadas ao problema (matriz de confusão, curvas ROC/AUC, gráficos de erro, resíduos etc.) e uma análise crítica comparando o desempenho dos modelos avaliados.
 
-- [ ] Métricas definidas antes dos experimentos
-- [ ] Árvore de Decisão treinada e registrada
-- [ ] Random Forest treinado e registrado
-- [ ] KNN treinado e registrado
-- [ ] Matriz de confusão por modelo
-- [ ] Curvas ROC/AUC (e PR)
-- [ ] Gráficos de erro
-- [ ] Notebook 03: análise crítica comparando os modelos
+- [x] Métricas definidas antes dos experimentos (F1-macro principal; ROC-AUC, PR-AUC, revocação por classe; definidas em `22-plano-ml-texto-glosa.md`)
+- [x] Árvore de Decisão treinada e registrada
+- [x] Random Forest treinado e registrado
+- [x] KNN treinado e registrado
+- [x] Matriz de confusão por modelo
+- [x] Curvas ROC/AUC (e PR)
+- [x] Gráficos de erro (F1 por classe gramatical, lemas e exemplos de erro, coincidência de erros entre modelos)
+- [x] Notebook 03: análise crítica comparando os modelos (`notebooks/03-comparacao-modelos.ipynb`; resumo em `26-comparacao-de-modelos-t1.md`)
 
 ## 5. Otimização de hiperparâmetros
 
