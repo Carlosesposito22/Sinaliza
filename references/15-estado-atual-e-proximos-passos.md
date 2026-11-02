@@ -4,18 +4,18 @@
 >
 > | Requisito | Situação |
 > | --- | --- |
-> | Bootstrap dataset (VLibrasBD) + persistência no banco | Falta |
-> | Airflow + notebook de EDA + preparação | Falta |
+> | Bootstrap dataset (VLibrasBD) + persistência no banco | **Feito em 2026-11-02** (`textgloss/ingest.py`, Postgres) |
+> | Airflow + notebook de EDA + preparação | Notebooks e preparação **feitos em 2026-11-02**; falta Airflow e a conferência manual de 200 rótulos |
 > | Baseline no MLflow | Falta |
 > | Três modelos comparados com gráficos | Falta |
 > | Optuna | Falta |
 > | Validação cruzada e generalização | Falta |
 > | Modelo integrado à API, consumindo frases novas | Falta |
-> | Docker Compose com Postgres, MLflow, Airflow, API, web e painel | Parcial (só `api` e `web`) |
+> | Docker Compose com Postgres, MLflow, Airflow, API, web e painel | Parcial (`api`, `web` e `postgres`) |
 > | Painel | Falta |
 > | Embarcado + MQTT | Fora do escopo (decisão do Carlos; ver `23-checklist-requisitos-ml.md`) |
 >
-> **Próximos passos:** seguir as fases de [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md), começando por validar o plano com o professor e baixar o VLibrasBD para a EDA. O restante deste arquivo descreve o estado em 2026-10-19/25, ainda válido para os componentes que existem.
+> **Próximos passos:** conferir as 200 palavras de rótulo e seguir para a fase 3 (baseline no MLflow), conforme [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md). Como funciona o que já existe: [`24-pipeline-de-dados-ponta-a-ponta.md`](24-pipeline-de-dados-ponta-a-ponta.md). O restante deste arquivo descreve o estado em 2026-10-19/25, ainda válido para os componentes que existem.
 
 Posição em **2026-10-19**, segundo o código e o git. Os 5 commits originais são de 2026-10-14; depois vieram 2 commits de documentação (`Documentos/`, `references/`, `CLAUDE.md`). As implementações das sugestões do orientador (YOLOv8, embeddings, frases por categoria) estão **no working tree, ainda sem commit**.
 

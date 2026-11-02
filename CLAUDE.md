@@ -12,6 +12,7 @@ Leia `references/README.md` (índice). Para começar:
 - `references/15-estado-atual-e-proximos-passos.md`: o que funciona, o que é stub, o que falta.
 - `references/22-plano-ml-texto-glosa.md`: plano de ML vigente e mapa dos requisitos de ML da disciplina.
 - `references/23-checklist-requisitos-ml.md`: checklist dos 10 entregáveis de ML que dão a nota; marque os itens ao concluí-los.
+- `references/24-pipeline-de-dados-ponta-a-ponta.md`: pipeline de dados e onde o ML entra (ingestão, preparação, como reproduzir).
 - `references/17-convencoes-e-regras-para-claude.md`: convenções completas.
 
 ## Regras principais

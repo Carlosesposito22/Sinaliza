@@ -21,27 +21,27 @@ O orientador viu o relatório sobre português sinalizado e a melhor forma de co
 
 Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
-- [ ] **R0.1** Documento de arquitetura ponta a ponta (`references/` ou `docs/`): diagrama do fluxo texto → pré-processamento → classificador → glosa → avatar, com cada etapa dizendo se é **ML (treinado por nós)**, **regra/tabela** ou **externo** (ex.: player do VLibras, spaCy).
+- [ ] **R0.1** (parcial: fases 1 e 2 em `24-pipeline-de-dados-ponta-a-ponta.md`; faltam treino, API e painel) Documento de arquitetura ponta a ponta (`references/` ou `docs/`): diagrama do fluxo texto → pré-processamento → classificador → glosa → avatar, com cada etapa dizendo se é **ML (treinado por nós)**, **regra/tabela** ou **externo** (ex.: player do VLibras, spaCy).
 - [ ] **R0.2** Seção "Onde está o ML": qual tarefa de classificação, quais atributos, quais rótulos, quais modelos, onde o modelo decide algo na saída final.
 - [ ] **R0.3** Cada etapa da pipeline com entrada, saída, onde roda (Airflow, notebook, API) e como reproduzir.
 - [ ] **R0.4** README do repositório aponta para esse documento e para o checklist.
-- [ ] **R0.5** Notebooks e DAGs com texto explicando o que e por quê, não só código.
+- [ ] **R0.5** (notebooks 01 e 02 feitos; faltam os de modelos e os DAGs) Notebooks e DAGs com texto explicando o que e por quê, não só código.
 - [ ] **R0.6** Apresentação final percorre esse mesmo fluxo (liga com o entregável 10).
 
 > Em 2026-11-02 o Carlos relatou que o orientador concordou que a glosa é a forma mais adequada. A formulação exata do modelo (classificação por palavra, T1) é escolha nossa dentro desse caminho e deve ser justificada no baseline (entregável 3).
 
-## Quadro-resumo (atualizado em 2026-11-02)
+## Quadro-resumo (atualizado em 2026-11-02, após as fases 1 e 2)
 
 | # | Entregável | Fase do plano | Situação |
 | --- | --- | --- | --- |
-| 1 | Infraestrutura inicial + bootstrap dataset + aquisição/persistência | 0, 1 | Não iniciado |
-| 2 | Pipeline de dados no Airflow + notebook de EDA e preparação | 1, 2, 7 | Não iniciado |
+| 1 | Infraestrutura inicial + bootstrap dataset + persistência | 0, 1 | Parcial (corpus no Postgres; falta simulador de uso) |
+| 2 | Pipeline de dados no Airflow + notebook de EDA e preparação | 1, 2, 7 | Parcial (notebooks e preparação prontos; falta Airflow e a conferência manual) |
 | 3 | Modelo baseline + MLflow | 3 | Não iniciado |
 | 4 | Três modelos comparados + gráficos + análise crítica | 4 | Não iniciado |
 | 5 | Otimização de hiperparâmetros (Optuna) | 5 | Não iniciado |
 | 6 | Validação cruzada e generalização | 6 | Não iniciado |
 | 7 | Integração do modelo ao pipeline | 8 | Não iniciado |
-| 8 | Conteinerização com Docker Compose | 9 | Parcial (só `api` e `web`) |
+| 8 | Conteinerização com Docker Compose | 9 | Parcial (`api`, `web` e `postgres`) |
 | 9 | Dashboard integrado | 10 | Não iniciado |
 | 10 | Apresentação da solução completa | 11 | Não iniciado |
 
@@ -52,9 +52,9 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 > Implementação da infraestrutura inicial da solução. A equipe deverá disponibilizar um conjunto de dados inicial (bootstrap dataset) que permita o desenvolvimento e validação da solução desde as primeiras etapas do projeto, ~~além de implementar a infraestrutura de aquisição de dados utilizando um sistema embarcado físico ou simulado. A solução deverá demonstrar a publicação dos dados por meio de MQTT (ou tecnologia equivalente), bem como sua recepção~~ e persistência em um mecanismo de armazenamento adequado.
 
 - [x] Abordagem por glosa validada com o orientador (reunião, relatada em 2026-11-02)
-- [ ] Baixar o VLibrasBD (bootstrap dataset) e registrar hash/licença
-- [ ] Banco (Postgres) e tabela do corpus criados
-- [ ] Script de ingestão do corpus no banco
+- [x] Baixar o VLibrasBD (bootstrap dataset) e registrar hash/licença (2026-11-02; SHA-256 conferido; créditos em `docs/creditos-e-licencas.md`)
+- [x] Banco (Postgres) e tabela do corpus criados (serviço `postgres` no compose; `corpus_bruto`, 127.349 linhas)
+- [x] Script de ingestão do corpus no banco (`textgloss/ingest.py`)
 - [ ] Simulador de uso que envia frases novas à API (fonte de dados novos no lugar do embarcado)
 - [ ] Persistência das frases recebidas no banco
 
@@ -64,11 +64,12 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
 - [ ] DAG de ingestão (`vlibrasbd_ingestao`)
 - [ ] DAG de preparação (`preparacao_t1`)
-- [ ] Notebook 01: EDA do VLibrasBD
-- [ ] Notebook 02: preparação (limpeza, normalização, encoding, ausentes) com justificativas
-- [ ] Rotulagem T1 por alinhamento de lemas + conferência manual de 200 rótulos
-- [ ] Divisão treino/teste agrupada por frase
-- [ ] Dados preparados disponibilizados para o treino
+- [x] Notebook 01: EDA do VLibrasBD (`notebooks/01-eda-vlibrasbd.ipynb`, executado)
+- [x] Notebook 02: preparação (limpeza, normalização, encoding, ausentes) com justificativas (`notebooks/02-preparacao.ipynb`, executado)
+- [x] Rotulagem T1 por alinhamento de lemas (`textgloss/align.py`)
+- [ ] Conferência manual de 200 rótulos e taxa de ruído (`data/processed/vlibrasbd/amostra_conferencia_200.csv`, aguarda a equipe)
+- [x] Divisão treino/teste agrupada por frase (90/10, por domínio, semente fixa)
+- [x] Dados preparados disponibilizados para o treino (`palavras.parquet` e tabela `palavras_t1`)
 
 ## 3. Modelo baseline
 
@@ -128,7 +129,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 > Conteinerização da solução utilizando Docker Compose. A equipe deverá disponibilizar um ambiente reproduzível contendo os principais serviços da arquitetura (~~broker MQTT,~~ banco de dados, Airflow, MLflow, API e demais componentes necessários), permitindo a execução completa da solução por meio de um único comando.
 
 - [x] Serviços `api` e `web` (verificado em 2026-10-19; falta reverificar com a versão final)
-- [ ] `postgres`
+- [x] `postgres` (compose, healthcheck; 2026-11-02)
 - [ ] `mlflow`
 - [ ] `airflow`
 - [ ] `dashboard`

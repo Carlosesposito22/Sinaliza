@@ -1,0 +1,115 @@
+# Pipeline de dados e onde o ML entra (fases 1 e 2)
+
+Documento exigido pelo orientador (requisito R0 do [checklist](23-checklist-requisitos-ml.md)): deixar claro **onde aplicamos machine learning** e como a pipeline funciona de ponta a ponta. Este arquivo cobre o que existe hoje (ingestão e preparação); as fases 3 em diante acrescentam as seções de treino, API e painel.
+
+Legenda do tipo de cada etapa: **ML nosso** (treinado no nosso pipeline), **regra** (código determinístico nosso), **extração** (gera atributos, não decide), **externo** (terceiros, sem decisão de ML nossa), **infra** (dados e serviços).
+
+## Visão geral
+
+```
+VLibrasBD (CSV, Mendeley)          infra/externo
+   │  download + conferência do SHA-256
+   ▼
+Postgres: corpus_bruto             infra            textgloss/ingest.py
+   │  limpeza (vazias, duplicadas)
+   ▼
+frases limpas                      regra            textgloss/prepare.py · clean()
+   │  spaCy: lema, classe gramatical, morfologia
+   ▼
+atributos por palavra              extração         textgloss/features.py
+   │  glosa → chaves; palavra ∈ glosa?
+   ▼
+rótulo MANTER / DESCARTAR          regra (gera o   textgloss/corpus.py · align.py
+   │                               alvo do ML)
+   ▼
+divisão treino 90% / teste 10%     regra            prepare.split_by_sentence()
+(por frase, estratificada)
+   │
+   ▼  ─ ─ ─ fases 3 a 6 ─ ─ ─
+CLASSIFICADOR: a palavra vira      ML nosso         (ainda não implementado)
+sinal?                             Regressão Logística → Árvore, Random Forest, KNN → Optuna
+   │
+   ▼  ─ ─ ─ fase 8 ─ ─ ─
+API /translate  →  glosa  →  player do VLibras (avatar)      externo (só toca os sinais)
+```
+
+## Onde está o ML (e onde não está)
+
+| Pergunta | Resposta |
+| --- | --- |
+| Qual é a tarefa de ML? | **T1**: classificação binária por palavra, "essa palavra vira sinal na glosa do intérprete?" (`MANTER`/`DESCARTAR`) |
+| De onde vêm os rótulos? | Da glosa feita à mão por intérpretes certificados no VLibrasBD, alinhada por lema. A **regra de alinhamento** só transforma essa anotação humana em exemplos; o que ela não consegue generalizar é o que o modelo aprende |
+| O que o modelo vai decidir? | Quais palavras de uma frase **nova** viram sinal, no lugar da lista fixa `FUNCTION_WORDS` da API |
+| O que **não** é ML nosso? | O spaCy (extração de atributos), o player do VLibras (apenas toca as glosas) e o `vlibras-translate` (só linha de base de avaliação) |
+| O que o ML não resolve? | A **ordem** dos sinais (T1 mantém a ordem do português) e a validação por pessoas surdas |
+| Contra o que o modelo é comparado? | A lista fixa atual: **F1-macro 0,822** no corpus inteiro (EDA, seção 5). O modelo só se justifica se superar isso no teste |
+
+## Etapas implementadas
+
+### 1. Ingestão (`textgloss/ingest.py`) — infra
+
+- **Entrada:** CSV do VLibrasBD (31 MB, DOI 10.17632/ryj88ckjww.2).
+- **O que faz:** baixa se não existir, **confere o SHA-256** publicado pelo Mendeley (falha se divergir), carrega na tabela `corpus_bruto` do Postgres (127.349 linhas, chave `frase_id`) e registra a execução em `ingestoes`.
+- **Saída:** tabela `corpus_bruto(frase_id, texto, glosa, governo, ingles)`.
+- O CSV fica em `data/raw/vlibrasbd/` e **não é versionado**.
+
+### 2. Preparação (`textgloss/prepare.py`) — regra + extração
+
+| Passo | Tipo | O que faz |
+| --- | --- | --- |
+| Limpeza | regra | remove frases vazias, duplicatas exatas e glosas sem sinal (127.349 → 127.320 pares) |
+| Notação da glosa | regra | `gloss_keys()`: remove marcas, `NÃO_X` → {NÃO, X}, `1S_X_2S` → X, `X&Y` → X, compostos inteiros e por partes |
+| Atributos | extração | spaCy `pt_core_news_md`: lema, classe gramatical (UPOS), dependência, morfologia, stopword, posição e tamanho da frase, classes vizinhas, tipo de frase |
+| Rotulagem | regra | `align.label_token()`: `MANTER` se lema, forma escrita, primeira parte de lema composto ou numeral-em-dígito aparece na glosa |
+| Divisão | regra | 10% das **frases** para teste (estratificado por domínio, semente fixa); palavras da mesma frase nunca se separam |
+
+- **Saídas:** `data/processed/vlibrasbd/palavras.parquet` e tabela `palavras_t1` (1.615.265 palavras, 52,5% `MANTER`), `frases.parquet`, `relatorio_preparacao.json` e `amostra_conferencia_200.csv`.
+- **Justificativas** de cada decisão (limpeza, encoding, ausentes, desbalanceamento, divisão) estão em [`notebooks/02-preparacao.ipynb`](../notebooks/02-preparacao.ipynb); a análise exploratória em [`notebooks/01-eda-vlibrasbd.ipynb`](../notebooks/01-eda-vlibrasbd.ipynb).
+
+### 3. Cobertura do dicionário (`textgloss/coverage.py`) — externo
+
+Consulta (HEAD, sem baixar) quais dos 1.500 sinais mais frequentes do corpus existem no dicionário do VLibras: **95,3%** (96,0% das ocorrências). O vocabulário do Sinaliza pode crescer bem além dos 210 sinais de hoje.
+
+## Achados que importam para as próximas fases
+
+- A lista fixa já acerta bastante (F1-macro 0,822), então o ganho do ML será medido em pontos, não em saltos. O espaço está nos **69 lemas frequentes ambíguos** (ex.: `eu`, `ou`, `seu`, `ter`, `como`), que os intérpretes ora mantêm e ora descartam.
+- A lista fixa descarta `você`, `eu`, `seu`, `de`, `que`, `ele`, `ou`, `como`, `sobre`, `também` mesmo quando os intérpretes os **mantêm**: é a raiz do "português sinalizado" que o modelo deve corrigir.
+- **Ruído de rótulo:** o spaCy erra alguns lemas (`preciso`, `haver`) e intérpretes usam sinônimos (`solicitar` ↔ `PEDIR`). A taxa real será medida pela conferência manual das 200 palavras (pendente, ver abaixo).
+- O domínio geral tem boa parte de frases de coleções de exemplos (`TOM`, `MARIA`); só **20,5%** dos lemas são comuns aos dois domínios, então o teste fora do domínio (fase 6) será exigente.
+- T2 (homônimos): 189 lemas com ≥2 sentidos de ≥30 exemplos. T3: 10,2% das glosas têm negação incorporada e só 1,5% têm intensidade.
+
+## Como reproduzir
+
+Pré-requisitos: Docker e Python 3.12. Na raiz do repositório:
+
+```bash
+docker compose up -d postgres
+py -3.12 -m venv textgloss/.venv
+textgloss/.venv/Scripts/python -m pip install -r textgloss/requirements.txt
+textgloss/.venv/Scripts/python -m pip install https://github.com/explosion/spacy-models/releases/download/pt_core_news_md-3.8.0/pt_core_news_md-3.8.0-py3-none-any.whl
+```
+
+```bash
+textgloss/.venv/Scripts/python -m textgloss.ingest
+```
+
+```bash
+textgloss/.venv/Scripts/python -m textgloss.prepare --processos 4
+```
+
+```bash
+textgloss/.venv/Scripts/python -m textgloss.coverage --top 1500
+```
+
+Testes: `cd textgloss && .venv/Scripts/python -m pytest`. Notebooks: `jupyter nbconvert --to notebook --execute --inplace notebooks/*.ipynb` (ou abrir no Jupyter).
+
+A conexão usa `SINALIZA_DATABASE_URL` (padrão `postgresql+psycopg://sinaliza:sinaliza@localhost:5432/sinaliza`).
+
+## Pendente nesta etapa
+
+- **Conferência manual** das 200 palavras de `data/processed/vlibrasbd/amostra_conferencia_200.csv` (preencher `rotulo_correto` e rodar a última célula do notebook 02). Sem ela não há taxa de ruído medida; o plano exige isso antes de treinar.
+- Os **DAGs do Airflow** (`vlibrasbd_ingestao`, `preparacao_t1`) ainda não existem; os mesmos módulos serão chamados por eles na fase 7.
+
+## Créditos
+
+VLibrasBD / `pt-br2libras-gloss` (Lima et al., 2025, *Data in Brief*), CC BY-SA 4.0. Ver [`docs/creditos-e-licencas.md`](../docs/creditos-e-licencas.md).

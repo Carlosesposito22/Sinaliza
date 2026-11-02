@@ -21,4 +21,10 @@ Ver [`references/21-datasets-de-treino.md`](../references/21-datasets-de-treino.
 
 ## VLibrasBD (corpus de texto → glosa)
 
-Licença CC BY-SA 4.0. **Decisão (2026-11-02):** cumprimos a licença dando os devidos créditos ao VLibrasBD e a seus autores pelo uso da base, no repositório, nos notebooks e na apresentação. Não há tratamento adicional do share-alike. Ao baixar o corpus (Fase 1), copiar aqui o nome exato, os autores e o link da fonte.
+Licença CC BY-SA 4.0. **Decisão (2026-11-02):** cumprimos a licença dando os devidos créditos ao VLibrasBD e a seus autores pelo uso da base, no repositório, nos notebooks e na apresentação. Não há tratamento adicional do share-alike.
+
+- **Obra:** VLibrasBD / `pt-br2libras-gloss` (arquivo `pt_br2libras_gloss.csv`, 127.349 pares português → glosa de Libras, glosados por intérpretes certificados).
+- **Autores:** Lima et al. (2025), *Data in Brief* (https://pmc.ncbi.nlm.nih.gov/articles/PMC12341731/). Conferir a lista completa de autores no artigo ao citar.
+- **Fonte:** Mendeley Data, DOI 10.17632/ryj88ckjww.2 (https://data.mendeley.com/datasets/ryj88ckjww/2); relatório técnico em https://zenodo.org/records/15399589.
+- **Baixado em:** 2026-11-02; SHA-256 `de0f1ddf8368b7f343b07c00e5f122ac46193d1aea2c36b642e0805c5c73fcbf` (conferido pela ingestão).
+- **Uso no projeto:** rotulagem e treino do classificador texto → glosa. O CSV não é versionado.
