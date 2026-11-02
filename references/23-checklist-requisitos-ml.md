@@ -10,7 +10,25 @@ Estes 10 entregáveis são os que **dão a nota** do projeto na parte de Machine
 
 Nos textos dos entregáveis abaixo, os trechos ~~riscados~~ são os que ficam de fora. Não há subitens de embarcado/MQTT no checklist.
 
-**Pendência com o professor [a confirmar]:** classificação texto → glosa conta como "problema de ML adequado".
+**Aprovado pelo orientador:** a abordagem por **glosa** (texto → glosa, com base no VLibras/VLibrasBD) é a forma mais adequada e é o caminho seguido, com base no nosso estudo.
+
+## Orientação do orientador (reunião mais recente, anotada em 2026-11-02)
+
+O orientador viu o relatório sobre português sinalizado e a melhor forma de converter português em Libras, **gostou muito** e **concordou em seguir a base de estudos do VLibras/VLibrasBD**. Deixou claro que:
+
+1. devemos seguir os 10 requisitos acima;
+2. o projeto tem que **mostrar com clareza onde aplicamos machine learning** e **documentar bem** como funciona a pipeline de ponta a ponta.
+
+Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
+
+- [ ] **R0.1** Documento de arquitetura ponta a ponta (`references/` ou `docs/`): diagrama do fluxo texto → pré-processamento → classificador → glosa → avatar, com cada etapa dizendo se é **ML (treinado por nós)**, **regra/tabela** ou **externo** (ex.: player do VLibras, spaCy).
+- [ ] **R0.2** Seção "Onde está o ML": qual tarefa de classificação, quais atributos, quais rótulos, quais modelos, onde o modelo decide algo na saída final.
+- [ ] **R0.3** Cada etapa da pipeline com entrada, saída, onde roda (Airflow, notebook, API) e como reproduzir.
+- [ ] **R0.4** README do repositório aponta para esse documento e para o checklist.
+- [ ] **R0.5** Notebooks e DAGs com texto explicando o que e por quê, não só código.
+- [ ] **R0.6** Apresentação final percorre esse mesmo fluxo (liga com o entregável 10).
+
+> Em 2026-11-02 o Carlos relatou que o orientador concordou que a glosa é a forma mais adequada. A formulação exata do modelo (classificação por palavra, T1) é escolha nossa dentro desse caminho e deve ser justificada no baseline (entregável 3).
 
 ## Quadro-resumo (atualizado em 2026-11-02)
 
@@ -33,7 +51,7 @@ Nos textos dos entregáveis abaixo, os trechos ~~riscados~~ são os que ficam de
 
 > Implementação da infraestrutura inicial da solução. A equipe deverá disponibilizar um conjunto de dados inicial (bootstrap dataset) que permita o desenvolvimento e validação da solução desde as primeiras etapas do projeto, ~~além de implementar a infraestrutura de aquisição de dados utilizando um sistema embarcado físico ou simulado. A solução deverá demonstrar a publicação dos dados por meio de MQTT (ou tecnologia equivalente), bem como sua recepção~~ e persistência em um mecanismo de armazenamento adequado.
 
-- [ ] Validar com o professor que o problema (classificação texto → glosa) é adequado
+- [x] Abordagem por glosa validada com o orientador (reunião, relatada em 2026-11-02)
 - [ ] Baixar o VLibrasBD (bootstrap dataset) e registrar hash/licença
 - [ ] Banco (Postgres) e tabela do corpus criados
 - [ ] Script de ingestão do corpus no banco

@@ -1,6 +1,6 @@
 # Plano de ML: texto → glosa por classificação
 
-Decidido em **2026-10-28** pelo Carlos, depois da pesquisa sobre como converter português em Libras ([`Pesquisas/`](../Pesquisas/)) e da revisão dos requisitos de Machine Learning da disciplina. **[a confirmar com o professor]**: se as tarefas de classificação abaixo contam como "modelo adequado ao problema" (o sistema embarcado e o MQTT estão fora do escopo: ver "Requisitos que não se aplicam").
+Decidido em **2026-10-28** pelo Carlos, depois da pesquisa sobre como converter português em Libras ([`Pesquisas/`](../Pesquisas/)) e da revisão dos requisitos de Machine Learning da disciplina. O orientador aprovou, em 2026-11-02, a abordagem por glosa (sistema embarcado e MQTT estão fora do escopo: ver "Requisitos que não se aplicam").
 
 Este arquivo é o plano de referência para a parte de ML. Ele substitui o gerador de movimento ([`11-modelo-ml.md`](11-modelo-ml.md)) como entrega principal de ML. O gerador continua no repositório como experimento.
 
@@ -67,7 +67,7 @@ O texto → glosa vira **tarefas de classificação supervisionada**, com rótul
 | Tamanho | 127.349 pares (72.312 de domínio geral e ~55.037 de textos do gov.br) |
 | Formato | CSV UTF-8 com colunas `pt-br`, `libras-gloss`, `is_government_source`, `english_translation` |
 | Produção | Glosado à mão por intérpretes certificados ([Lima et al., 2025, *Data in Brief*](https://pmc.ncbi.nlm.nih.gov/articles/PMC12341731/)) |
-| Licença | **CC BY-SA 4.0**: atribuição obrigatória; derivados do dataset seguem a mesma licença. **[a confirmar com o professor]** o efeito do share-alike nos modelos treinados |
+| Licença | **CC BY-SA 4.0**: atribuição obrigatória; derivados do dataset seguem a mesma licença. **Decisão (Carlos, 2026-11-02):** basta dar os devidos créditos ao VLibrasBD pelo uso; sem tratamento especial do share-alike |
 | Versionamento | O CSV **não entra no git** (tamanho). A tarefa de ingestão baixa o arquivo e confere o hash |
 
 - **Divisão:** separar **10% das frases** como teste final, intocado até o fim. Os 90% restantes vão para a validação cruzada.
@@ -179,7 +179,8 @@ O Carlos informou em 2026-10-28 que **o requisito de sistema embarcado não é d
 
 Cada fase termina com algo demonstrável. As fases 7 a 10 podem começar em paralelo com as primeiras.
 
-- [ ] **0. Validar com o professor:** classificação texto → glosa como problema de ML; (embarcado e MQTT já decididos como fora); licença CC BY-SA do corpus.
+- [ ] **Transversal (R0), pedido do orientador:** documentar de ponta a ponta onde o ML é aplicado e como a pipeline funciona; ver `23-checklist-requisitos-ml.md`. Vale desde a Fase 1, não só no fim.
+- [x] **0. Validar com o professor:** abordagem por glosa aprovada pelo orientador (2026-11-02); embarcado e MQTT fora. Licença do corpus decidida: só dar os créditos.
 - [ ] **1. Dados:** baixar o VLibrasBD, script de ingestão com hash, tabela no Postgres, notebook de EDA.
 - [ ] **2. Rotulagem e preparação:** alinhamento por lema (T1), conferência manual de 200 rótulos, atributos, divisão treino/teste agrupada por frase, notebook de preparação com justificativas.
 - [ ] **3. Baseline:** Regressão Logística e lista fixa, ambas no MLflow.

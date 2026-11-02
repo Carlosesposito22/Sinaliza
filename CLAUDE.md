@@ -28,7 +28,8 @@ Leia `references/README.md` (índice). Para começar:
 10. Formato de pose: origem no meio dos **ombros**; índices 23–32 zerados em vídeo da cintura para cima; tratar `[0, 0, 0]` como ausente.
 11. Avalie geração com a **recuperação** (`retrieval`), não só com o DTW médio: o DTW premia movimento borrado.
 12. O avatar é o player do VLibras (LGPL-3.0) rodando **localmente** (`web/public/vlibras/`); os sinais vêm de `npm run signs` e **não são versionados** (`web/public/vlibras/signs/`). O avatar antigo (Rocketbox) está em `historico/avatar-rocketbox/` e não é compilado.
-13. Não terceirize o ML texto → glosa: o modelo que decide a glosa é treinado por nós. O `vlibras-translate` só entra como linha de base externa de avaliação.
+13. O orientador exigiu deixar claro **onde aplicamos ML** e documentar a pipeline de ponta a ponta (R0 em `references/23-checklist-requisitos-ml.md`). Em todo código e doc novo, diga se a etapa é ML nosso, regra ou externo.
+14. Não terceirize o ML texto → glosa: o modelo que decide a glosa é treinado por nós. O `vlibras-translate` só entra como linha de base externa de avaliação.
 
 ## Convenções
 
