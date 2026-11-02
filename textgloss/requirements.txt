@@ -1,0 +1,12 @@
+pandas>=2.2,<3
+numpy>=1.26,<3
+scikit-learn>=1.5,<2
+spacy>=3.8,<3.9
+psycopg[binary]>=3.2,<4
+sqlalchemy>=2.0,<3
+pyarrow>=16
+matplotlib>=3.9
+seaborn>=0.13
+jupyter>=1.1
+nbconvert>=7.16
+pytest>=8
