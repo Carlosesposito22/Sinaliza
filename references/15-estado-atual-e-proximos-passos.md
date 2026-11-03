@@ -9,7 +9,7 @@
 > | Baseline no MLflow | **Feito em 2026-11-02** (F1-macro 0,876 contra 0,822 da lista fixa) |
 > | Três modelos comparados com gráficos | **Feito em 2026-11-02** (melhor: Regressão Logística, F1-macro 0,876) |
 > | Optuna | **Feito em 2026-11-02** (Random Forest 0,852 → 0,884) |
-> | Validação cruzada e generalização | Falta |
+> | Validação cruzada e generalização | **Feito em 2026-11-02**; teste final: Random Forest otimizado, F1-macro 0,885 |
 > | Modelo integrado à API, consumindo frases novas | Falta |
 > | Docker Compose com Postgres, MLflow, Airflow, API, web e painel | Parcial (`api`, `web`, `postgres` e `mlflow`) |
 > | Painel | Falta |

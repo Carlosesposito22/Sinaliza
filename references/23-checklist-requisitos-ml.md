@@ -25,7 +25,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [ ] **R0.2** Seção "Onde está o ML": qual tarefa de classificação, quais atributos, quais rótulos, quais modelos, onde o modelo decide algo na saída final.
 - [ ] **R0.3** Cada etapa da pipeline com entrada, saída, onde roda (Airflow, notebook, API) e como reproduzir.
 - [ ] **R0.4** README do repositório aponta para esse documento e para o checklist.
-- [ ] **R0.5** (notebooks 01 a 04 feitos; faltam os DAGs) Notebooks e DAGs com texto explicando o que e por quê, não só código.
+- [ ] **R0.5** (notebooks 01 a 05 feitos; faltam os DAGs) Notebooks e DAGs com texto explicando o que e por quê, não só código.
 - [ ] **R0.6** Apresentação final percorre esse mesmo fluxo (liga com o entregável 10).
 
 > Em 2026-11-02 o Carlos relatou que o orientador concordou que a glosa é a forma mais adequada. A formulação exata do modelo (classificação por palavra, T1) é escolha nossa dentro desse caminho e deve ser justificada no baseline (entregável 3).
@@ -39,7 +39,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 | 3 | Modelo baseline + MLflow | 3 | **Feito** (2026-11-02): F1-macro 0,876 contra 0,822 da lista fixa |
 | 4 | Três modelos comparados + gráficos + análise crítica | 4 | **Feito** (2026-11-02): Regressão Logística 0,876 > Árvore 0,870 > Random Forest 0,852 > KNN 0,846 |
 | 5 | Otimização de hiperparâmetros (Optuna) | 5 | **Feito** (2026-11-02): Random Forest 0,852 → 0,884 |
-| 6 | Validação cruzada e generalização | 6 | Não iniciado |
+| 6 | Validação cruzada e generalização | 6 | **Feito** (2026-11-02): teste final do Random Forest otimizado F1-macro 0,885, contra 0,823 da lista fixa |
 | 7 | Integração do modelo ao pipeline | 8 | Não iniciado |
 | 8 | Conteinerização com Docker Compose | 9 | Parcial (`api`, `web`, `postgres` e `mlflow`) |
 | 9 | Dashboard integrado | 10 | Não iniciado |
@@ -107,12 +107,12 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
 > Avaliação do modelo utilizando validação cruzada (k-fold ou stratified k-fold, quando aplicável), acompanhada de análise da estabilidade dos resultados, identificação de evidências de overfitting ou underfitting e discussão da capacidade de generalização do modelo.
 
-- [ ] `StratifiedGroupKFold` (agrupado por frase) executado
-- [ ] Estabilidade entre dobras (média, desvio)
-- [ ] Curva de aprendizado / evidências de overfitting ou underfitting
-- [ ] Teste fora do domínio
-- [ ] Teste final no conjunto separado
-- [ ] Discussão escrita de generalização
+- [x] `StratifiedGroupKFold` (agrupado por frase) executado (k=5, 25 mil frases, Regressão e Random Forest otimizado)
+- [x] Estabilidade entre dobras (média, desvio): RF 0,8789 ± 0,0013; Regressão 0,8747 ± 0,0014
+- [x] Curva de aprendizado / evidências de overfitting ou underfitting (regressão estaciona; RF sobreajusta moderadamente)
+- [x] Teste fora do domínio (geral ↔ governo): queda de 2 a 4 pontos
+- [x] Teste final no conjunto separado (Random Forest otimizado, usado uma única vez: F1-macro 0,8849; modelo registrado como `sinaliza-t1` v1)
+- [x] Discussão escrita de generalização (`28-validacao-e-generalizacao-t1.md` e `notebooks/05-validacao-e-generalizacao.ipynb`)
 
 ## 7. Integração do modelo ao pipeline
 
