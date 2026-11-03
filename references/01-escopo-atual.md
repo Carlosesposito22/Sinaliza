@@ -2,6 +2,10 @@
 
 Este é o arquivo de referência quando houver dúvida sobre "o que estamos construindo". Ele **prevalece** sobre os documentos de `Documentos/`, que descrevem o escopo anterior.
 
+## Atualização 2026-11-02: trilha de aprendizado gamificada no web
+
+O grupo decidiu que a parte web vira uma **trilha de aprendizado de sinais gamificada, inspirada no Duolingo** (unidades, lições, exercícios, XP, nível, sequência de dias, meta diária), feita por duas pessoas. O ML (texto → glosa) segue como está e alimenta o tradutor. Os dois lados conversam pelo contrato [`docs/contrato-api-web.md`](../docs/contrato-api-web.md), com um mock (`mock-api/`) para o web começar já. Regra mantida: **nenhum sinal é inventado**; o conteúdo vem só do vocabulário curado (dicionário do VLibras) e a interface avisa que os rótulos não foram validados por falante de Libras.
+
 ## Escopo anterior (fase 1, em `Documentos/`)
 
 Jogo interativo baseado em câmera:

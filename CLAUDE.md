@@ -2,6 +2,8 @@
 
 Projeto de Projetos 6 (Grupo 10): ferramenta que recebe **texto em português** e mostra a **sequência de sinais de Libras** correspondente em um avatar (o player do VLibras). Desde 2026-10-28 o ML planejado é o **texto → glosa por classificação**, treinado no corpus VLibrasBD, com Airflow, MLflow, Optuna, validação cruzada e painel: ver `references/22-plano-ml-texto-glosa.md`. O gerador de movimento em `model/` (V-LIBRASIL, DTW) ficou como experimento.
 
+Desde 2026-11-02 o web também ganha uma **trilha de aprendizado gamificada** (estilo Duolingo, feita por duas pessoas), integrada à API por `docs/contrato-api-web.md` e testável com `mock-api/`.
+
 O escopo foi reduzido depois de conversa com o professor: o projeto **não** reconhece mais o sinal feito pelo usuário via câmera. As entregas em `Documentos/` descrevem o escopo antigo.
 
 ## Contexto

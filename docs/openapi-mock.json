@@ -1,0 +1,1281 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Sinaliza API (mock)",
+    "version": "contrato-1"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vocabulary": {
+      "get": {
+        "summary": "Get Vocabulary",
+        "operationId": "get_vocabulary_vocabulary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VocabularyResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "summary": "Get Categories",
+        "operationId": "get_categories_categories_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoriesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/translate": {
+      "post": {
+        "summary": "Translate",
+        "operationId": "translate_translate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranslateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranslateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/learn/path": {
+      "get": {
+        "summary": "Learn Path",
+        "operationId": "learn_path_learn_path_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PathResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/learn/lessons/{lesson_id}": {
+      "get": {
+        "summary": "Learn Lesson",
+        "operationId": "learn_lesson_learn_lessons__lesson_id__get",
+        "parameters": [
+          {
+            "name": "lesson_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Lesson Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lesson"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/learn/progress": {
+      "get": {
+        "summary": "Learn Progress",
+        "operationId": "learn_progress_learn_progress_get",
+        "parameters": [
+          {
+            "name": "x-learner-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Learner-Id"
+            }
+          },
+          {
+            "name": "x-mock-today",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Mock-Today"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Progress"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Learn Reset",
+        "description": "Só no mock: zera o progresso de quem chamou (a API real pode não oferecer).",
+        "operationId": "learn_reset_learn_progress_delete",
+        "parameters": [
+          {
+            "name": "x-learner-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Learner-Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/learn/lessons/{lesson_id}/complete": {
+      "post": {
+        "summary": "Learn Complete",
+        "operationId": "learn_complete_learn_lessons__lesson_id__complete_post",
+        "parameters": [
+          {
+            "name": "lesson_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Lesson Id"
+            }
+          },
+          {
+            "name": "x-learner-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Learner-Id"
+            }
+          },
+          {
+            "name": "x-mock-today",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Mock-Today"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CategoriesResponse": {
+        "properties": {
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            },
+            "type": "array",
+            "title": "Categories"
+          }
+        },
+        "type": "object",
+        "required": [
+          "categories"
+        ],
+        "title": "CategoriesResponse"
+      },
+      "Category": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "phrases": {
+            "items": {
+              "$ref": "#/components/schemas/Phrase"
+            },
+            "type": "array",
+            "title": "Phrases"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "phrases"
+        ],
+        "title": "Category"
+      },
+      "CompleteRequest": {
+        "properties": {
+          "correct": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Correct"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Total"
+          },
+          "mistakes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Mistakes",
+            "description": "ids dos exercícios errados"
+          }
+        },
+        "type": "object",
+        "required": [
+          "correct",
+          "total"
+        ],
+        "title": "CompleteRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Health": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "contract_version": {
+            "type": "string",
+            "title": "Contract Version"
+          },
+          "mock": {
+            "type": "boolean",
+            "title": "Mock"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "contract_version",
+          "mock"
+        ],
+        "title": "Health"
+      },
+      "LearnSign": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "const": "learn_sign",
+            "title": "Type",
+            "default": "learn_sign"
+          },
+          "gloss": {
+            "type": "string",
+            "title": "Gloss"
+          },
+          "word_pt": {
+            "type": "string",
+            "title": "Word Pt"
+          },
+          "forms": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Forms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "gloss",
+          "word_pt",
+          "forms"
+        ],
+        "title": "LearnSign",
+        "description": "Cartão de apresentação de um sinal: o avatar toca `gloss` e mostra a palavra."
+      },
+      "Lesson": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "unit_id": {
+            "type": "string",
+            "title": "Unit Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "xp_reward": {
+            "type": "integer",
+            "title": "Xp Reward"
+          },
+          "exercises": {
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/LearnSign"
+                },
+                {
+                  "$ref": "#/components/schemas/SignToWord"
+                },
+                {
+                  "$ref": "#/components/schemas/WordToSign"
+                },
+                {
+                  "$ref": "#/components/schemas/MatchPairs"
+                }
+              ],
+              "discriminator": {
+                "propertyName": "type",
+                "mapping": {
+                  "learn_sign": "#/components/schemas/LearnSign",
+                  "match_pairs": "#/components/schemas/MatchPairs",
+                  "sign_to_word": "#/components/schemas/SignToWord",
+                  "word_to_sign": "#/components/schemas/WordToSign"
+                }
+              }
+            },
+            "type": "array",
+            "title": "Exercises"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "unit_id",
+          "title",
+          "xp_reward",
+          "exercises"
+        ],
+        "title": "Lesson"
+      },
+      "LessonProgress": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "locked",
+              "available",
+              "completed"
+            ],
+            "title": "Status"
+          },
+          "stars": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 0.0,
+            "title": "Stars"
+          },
+          "best_accuracy": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Best Accuracy"
+          },
+          "completions": {
+            "type": "integer",
+            "title": "Completions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "stars",
+          "best_accuracy",
+          "completions"
+        ],
+        "title": "LessonProgress"
+      },
+      "LessonResult": {
+        "properties": {
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "accuracy": {
+            "type": "number",
+            "title": "Accuracy"
+          },
+          "stars": {
+            "type": "integer",
+            "title": "Stars"
+          },
+          "xp_gained": {
+            "type": "integer",
+            "title": "Xp Gained"
+          },
+          "bonus_perfect": {
+            "type": "boolean",
+            "title": "Bonus Perfect"
+          },
+          "level_up": {
+            "type": "boolean",
+            "title": "Level Up"
+          },
+          "goal_reached_now": {
+            "type": "boolean",
+            "title": "Goal Reached Now"
+          },
+          "unlocked_lesson_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unlocked Lesson Ids"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/Progress"
+          }
+        },
+        "type": "object",
+        "required": [
+          "passed",
+          "accuracy",
+          "stars",
+          "xp_gained",
+          "bonus_perfect",
+          "level_up",
+          "goal_reached_now",
+          "unlocked_lesson_ids",
+          "progress"
+        ],
+        "title": "LessonResult"
+      },
+      "LessonSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "xp_reward": {
+            "type": "integer",
+            "title": "Xp Reward"
+          },
+          "n_exercises": {
+            "type": "integer",
+            "title": "N Exercises"
+          },
+          "glosses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Glosses"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "xp_reward",
+          "n_exercises",
+          "glosses"
+        ],
+        "title": "LessonSummary"
+      },
+      "MatchPairs": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "const": "match_pairs",
+            "title": "Type",
+            "default": "match_pairs"
+          },
+          "pairs": {
+            "items": {
+              "$ref": "#/components/schemas/Pair"
+            },
+            "type": "array",
+            "title": "Pairs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "pairs"
+        ],
+        "title": "MatchPairs",
+        "description": "Ligar cada sinal à sua palavra."
+      },
+      "Pair": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "gloss": {
+            "type": "string",
+            "title": "Gloss"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "gloss",
+          "text"
+        ],
+        "title": "Pair"
+      },
+      "PathResponse": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer"
+          },
+          "units": {
+            "items": {
+              "$ref": "#/components/schemas/Unit"
+            },
+            "type": "array",
+            "title": "Units"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "disclaimer",
+          "units"
+        ],
+        "title": "PathResponse"
+      },
+      "Phrase": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "glosses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Glosses"
+          },
+          "ignored": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Ignored"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text",
+          "glosses",
+          "ignored"
+        ],
+        "title": "Phrase"
+      },
+      "PoseSequence": {
+        "properties": {
+          "fps": {
+            "type": "integer",
+            "title": "Fps"
+          },
+          "layout": {
+            "additionalProperties": {
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "type": "object",
+            "title": "Layout"
+          },
+          "frames": {
+            "items": {
+              "items": {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Frames"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fps",
+          "layout",
+          "frames"
+        ],
+        "title": "PoseSequence"
+      },
+      "Progress": {
+        "properties": {
+          "learner_id": {
+            "type": "string",
+            "title": "Learner Id"
+          },
+          "xp": {
+            "type": "integer",
+            "title": "Xp"
+          },
+          "level": {
+            "type": "integer",
+            "title": "Level"
+          },
+          "xp_in_level": {
+            "type": "integer",
+            "title": "Xp In Level"
+          },
+          "xp_to_next_level": {
+            "type": "integer",
+            "title": "Xp To Next Level"
+          },
+          "streak_days": {
+            "type": "integer",
+            "title": "Streak Days"
+          },
+          "best_streak": {
+            "type": "integer",
+            "title": "Best Streak"
+          },
+          "daily_goal_xp": {
+            "type": "integer",
+            "title": "Daily Goal Xp"
+          },
+          "xp_today": {
+            "type": "integer",
+            "title": "Xp Today"
+          },
+          "goal_reached_today": {
+            "type": "boolean",
+            "title": "Goal Reached Today"
+          },
+          "last_activity_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Activity Date",
+            "description": "AAAA-MM-DD"
+          },
+          "lessons": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/LessonProgress"
+            },
+            "type": "object",
+            "title": "Lessons"
+          }
+        },
+        "type": "object",
+        "required": [
+          "learner_id",
+          "xp",
+          "level",
+          "xp_in_level",
+          "xp_to_next_level",
+          "streak_days",
+          "best_streak",
+          "daily_goal_xp",
+          "xp_today",
+          "goal_reached_today",
+          "last_activity_date",
+          "lessons"
+        ],
+        "title": "Progress"
+      },
+      "SignInfo": {
+        "properties": {
+          "gloss": {
+            "type": "string",
+            "title": "Gloss"
+          },
+          "forms": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Forms"
+          },
+          "contexts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Contexts"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "gloss",
+          "forms",
+          "contexts"
+        ],
+        "title": "SignInfo"
+      },
+      "SignOption": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "gloss": {
+            "type": "string",
+            "title": "Gloss"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "gloss"
+        ],
+        "title": "SignOption"
+      },
+      "SignToWord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "const": "sign_to_word",
+            "title": "Type",
+            "default": "sign_to_word"
+          },
+          "gloss": {
+            "type": "string",
+            "title": "Gloss"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/TextOption"
+            },
+            "type": "array",
+            "title": "Options"
+          },
+          "correct_option_id": {
+            "type": "string",
+            "title": "Correct Option Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "gloss",
+          "options",
+          "correct_option_id"
+        ],
+        "title": "SignToWord",
+        "description": "O avatar toca `gloss`; a pessoa escolhe a palavra em português."
+      },
+      "TextOption": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "text"
+        ],
+        "title": "TextOption"
+      },
+      "TranslateRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "TranslateRequest"
+      },
+      "TranslateResponse": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "glosses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Glosses"
+          },
+          "matches": {
+            "items": {
+              "$ref": "#/components/schemas/WordMatch"
+            },
+            "type": "array",
+            "title": "Matches"
+          },
+          "generator": {
+            "type": "string",
+            "title": "Generator"
+          },
+          "pose": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PoseSequence"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "legado; o web não deve depender dele"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version",
+            "description": "ex.: \"sinaliza-t1/1\", \"lista-fixa\" ou \"mock\""
+          },
+          "latency_ms": {
+            "type": "integer",
+            "title": "Latency Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text",
+          "glosses",
+          "matches",
+          "generator",
+          "model_version",
+          "latency_ms"
+        ],
+        "title": "TranslateResponse"
+      },
+      "Unit": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "icon": {
+            "type": "string",
+            "title": "Icon"
+          },
+          "lessons": {
+            "items": {
+              "$ref": "#/components/schemas/LessonSummary"
+            },
+            "type": "array",
+            "title": "Lessons"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "color",
+          "icon",
+          "lessons"
+        ],
+        "title": "Unit"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VocabularyResponse": {
+        "properties": {
+          "signs": {
+            "items": {
+              "$ref": "#/components/schemas/SignInfo"
+            },
+            "type": "array",
+            "title": "Signs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "signs"
+        ],
+        "title": "VocabularyResponse"
+      },
+      "WordMatch": {
+        "properties": {
+          "word": {
+            "type": "string",
+            "title": "Word"
+          },
+          "gloss": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gloss"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "exact",
+              "approx",
+              "function",
+              "ignored"
+            ],
+            "title": "Kind"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "MANTER",
+              "DESCARTAR"
+            ],
+            "title": "Decision"
+          },
+          "probability": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Probability",
+            "description": "probabilidade da classe MANTER"
+          }
+        },
+        "type": "object",
+        "required": [
+          "word",
+          "gloss",
+          "kind",
+          "score",
+          "decision",
+          "probability"
+        ],
+        "title": "WordMatch",
+        "description": "Como uma palavra do texto virou (ou não) um sinal.\n\n`kind` (já existe hoje): `exact` está na tabela; `approx` aproximada por embedding;\n`function` artigo/preposição sem sinal próprio; `ignored` sem sinal no vocabulário.\n`decision` e `probability` (novos): o que o modelo de ML decidiu para a palavra."
+      },
+      "WordToSign": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "const": "word_to_sign",
+            "title": "Type",
+            "default": "word_to_sign"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/SignOption"
+            },
+            "type": "array",
+            "title": "Options"
+          },
+          "correct_option_id": {
+            "type": "string",
+            "title": "Correct Option Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "text",
+          "options",
+          "correct_option_id"
+        ],
+        "title": "WordToSign",
+        "description": "Mostra a palavra; a pessoa escolhe, entre sinais que o avatar toca ao toque, o certo."
+      }
+    }
+  }
+}
