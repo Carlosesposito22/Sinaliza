@@ -25,7 +25,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [ ] **R0.2** Seção "Onde está o ML": qual tarefa de classificação, quais atributos, quais rótulos, quais modelos, onde o modelo decide algo na saída final.
 - [ ] **R0.3** Cada etapa da pipeline com entrada, saída, onde roda (Airflow, notebook, API) e como reproduzir.
 - [ ] **R0.4** README do repositório aponta para esse documento e para o checklist.
-- [ ] **R0.5** (notebooks 01, 02 e 03 feitos; faltam os DAGs) Notebooks e DAGs com texto explicando o que e por quê, não só código.
+- [ ] **R0.5** (notebooks 01 a 04 feitos; faltam os DAGs) Notebooks e DAGs com texto explicando o que e por quê, não só código.
 - [ ] **R0.6** Apresentação final percorre esse mesmo fluxo (liga com o entregável 10).
 
 > Em 2026-11-02 o Carlos relatou que o orientador concordou que a glosa é a forma mais adequada. A formulação exata do modelo (classificação por palavra, T1) é escolha nossa dentro desse caminho e deve ser justificada no baseline (entregável 3).
@@ -38,7 +38,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 | 2 | Pipeline de dados no Airflow + notebook de EDA e preparação | 1, 2, 7 | Parcial (notebooks e preparação prontos; falta Airflow e a conferência manual) |
 | 3 | Modelo baseline + MLflow | 3 | **Feito** (2026-11-02): F1-macro 0,876 contra 0,822 da lista fixa |
 | 4 | Três modelos comparados + gráficos + análise crítica | 4 | **Feito** (2026-11-02): Regressão Logística 0,876 > Árvore 0,870 > Random Forest 0,852 > KNN 0,846 |
-| 5 | Otimização de hiperparâmetros (Optuna) | 5 | Não iniciado |
+| 5 | Otimização de hiperparâmetros (Optuna) | 5 | **Feito** (2026-11-02): Random Forest 0,852 → 0,884 |
 | 6 | Validação cruzada e generalização | 6 | Não iniciado |
 | 7 | Integração do modelo ao pipeline | 8 | Não iniciado |
 | 8 | Conteinerização com Docker Compose | 9 | Parcial (`api`, `web`, `postgres` e `mlflow`) |
@@ -98,10 +98,10 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
 > Aplicação de técnicas de otimização de hiperparâmetros (Grid Search, Random Search ou Otimização Bayesiana com Optuna) sobre o modelo selecionado. A equipe deverá documentar a estratégia adotada, os parâmetros avaliados, os resultados obtidos e registrar todos os experimentos no MLflow.
 
-- [ ] Modelo a otimizar escolhido (o melhor da comparação)
-- [ ] Estudo Optuna rodado
-- [ ] Todos os trials registrados no MLflow
-- [ ] Documento: estratégia, espaço de busca, resultados
+- [x] Modelo a otimizar escolhido (Random Forest, decisão do grupo em 2026-11-02: mais hiperparâmetros e longe do limite)
+- [x] Estudo Optuna rodado (TPE, 25 tentativas, CV agrupada de 3 dobras)
+- [x] Todos os trials registrados no MLflow (run pai `optuna-random-forest` e 25 filhas)
+- [x] Documento: estratégia, espaço de busca, resultados (`27-otimizacao-random-forest.md` e `notebooks/04-otimizacao-random-forest.ipynb`)
 
 ## 6. Validação cruzada e generalização
 

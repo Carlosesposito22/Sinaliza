@@ -44,6 +44,7 @@ Esta pasta existe para que uma sessão nova do Claude (ou uma pessoa nova na equ
 | [`24-pipeline-de-dados-ponta-a-ponta.md`](24-pipeline-de-dados-ponta-a-ponta.md) | **Pipeline de dados e onde o ML entra** (R0): ingestão, preparação, rótulos T1, como reproduzir |
 | [`25-baseline-t1.md`](25-baseline-t1.md) | Baseline do T1: Regressão Logística contra a lista fixa, métricas, justificativa, MLflow |
 | [`26-comparacao-de-modelos-t1.md`](26-comparacao-de-modelos-t1.md) | Comparação de Regressão Logística, Árvore, Random Forest e KNN no T1, análise crítica |
+| [`27-otimizacao-random-forest.md`](27-otimizacao-random-forest.md) | Optuna sobre o Random Forest: estratégia, espaço de busca, resultado (0,852 → 0,884) |
 | [`12-api.md`](12-api.md) | `api/`: endpoints, gerador stub, como plugar o modelo |
 | [`13-web.md`](13-web.md) | `web/`: front React e o avatar do VLibras (local) |
 | [`14-como-rodar-e-testar.md`](14-como-rodar-e-testar.md) | Comandos, venvs, Docker, testes |

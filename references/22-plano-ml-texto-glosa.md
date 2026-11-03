@@ -185,7 +185,7 @@ Cada fase termina com algo demonstrável. As fases 7 a 10 podem começar em para
 - [x] **2. Rotulagem e preparação** (2026-11-02): alinhamento por lema (T1), atributos, divisão agrupada por frase, notebook de preparação. **Pendente: conferência manual de 200 rótulos** (a equipe preenche `amostra_conferencia_200.csv`).
 - [x] **3. Baseline** (2026-11-02): Regressão Logística e lista fixa no MLflow. Ver [`25-baseline-t1.md`](25-baseline-t1.md).
 - [x] **4. Comparação** (2026-11-02): Árvore de Decisão, Random Forest e KNN no MLflow; gráficos; análise crítica. Ver [`26-comparacao-de-modelos-t1.md`](26-comparacao-de-modelos-t1.md).
-- [ ] **5. Otimização:** Optuna sobre o melhor modelo, todos os trials no MLflow.
+- [x] **5. Otimização** (2026-11-02): Optuna sobre o Random Forest (escolhido pelo grupo), todos os trials no MLflow. Ver [`27-otimizacao-random-forest.md`](27-otimizacao-random-forest.md).
 - [ ] **6. Validação:** k-fold agrupado, estabilidade entre dobras, sobreajuste, fora do domínio, teste final; avaliação ponta a ponta contra a lista fixa e o `vlibras-translate`.
 - [ ] **7. Airflow:** os quatro DAGs.
 - [ ] **8. Integração:** classificador na API, modelo vindo do MLflow, frases gravadas no banco, simulador de uso.
