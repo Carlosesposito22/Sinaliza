@@ -27,7 +27,7 @@ divisão treino 90% / teste 10%     regra            prepare.split_by_sentence()
    │
    ▼  ─ ─ ─ fases 3 a 6 ─ ─ ─
 CLASSIFICADOR: a palavra vira      ML nosso         textgloss/train.py (baseline feito: ver 25)
-sinal?                             Regressão Logística ✔ → Árvore ✔, Random Forest ✔, KNN ✔ (ver 26) → Optuna
+sinal?                             Regressão Logística ✔ → Árvore ✔, Random Forest ✔, KNN ✔ (ver 26) → Optuna ✔ (ver 27)
    │
    ▼  ─ ─ ─ fase 8 ─ ─ ─
 API /translate  →  glosa  →  player do VLibras (avatar)      externo (só toca os sinais)
