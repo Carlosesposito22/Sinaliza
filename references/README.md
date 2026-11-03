@@ -46,6 +46,9 @@ Esta pasta existe para que uma sessão nova do Claude (ou uma pessoa nova na equ
 | [`26-comparacao-de-modelos-t1.md`](26-comparacao-de-modelos-t1.md) | Comparação de Regressão Logística, Árvore, Random Forest e KNN no T1, análise crítica |
 | [`27-otimizacao-random-forest.md`](27-otimizacao-random-forest.md) | Optuna sobre o Random Forest: estratégia, espaço de busca, resultado (0,852 → 0,884) |
 | [`28-validacao-e-generalizacao-t1.md`](28-validacao-e-generalizacao-t1.md) | Validação cruzada, curva de aprendizado e teste fora do domínio da Regressão e do Random Forest |
+| [`29-roteiro-orientador-e-divisao-do-grupo.md`](29-roteiro-orientador-e-divisao-do-grupo.md) | Roteiro da reunião com o orientador e divisão do que falta em 6 pacotes independentes |
+| [`../docs/guia-web-trilha.md`](../docs/guia-web-trilha.md) | **Guia de partida para as duas pessoas do web**: missão, inspiração no Duolingo, telas, exercícios, cuidados com o avatar, divisão e marcos |
+| [`../docs/contrato-api-web.md`](../docs/contrato-api-web.md) | **Contrato da API para o web** (tradutor e trilha gamificada), regras de gamificação e como usar o mock |
 | [`12-api.md`](12-api.md) | `api/`: endpoints, gerador stub, como plugar o modelo |
 | [`13-web.md`](13-web.md) | `web/`: front React e o avatar do VLibras (local) |
 | [`14-como-rodar-e-testar.md`](14-como-rodar-e-testar.md) | Comandos, venvs, Docker, testes |

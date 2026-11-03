@@ -30,6 +30,16 @@ services:
       postgres:
         condition: service_healthy
 
+  # Mock da API para o time do web trabalhar sem o ML. Usa a porta 8000, a mesma da `api`:
+  # suba um OU outro. `docker compose --profile mock up mock-api`
+  mock-api:
+    profiles: ["mock"]
+    build:
+      context: .
+      dockerfile: mock-api/Dockerfile
+    ports:
+      - "8000:8000"
+
   api:
     build:
       context: .
