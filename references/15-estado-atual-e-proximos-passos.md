@@ -1,6 +1,59 @@
 # Estado atual e próximos passos
 
-> **Atualização 2026-10-28.** A entrega de ML passou a ser o **texto → glosa por classificação** ([`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md)). Nada dele está implementado ainda. Situação frente aos requisitos de ML da disciplina:
+## Retomada (ponto de parada em 2026-11-02)
+
+**Resumo.** Fases 1 a 6 do [plano de ML](22-plano-ml-texto-glosa.md) concluídas, ~55% dos entregáveis que dão a nota ([checklist](23-checklist-requisitos-ml.md)). O modelo do T1 (manter ou descartar cada palavra) é o **Random Forest otimizado**, F1-macro 0,885 no teste final contra 0,823 da lista fixa, registrado no MLflow como `sinaliza-t1` v1. Falta transformar isso em sistema: Airflow, integração na API, Docker Compose completo, painel e apresentação.
+
+### O que está feito (e onde)
+
+| Entregável | Feito | Documento |
+| --- | --- | --- |
+| 1 Bootstrap dataset | VLibrasBD (127.349 pares, hash conferido) no Postgres | [`24`](24-pipeline-de-dados-ponta-a-ponta.md) |
+| 2 EDA e preparação | Notebooks 01 e 02, rótulos T1, divisão por frase | [`24`](24-pipeline-de-dados-ponta-a-ponta.md) |
+| 3 Baseline | Regressão Logística 0,876 × lista fixa 0,822 | [`25`](25-baseline-t1.md) |
+| 4 Comparação | Árvore 0,870, Random Forest 0,852, KNN 0,846 | [`26`](26-comparacao-de-modelos-t1.md) |
+| 5 Optuna | Random Forest 0,852 → 0,884 (25 tentativas) | [`27`](27-otimizacao-random-forest.md) |
+| 6 Validação | CV k=5, curva de aprendizado, fora do domínio, teste final | [`28`](28-validacao-e-generalizacao-t1.md) |
+
+Decisões fechadas: abordagem por **glosa** aprovada pelo orientador; **embarcado e MQTT fora do escopo** (o embarcado não é do grupo); licença CC BY-SA do VLibrasBD resolvida só com **créditos**; modelo escolhido: **Random Forest otimizado**. Requisito R0 do orientador: deixar claro onde está o ML e documentar a pipeline ponta a ponta.
+
+### O que falta (ordem sugerida)
+
+1. **Fase 7, Airflow (entregável 2).** DAGs `vlibrasbd_ingestao`, `preparacao_t1`, `treino_t1` e `monitoramento` chamando `textgloss.ingest`, `textgloss.prepare` e `textgloss.train`/`tune`/`validate`. Adicionar o serviço `airflow` ao compose (consome alguns GB de memória).
+2. **Fase 8, integração (entregável 7).** A API carrega `sinaliza-t1` do MLflow e usa o classificador no lugar de `FUNCTION_WORDS` (`api/app/text_to_gloss.py`), devolvendo a probabilidade de cada decisão e a versão do modelo; sem modelo, volta à lista fixa e avisa. O spaCy entra na API (hoje só em `textgloss/`). Gravar cada frase recebida no Postgres e criar o **simulador de uso** (faz o papel do embarcado). Definir finalidade, retenção e aviso de privacidade antes de gravar texto de usuário.
+3. **Fase 9, Docker Compose completo (entregável 8).** Acrescentar `airflow` e `dashboard`; um único `docker compose up` sobe tudo; testar em máquina limpa; documentar o mínimo de memória em [`14-como-rodar-e-testar.md`](14-como-rodar-e-testar.md).
+4. **Fase 10, painel (entregável 9).** Streamlit lendo o banco, a API e o MLflow: frases por hora, latência, palavras sem sinal, distribuição das probabilidades, últimas inferências, versão e métricas do modelo, estado dos serviços.
+5. **Fase 11, apresentação (entregável 10).** Demonstração ponta a ponta, decisões técnicas e limitações (ordem dos sinais, sem validação por pessoas surdas, ruído de rótulo, escopo sem embarcado).
+
+### Pendências menores
+
+- **Conferência manual das 200 palavras** (`data/processed/vlibrasbd/amostra_conferencia_200.csv`, coluna `rotulo_correto`, depois a última célula do notebook 02). Depende da equipe; dá a taxa de ruído dos rótulos.
+- **R0 (orientador):** completar o documento de ponta a ponta [`24`](24-pipeline-de-dados-ponta-a-ponta.md) com treino, API e painel; atualizar os diagramas conforme as fases avançam.
+- Avaliação ponta a ponta contra o `vlibras-translate` (BLEU/chrF/WER): opcional, não é da rubrica.
+- Os valores de CV e fora do domínio usaram amostras; ver os limites em [`28`](28-validacao-e-generalizacao-t1.md).
+
+### Como retomar o ambiente
+
+```bash
+docker compose up -d postgres mlflow
+```
+
+- MLflow: http://localhost:5000 (experimento `t1-manter-descartar`). Postgres: `localhost:5432`, usuário/senha/banco `sinaliza`.
+- Ambiente Python do ML: `textgloss/.venv` (Python 3.12). Testes: `cd textgloss && .venv/Scripts/python -m pytest` (20 passam).
+- Dados em `data/raw/vlibrasbd/` e `data/processed/vlibrasbd/` não são versionados. Se sumirem: `python -m textgloss.ingest`, depois `python -m textgloss.prepare --processos 4`.
+- Os modelos e as runs vivem no volume `mlartifacts` e no Postgres do compose. Se o volume for apagado, refazer: `train baseline`, `train modelos`, `tune` (~40 min), `validate cv|curva|dominio` (~1 h) e **não** repetir o teste final (o código se recusa; ver abaixo).
+
+### Cuidados
+
+- **O teste final já foi usado.** Não ajustar modelo olhando para ele. Para mudar de modelo, seria preciso uma nova divisão de teste.
+- O volume do Postgres já existente não roda `postgres/init-mlflow.sql`; em volume novo o banco `mlflow` é criado sozinho.
+- O MLflow exige `skops_trusted_types=["sklearn.tree._tree.Tree"]` ao salvar árvores (já está no código).
+- Treinos do Random Forest ocupam todos os núcleos e a memória; as consultas ao MLflow ficam lentas enquanto rodam.
+- Não chamar a saída de "tradução de Libras": é "sequência de sinais" (regras do `CLAUDE.md`).
+
+---
+
+> **Situação dos requisitos de ML (atualizada em 2026-11-02).** A entrega de ML é o **texto → glosa por classificação** ([`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md)). Situação frente aos requisitos de ML da disciplina:
 >
 > | Requisito | Situação |
 > | --- | --- |
@@ -15,7 +68,7 @@
 > | Painel | Falta |
 > | Embarcado + MQTT | Fora do escopo (decisão do Carlos; ver `23-checklist-requisitos-ml.md`) |
 >
-> **Próximos passos:** conferir as 200 palavras de rótulo e seguir para a fase 3 (baseline no MLflow), conforme [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md). Como funciona o que já existe: [`24-pipeline-de-dados-ponta-a-ponta.md`](24-pipeline-de-dados-ponta-a-ponta.md). O restante deste arquivo descreve o estado em 2026-10-19/25, ainda válido para os componentes que existem.
+> **Próximos passos:** ver a seção "Retomada" abaixo.
 
 Posição em **2026-10-19**, segundo o código e o git. Os 5 commits originais são de 2026-10-14; depois vieram 2 commits de documentação (`Documentos/`, `references/`, `CLAUDE.md`). As implementações das sugestões do orientador (YOLOv8, embeddings, frases por categoria) estão **no working tree, ainda sem commit**.
 
