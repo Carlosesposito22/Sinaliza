@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
-import { fetchCategories, fetchVocabulary, translate, type Category, type TranslateResponse, type WordMatch } from "./api";
-import { VLibrasAvatar } from "./VLibrasAvatar";
+import { fetchCategories, fetchVocabulary, translate, type Category, type TranslateResponse, type WordMatch } from "../../api";
+import { useAvatarGlosses } from "../app/AvatarContext";
 
 function MatchWord({ match }: { match: WordMatch }) {
   if (match.kind === "function") {
@@ -28,7 +28,7 @@ function MatchWord({ match }: { match: WordMatch }) {
   );
 }
 
-export function App() {
+export function TranslatorPage() {
   const [text, setText] = useState("O filho está com dor de cabeça.");
   const [result, setResult] = useState<TranslateResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -68,6 +68,8 @@ export function App() {
     setText(phrase);
     void run(phrase);
   };
+
+  useAvatarGlosses(result?.glosses ?? []);
 
   const category = categories.find((c) => c.id === categoryId);
   const hasApprox = result?.matches.some((m) => m.kind === "approx") ?? false;
@@ -151,7 +153,6 @@ export function App() {
         </p>
       )}
 
-      <VLibrasAvatar glosses={result?.glosses ?? []} />
     </main>
   );
 }
