@@ -105,10 +105,26 @@ Testes: `cd textgloss && .venv/Scripts/python -m pytest`. Notebooks: `jupyter nb
 
 A conexão usa `SINALIZA_DATABASE_URL` (padrão `postgresql+psycopg://sinaliza:sinaliza@localhost:5432/sinaliza`).
 
+## Orquestração no Airflow (fase 7)
+
+Os quatro fluxos ficam em `pipeline/dags/` e **só chamam os módulos do `textgloss` por linha de comando**: o que roda no Airflow é exatamente o que se reproduz à mão. O serviço `airflow` do compose (`airflow/Dockerfile`, Airflow 3.1.5 em modo `standalone`, interface em http://localhost:8080, sem login, só local) monta os DAGs e o `textgloss` e usa um ambiente Python à parte (`/opt/airflow/venv-ml`) para as dependências do ML não conflitarem com as do Airflow. Os arquivos gerados ficam no volume `dados` (dentro do container, `/opt/sinaliza/data`), separado de `data/` do host.
+
+| DAG | O que faz | Etapa | Comando equivalente | Quando roda |
+| --- | --- | --- | --- | --- |
+| `vlibrasbd_ingestao` | baixa o CSV, confere o SHA-256, recria `corpus_bruto`; dispara `preparacao_t1` | infra (sem ML) | `python -m textgloss.ingest` | manual |
+| `preparacao_t1` | limpa, spaCy, rotula, divide treino/teste por frase, salva `palavras.parquet` e `palavras_t1` | preparação para o ML | `python -m textgloss.prepare --processos 4` | depois da ingestão (parâmetros `limite` e `processos`) |
+| `treino_t1` | baseline → comparação → Optuna → validação cruzada → teste final e registro de `sinaliza-t1` | **ML nosso** | `train baseline`, `train modelos`, `train comparar`, `tune`, `validate cv`, `validate teste` | manual (parâmetros `trials`, `timeout_s`, `frases_cv`, `registrar_modelo`) |
+| `monitoramento` | consolida as inferências novas (`inferencias`) em `indicadores_horarios` | estatística (sem ML novo) | `python -m textgloss.monitor` | a cada hora |
+
+Cuidados:
+
+- **O teste final roda uma única vez por MLflow.** A tarefa dele usa `--se-pendente`: se a run `teste-final` já existe, não treina nem registra nada e termina com sucesso. Num MLflow vazio (máquina limpa), o primeiro `treino_t1` completo cria o `sinaliza-t1` v1.
+- `SINALIZA_MLFLOW_EXPERIMENT` troca o experimento (útil para testar os DAGs sem sujar `t1-manter-descartar`).
+- A tabela `inferencias` é o **contrato com a API da fase 8**: uma linha por frase recebida (colunas em `textgloss/monitor.py`), com `processada = false`. Só o `monitoramento` a marca como processada. Texto de usuário só pode ser gravado depois de definidos finalidade, retenção e aviso de privacidade.
+
 ## Pendente nesta etapa
 
 - **Conferência manual** das 200 palavras de `data/processed/vlibrasbd/amostra_conferencia_200.csv` (preencher `rotulo_correto` e rodar a última célula do notebook 02). Sem ela não há taxa de ruído medida; o plano exige isso antes de treinar.
-- Os **DAGs do Airflow** (`vlibrasbd_ingestao`, `preparacao_t1`) ainda não existem; os mesmos módulos serão chamados por eles na fase 7.
 
 ## Créditos
 
