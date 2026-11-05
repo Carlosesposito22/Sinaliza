@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 from sqlalchemy import create_engine, insert, select
@@ -74,3 +74,19 @@ def test_conta_frases_sem_modelo(engine):
     with engine.connect() as conn:
         rows = {r.versao_modelo: r.sem_modelo for r in conn.execute(select(monitor.indicadores_horarios))}
     assert rows == {"lista-fixa": 1, "1": 0}
+
+
+def test_purge_apaga_texto_so_de_processadas_antigas(engine):
+    velho = datetime.now(timezone.utc) - timedelta(days=40)
+    novo = datetime.now(timezone.utc) - timedelta(days=1)
+    with engine.begin() as conn:
+        conn.execute(insert(monitor.inferencias), [
+            {**frase(velho), "texto": "antiga processada", "processada": True},
+            {**frase(velho), "texto": "antiga pendente", "processada": False},
+            {**frase(novo), "texto": "recente processada", "processada": True},
+        ])
+    assert monitor.purge(engine, 30) == 1
+    with engine.connect() as conn:
+        textos = sorted(r.texto or "" for r in conn.execute(select(monitor.inferencias.c.texto)))
+    assert textos == ["", "antiga pendente", "recente processada"]
+    assert monitor.purge(engine, 30) == 0

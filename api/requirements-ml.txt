@@ -1,0 +1,11 @@
+# ML nosso na API: o classificador T1 (manter ou descartar cada palavra) vindo do MLflow e a gravação das
+# inferências no Postgres. Sem estes pacotes a API sobe e usa a lista fixa (`model_version: "lista-fixa"`).
+# scikit-learn, skops e mlflow na MESMA versão do treino (`textgloss/requirements.txt` e o modelo registrado).
+-r requirements.txt
+pandas>=2.2,<3
+scikit-learn==1.9.1
+skops==0.16.0
+mlflow-skinny==3.17.2
+spacy>=3.8,<3.9
+sqlalchemy>=2,<3
+psycopg[binary]>=3.2,<4

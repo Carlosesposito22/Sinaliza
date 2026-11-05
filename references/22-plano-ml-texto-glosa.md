@@ -188,7 +188,7 @@ Cada fase termina com algo demonstrável. As fases 7 a 10 podem começar em para
 - [x] **5. Otimização** (2026-11-02): Optuna sobre o Random Forest (escolhido pelo grupo), todos os trials no MLflow. Ver [`27-otimizacao-random-forest.md`](27-otimizacao-random-forest.md).
 - [x] **6. Validação** (2026-11-02): k-fold agrupado, estabilidade, sobreajuste, fora do domínio e teste final (Random Forest otimizado, F1-macro 0,885, registrado como `sinaliza-t1`) em [`28-validacao-e-generalizacao-t1.md`](28-validacao-e-generalizacao-t1.md). **Falta a avaliação ponta a ponta** contra a lista fixa e o `vlibras-translate` (BLEU/chrF/WER), que não é exigida pela rubrica.
 - [x] **7. Airflow** (2026-11-05): os quatro DAGs em `pipeline/dags/` e o serviço `airflow` no compose; ver [`24`](24-pipeline-de-dados-ponta-a-ponta.md) e [`14`](14-como-rodar-e-testar.md).
-- [ ] **8. Integração:** classificador na API, modelo vindo do MLflow, frases gravadas no banco, simulador de uso.
+- [x] **8. Integração** (2026-11-05): classificador na API, modelo vindo do MLflow, frases gravadas no banco, simulador de uso; ver [`12-api.md`](12-api.md) e [`24`](24-pipeline-de-dados-ponta-a-ponta.md).
 - [ ] **9. Docker Compose completo.**
 - [ ] **10. Painel.**
 - [ ] **11. Apresentação:** demonstração ponta a ponta, decisões técnicas e limitações (ordem dos sinais, ausência de validação surda, ruído da rotulagem).

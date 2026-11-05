@@ -34,13 +34,13 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
 | # | Entregável | Fase do plano | Situação |
 | --- | --- | --- | --- |
-| 1 | Infraestrutura inicial + bootstrap dataset + persistência | 0, 1 | Parcial (corpus no Postgres; falta simulador de uso) |
+| 1 | Infraestrutura inicial + bootstrap dataset + persistência | 0, 1 | **Feito** (2026-11-05: corpus no Postgres, simulador de uso e persistência das frases) |
 | 2 | Pipeline de dados no Airflow + notebook de EDA e preparação | 1, 2, 7 | Quase feito (2026-11-05: DAGs e notebooks prontos; falta a conferência manual dos 200 rótulos) |
 | 3 | Modelo baseline + MLflow | 3 | **Feito** (2026-11-02): F1-macro 0,876 contra 0,822 da lista fixa |
 | 4 | Três modelos comparados + gráficos + análise crítica | 4 | **Feito** (2026-11-02): Regressão Logística 0,876 > Árvore 0,870 > Random Forest 0,852 > KNN 0,846 |
 | 5 | Otimização de hiperparâmetros (Optuna) | 5 | **Feito** (2026-11-02): Random Forest 0,852 → 0,884 |
 | 6 | Validação cruzada e generalização | 6 | **Feito** (2026-11-02): teste final do Random Forest otimizado F1-macro 0,885, contra 0,823 da lista fixa |
-| 7 | Integração do modelo ao pipeline | 8 | Não iniciado |
+| 7 | Integração do modelo ao pipeline | 8 | **Quase feito** (2026-11-05: modelo na API, simulador, gravação e monitoramento; falta a demonstração com a pilha completa) |
 | 8 | Conteinerização com Docker Compose | 9 | Parcial (`api`, `web`, `postgres`, `mlflow` e `airflow`; faltam `dashboard` e o teste em máquina limpa) |
 | 9 | Dashboard integrado | 10 | Não iniciado |
 | 10 | Apresentação da solução completa | 11 | Não iniciado |
@@ -55,8 +55,8 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] Baixar o VLibrasBD (bootstrap dataset) e registrar hash/licença (2026-11-02; SHA-256 conferido; créditos em `docs/creditos-e-licencas.md`)
 - [x] Banco (Postgres) e tabela do corpus criados (serviço `postgres` no compose; `corpus_bruto`, 127.349 linhas)
 - [x] Script de ingestão do corpus no banco (`textgloss/ingest.py`)
-- [ ] Simulador de uso que envia frases novas à API (fonte de dados novos no lugar do embarcado)
-- [ ] Persistência das frases recebidas no banco
+- [x] Simulador de uso que envia frases novas à API (fonte de dados novos no lugar do embarcado) (2026-11-05; `textgloss/simulador.py`; 25 frases enviadas e gravadas)
+- [x] Persistência das frases recebidas no banco (2026-11-05; `api/app/inference_log.py`, tabela `inferencias`; texto só do simulador ou com opt-in, retenção pelo DAG `monitoramento`)
 
 ## 2. Pipeline de dados (Airflow) e EDA
 
@@ -119,11 +119,11 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
 > Integração do modelo treinado à infraestrutura de aquisição de dados. A equipe deverá integrar o modelo treinado à infraestrutura de aquisição de dados, demonstrando que o pipeline é capaz de consumir automaticamente novos dados ~~provenientes do sistema embarcado (ou~~ simulador~~)~~, executar as etapas de processamento necessárias e produzir inferências utilizando o modelo validado.
 
-- [ ] Modelo carregado do MLflow pela API
-- [ ] Classificador em `textgloss/infer.py` usado no `/translate`
-- [ ] Frases novas (do simulador) gravadas no banco
-- [ ] DAG `monitoramento` consome novas frases, processa e grava inferências (DAG e `textgloss/monitor.py` prontos e testados em 2026-11-05 com frases sintéticas; falta a API gravar em `inferencias`, fase 8)
-- [ ] Demonstração automática ponta a ponta
+- [x] Modelo carregado do MLflow pela API (2026-11-05; `sinaliza-t1/1`, 864 MB, em segundo plano, com plano B)
+- [x] Classificador em `textgloss/infer.py` usado no `/translate` (2026-11-05; campos `decision`, `probability`, `model_version`, `latency_ms` do contrato v1)
+- [x] Frases novas (do simulador) gravadas no banco (2026-11-05)
+- [x] DAG `monitoramento` consome novas frases, processa e grava inferências (2026-11-05; `monitor.py` consolidou as 25 frases reais do simulador; o DAG do Airflow também consolidou 20 frases reais do simulador na pilha completa, em 2026-11-05)
+- [ ] Demonstração automática ponta a ponta (simulador → API → banco → monitoramento já foi executada à mão; falta um roteiro único com o compose completo, fases 9 e 11)
 
 ## 8. Conteinerização (Docker Compose)
 

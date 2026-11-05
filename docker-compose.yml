@@ -23,6 +23,10 @@ services:
       --backend-store-uri postgresql://sinaliza:${POSTGRES_PASSWORD:-sinaliza}@postgres:5432/mlflow
       --artifacts-destination /mlartifacts --serve-artifacts
       --allowed-hosts mlflow:5000,localhost:5000,127.0.0.1:5000,localhost,127.0.0.1
+      --workers 1
+    environment:
+      # Desliga o executor de "jobs" do MLflow (GenAI), que sobe ~8 processos de ~190 MB e não usamos.
+      MLFLOW_SERVER_ENABLE_JOB_EXECUTION: "false"
     ports:
       - "5000:5000"
     volumes:
@@ -53,6 +57,7 @@ services:
       SINALIZA_DATABASE_URL: postgresql+psycopg://sinaliza:${POSTGRES_PASSWORD:-sinaliza}@postgres:5432/sinaliza
       MLFLOW_TRACKING_URI: http://mlflow:5000
       MLFLOW_DISABLE_AGENT_HINT: "1"
+      SINALIZA_RETENCAO_DIAS: ${SINALIZA_RETENCAO_DIAS:-30}
     volumes:
       - ./pipeline/dags:/opt/airflow/dags:ro
       - ./textgloss:/opt/sinaliza/textgloss:ro
@@ -86,11 +91,28 @@ services:
       # Arquivo de movimentos montado do host (derivado do V-LIBRASIL: fora do repositório).
       # Sem ele, a API usa o stub (um aceno de teste).
       SINALIZA_MOTIONS: /srv/motions/motions.npz
+      # ML nosso: o classificador T1 (`sinaliza-t1`) vem do MLflow em segundo plano; até chegar (ou se o
+      # MLflow estiver fora), a API usa a lista fixa e avisa em `model_version`.
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      SINALIZA_MODEL_CACHE: /srv/model-cache
+      # "false": não carrega o modelo e usa só a lista fixa (para Docker com pouca memória; ver references/14).
+      SINALIZA_USE_MODEL: ${SINALIZA_USE_MODEL:-true}
+      # Cada frase atendida é gravada em `inferencias` (monitoramento e painel). O TEXTO só é gravado para o
+      # simulador ou se SINALIZA_LOG_TEXT=true (o texto digitado pode ter dado pessoal); o DAG
+      # `monitoramento` apaga o texto depois de SINALIZA_RETENCAO_DIAS.
+      SINALIZA_LOG_DATABASE_URL: postgresql+psycopg://sinaliza:${POSTGRES_PASSWORD:-sinaliza}@postgres:5432/sinaliza
+      SINALIZA_LOG_TEXT: ${SINALIZA_LOG_TEXT:-false}
     volumes:
       - type: bind
         source: ${SINALIZA_MOTIONS_DIR:-./data/motions}
         target: /srv/motions
         read_only: true
+      - modelcache:/srv/model-cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mlflow:
+        condition: service_started
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 5s
@@ -114,5 +136,6 @@ services:
 volumes:
   pgdata:
   mlartifacts:
+  modelcache:
   dados:
   airflow-logs:

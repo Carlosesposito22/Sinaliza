@@ -18,7 +18,7 @@ def stub_generator(monkeypatch):
 def test_health():
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    assert response.json() == {"status": "ok", "contract_version": "1", "mock": False, "model": "lista-fixa"}
 
 
 def test_translate_returns_glosses_matches_and_pose_sequence():

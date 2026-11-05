@@ -45,7 +45,7 @@ py -3.12 -m venv .venv
 
 | Método e caminho | Quem implementa a versão real | O que faz |
 | --- | --- | --- |
-| `GET /health` | API | `{"status":"ok","contract_version":"1","mock":false}` |
+| `GET /health` | API | `{"status":"ok","contract_version":"1","mock":false}` (a API real acrescenta `"model"`: `"sinaliza-t1/1"` ou `"lista-fixa"`) |
 | `POST /translate` | **ML** | texto → glosas, com a decisão do modelo por palavra |
 | `GET /vocabulary` | API (existe) | os 210 sinais |
 | `GET /categories` | API (existe) | frases de exemplo por categoria |

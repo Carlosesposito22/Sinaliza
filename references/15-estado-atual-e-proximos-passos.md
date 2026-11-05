@@ -1,8 +1,8 @@
 # Estado atual e próximos passos
 
-## Retomada (atualizada em 2026-11-05, após a Fase 7)
+## Retomada (atualizada em 2026-11-05, após a Fase 8)
 
-**Resumo.** Fases 1 a 7 do [plano de ML](22-plano-ml-texto-glosa.md) concluídas, ~65% dos entregáveis que dão a nota ([checklist](23-checklist-requisitos-ml.md)). O modelo do T1 (manter ou descartar cada palavra) é o **Random Forest otimizado**, F1-macro 0,885 no teste final contra 0,823 da lista fixa, registrado no MLflow como `sinaliza-t1` v1. O Airflow já orquestra o pipeline (4 DAGs em `pipeline/dags/`, serviço `airflow` no compose). Falta transformar o modelo em sistema: integração na API, painel, Compose completo testado em máquina limpa e apresentação.
+**Resumo.** Fases 1 a 8 do [plano de ML](22-plano-ml-texto-glosa.md) concluídas, ~75% dos entregáveis que dão a nota ([checklist](23-checklist-requisitos-ml.md)). O modelo do T1 (manter ou descartar cada palavra) é o **Random Forest otimizado**, F1-macro 0,885 no teste final contra 0,823 da lista fixa, registrado no MLflow como `sinaliza-t1` v1. O Airflow orquestra o pipeline (4 DAGs) e a **API já usa o `sinaliza-t1`** no `/translate` (com plano B), grava as frases e há um simulador de uso. Faltam o painel, o Compose completo testado em máquina limpa e a apresentação. **Verificado em 2026-11-05:** a pilha postgres + mlflow + api (com o modelo) + airflow roda junto em ~2,7 GB dos 3,8 GB do Docker atual, subindo a API antes do Airflow; simulador → API → DAG `monitoramento` funcionou nela.
 
 ### O que está feito (e onde)
 
@@ -20,7 +20,7 @@ Decisões fechadas: abordagem por **glosa** aprovada pelo orientador; **embarcad
 ### O que falta (ordem sugerida)
 
 1. ~~Fase 7, Airflow (entregável 2)~~ **feita em 2026-11-05**: DAGs `vlibrasbd_ingestao`, `preparacao_t1`, `treino_t1` e `monitoramento` e o serviço `airflow`. Como rodar e recursos em [`14`](14-como-rodar-e-testar.md); descrição dos DAGs em [`24`](24-pipeline-de-dados-ponta-a-ponta.md). Validação: ingestão e preparação (`limite` 3.000) e treino até a validação cruzada rodaram no Airflow, numa amostra e num experimento descartável (apagado); o gate do teste final (`--se-pendente`) foi conferido no MLflow real; o monitoramento foi testado com frases sintéticas. **Não foi feita** a execução completa dentro do Docker (preparação de 127 mil frases, Optuna de 25 tentativas): num Docker com 2 CPUs o primeiro trial já levou 12 min.
-2. **Fase 8, integração (entregável 7).** A API carrega `sinaliza-t1` do MLflow e usa o classificador no lugar de `FUNCTION_WORDS` (`api/app/text_to_gloss.py`), devolvendo a probabilidade de cada decisão e a versão do modelo; sem modelo, volta à lista fixa e avisa. O spaCy entra na API (hoje só em `textgloss/`). Gravar cada frase recebida no Postgres e criar o **simulador de uso** (faz o papel do embarcado). Definir finalidade, retenção e aviso de privacidade antes de gravar texto de usuário.
+2. ~~Fase 8, integração (entregável 7)~~ **feita em 2026-11-05**: `textgloss/infer.py`, `api/app/model_provider.py`, `inference_log.py`, campos novos do contrato no `/translate`, `textgloss/simulador.py`, expurgo de texto no `monitoramento`. Ver [`12-api.md`](12-api.md) e [`24`](24-pipeline-de-dados-ponta-a-ponta.md). **Pendências:** (a) a equipe confirmar finalidade e retenção do texto e o **aviso de privacidade no web** antes de ligar `SINALIZA_LOG_TEXT` para usuários reais ([`16`](16-riscos-e-questoes-abertas.md)); (b) decidir se o modelo pode descartar palavra do vocabulário curado (hoje pode; `SINALIZA_MODEL_DISCARDS_KNOWN=false` inverte), porque ele erra palavras como "preciso"; (c) a API precisa de ~2,8 GB na carga e ~1,26 GB depois (a ordem de subida importa; ver [`14`](14-como-rodar-e-testar.md)).
 3. **Fase 9, Docker Compose completo (entregável 8).** Acrescentar `airflow` e `dashboard`; um único `docker compose up` sobe tudo; testar em máquina limpa; documentar o mínimo de memória em [`14-como-rodar-e-testar.md`](14-como-rodar-e-testar.md).
 4. **Fase 10, painel (entregável 9).** Streamlit lendo o banco, a API e o MLflow: frases por hora, latência, palavras sem sinal, distribuição das probabilidades, últimas inferências, versão e métricas do modelo, estado dos serviços.
 5. **Fase 11, apresentação (entregável 10).** Demonstração ponta a ponta, decisões técnicas e limitações (ordem dos sinais, sem validação por pessoas surdas, ruído de rótulo, escopo sem embarcado).
@@ -65,7 +65,7 @@ docker compose up -d postgres mlflow
 > | Três modelos comparados com gráficos | **Feito em 2026-11-02** (melhor: Regressão Logística, F1-macro 0,876) |
 > | Optuna | **Feito em 2026-11-02** (Random Forest 0,852 → 0,884) |
 > | Validação cruzada e generalização | **Feito em 2026-11-02**; teste final: Random Forest otimizado, F1-macro 0,885 |
-> | Modelo integrado à API, consumindo frases novas | Falta |
+> | Modelo integrado à API, consumindo frases novas | **Feito em 2026-11-05** (API com `sinaliza-t1`, simulador, `inferencias`, monitoramento) |
 > | Docker Compose com Postgres, MLflow, Airflow, API, web e painel | Parcial (`api`, `web`, `postgres`, `mlflow` e `airflow`; faltam `dashboard` e o teste em máquina limpa) |
 > | Painel | Falta |
 > | Embarcado + MQTT | Fora do escopo (decisão do Carlos; ver `23-checklist-requisitos-ml.md`) |
