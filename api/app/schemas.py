@@ -32,6 +32,11 @@ class WordMatch(BaseModel):
     gloss: str | None
     kind: Literal["exact", "approx", "function", "ignored"]
     score: float
+    # O que o modelo de ML (T1) decidiu para a palavra e a probabilidade de MANTER. `decision` é a
+    # decisão do modelo; `kind` é o que aconteceu depois (uma palavra MANTER pode ser `ignored` por
+    # não ter sinal no vocabulário). Sem modelo (`model_version: "lista-fixa"`), a probabilidade é 0 ou 1.
+    decision: Literal["MANTER", "DESCARTAR"]
+    probability: float = Field(ge=0, le=1)
 
 
 class TranslateResponse(BaseModel):
@@ -40,6 +45,8 @@ class TranslateResponse(BaseModel):
     matches: list[WordMatch]
     generator: str
     pose: PoseSequence
+    model_version: str = Field(description='ex.: "sinaliza-t1/1", ou "lista-fixa" se o modelo não está disponível')
+    latency_ms: int
 
 
 class SignInfo(BaseModel):

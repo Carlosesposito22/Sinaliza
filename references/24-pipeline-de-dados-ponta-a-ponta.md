@@ -122,6 +122,25 @@ Cuidados:
 - `SINALIZA_MLFLOW_EXPERIMENT` troca o experimento (útil para testar os DAGs sem sujar `t1-manter-descartar`).
 - A tabela `inferencias` é o **contrato com a API da fase 8**: uma linha por frase recebida (colunas em `textgloss/monitor.py`), com `processada = false`. Só o `monitoramento` a marca como processada. Texto de usuário só pode ser gravado depois de definidos finalidade, retenção e aviso de privacidade.
 
+## Do modelo à resposta: integração na API e dados novos (fase 8)
+
+Esta é a parte do fluxo em que o ML **decide algo na saída final**. Detalhes da API em [`12-api.md`](12-api.md).
+
+| Etapa | O que faz | Tipo | Onde | Como reproduzir |
+| --- | --- | --- | --- | --- |
+| Simulador de uso | envia frases à API com `X-Origem: simulador` (faz o papel de fonte de dados novos no lugar do embarcado) | sem ML | `textgloss/simulador.py` | `python -m textgloss.simulador --n 30 --intervalo 1` |
+| spaCy | extrai os atributos de cada palavra (os mesmos do treino) | externo | `textgloss/features.py`, chamado por `infer.py` | automático na API |
+| **Classificador T1** | probabilidade de MANTER por palavra; `>= 0,5` mantém | **ML nosso** (`sinaliza-t1`, Random Forest otimizado) | `textgloss/infer.py`, carregado do MLflow em `api/app/model_provider.py` | `docker compose up -d api` |
+| Tabela, lema, aproximação | transforma palavra mantida em glosa do vocabulário | regra / externo (simplemma, embedding) | `api/app/text_to_gloss.py` | idem |
+| Gravação | uma linha em `inferencias` por frase | sem ML | `api/app/inference_log.py` | idem (`SINALIZA_LOG_DATABASE_URL`) |
+| Consolidação | indicadores por hora e versão em `indicadores_horarios`; apaga texto vencido | estatística | DAG `monitoramento` (`textgloss/monitor.py`) | `python -m textgloss.monitor` |
+
+Verificado em 2026-11-05 (banco descartável, já removido): 25 frases do simulador passaram pelo `sinaliza-t1/1` real (latência média 186 ms), foram gravadas com texto (origem `simulador`) e consolidadas (138 palavras: 60,9% mantidas, 5,1% sem sinal, 7,2% de decisões incertas entre 0,4 e 0,6, p50 178 ms e p95 225 ms). Uma requisição sem `X-Origem` foi gravada **sem texto e sem palavras**. Sem o modelo, a API atende com a lista fixa e `model_version: "lista-fixa"`.
+
+Repetido com a pilha completa de pé (postgres, mlflow, api com o modelo e airflow, ~2,7 GB): 20 frases do simulador, DAG `monitoramento` do Airflow com sucesso, 109 palavras (63,3% mantidas, 5,5% sem sinal, p95 145 ms).
+
+Limites: o modelo foi treinado em frases isoladas e a API o aplica ao texto inteiro como uma única frase (textos com várias frases perdem a posição relativa); o modelo erra (ex.: "preciso" é descartado); o `sinaliza-t1` exige ~2,8 GB na carga (ver [`14`](14-como-rodar-e-testar.md)).
+
 ## Pendente nesta etapa
 
 - **Conferência manual** das 200 palavras de `data/processed/vlibrasbd/amostra_conferencia_200.csv` (preencher `rotulo_correto` e rodar a última célula do notebook 02). Sem ela não há taxa de ruído medida; o plano exige isso antes de treinar.

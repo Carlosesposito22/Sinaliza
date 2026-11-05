@@ -6,9 +6,16 @@ que o painel lê. Roda no DAG `monitoramento` (a cada hora).
 
 CONTRATO COM A API (fase 8): a API grava uma linha em `inferencias` por frase recebida.
 `processada` começa em falso; só este módulo a marca como verdadeira.
+
+PRIVACIDADE: o texto digitado pode ter dado pessoal. A API só grava `texto` e as palavras de quem
+envia `X-Origem: simulador` (frases públicas) ou se `SINALIZA_LOG_TEXT=true`. Passada a retenção
+(`SINALIZA_RETENCAO_DIAS`, padrão 30, proposta ainda não confirmada pela equipe), `purge` apaga `texto` e
+`palavras` das linhas já processadas; os indicadores agregados ficam.
 Uso: python -m textgloss.monitor
 """
 import json
+import os
+from datetime import datetime, timedelta, timezone
 
 import numpy as np
 import pandas as pd
@@ -26,6 +33,7 @@ inferencias = Table(
     "inferencias", metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("em", DateTime(timezone=True), nullable=False, server_default=func.now()),
+    Column("origem", String(32)),
     Column("texto", Text),
     Column("n_palavras", Integer, nullable=False),
     Column("n_mantidas", Integer, nullable=False),
@@ -82,6 +90,19 @@ def summarize(rows: pd.DataFrame) -> pd.DataFrame:
             "sem_modelo": int((~group["usou_modelo"].astype(bool)).sum()),
         })
     return pd.DataFrame(out)
+
+
+def purge(engine, days: int) -> int:
+    """Apaga o texto e as palavras das inferências já processadas com mais de `days` dias. Devolve quantas."""
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    with engine.begin() as conn:
+        result = conn.execute(
+            update(inferencias)
+            .where(inferencias.c.processada.is_(True), inferencias.c.em < cutoff)
+            .where((inferencias.c.texto.is_not(None)) | (inferencias.c.palavras.is_not(None)))
+            .values(texto=None, palavras=None)
+        )
+    return result.rowcount
 
 
 def process(engine) -> dict:
@@ -144,7 +165,10 @@ _UPSERT = (
 
 
 def main() -> None:
-    print(json.dumps(process(create_engine(config.DATABASE_URL))))
+    engine = create_engine(config.DATABASE_URL)
+    result = process(engine)
+    result["texto_expurgado"] = purge(engine, int(os.environ.get("SINALIZA_RETENCAO_DIAS", "30")))
+    print(json.dumps(result))
 
 
 if __name__ == "__main__":

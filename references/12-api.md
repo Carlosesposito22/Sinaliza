@@ -1,12 +1,16 @@
 # API (`api/`)
 
-FastAPI 0.115+, pydantic v2, Python 3.11 (no Docker). Título "Sinaliza API", versão `0.3.0`.
+FastAPI 0.115+, pydantic v2, Python 3.12 (no Docker). Título "Sinaliza API", versão `0.3.0`.
+
+**Onde está o ML na API (fase 8):** o classificador T1, treinado por nós e registrado no MLflow como `sinaliza-t1`, decide para cada palavra do texto se ela vira sinal (MANTER) ou não (DESCARTAR). Ele substitui a lista fixa `FUNCTION_WORDS`, que sobrou só como plano B (`model_version: "lista-fixa"`). O restante (tabela do vocabulário, lema, aproximação por embedding, gerador) é regra ou externo. Código do modelo: `textgloss/infer.py`.
 
 ## Arquivos (`api/app/`)
 
 | Arquivo | Papel |
 | --- | --- |
-| `main.py` | App, CORS, endpoints; monta `vocabulary`, `text_to_gloss` e `generator` |
+| `main.py` | App, CORS, endpoints; monta `vocabulary`, `text_to_gloss`, `generator`, o provedor do modelo e o registro de inferências |
+| `model_provider.py` | **ML:** carrega o `sinaliza-t1` do MLflow numa thread, repete até conseguir, devolve `None` enquanto não há modelo (plano B: lista fixa); devolve ao sistema a memória do pico de carga |
+| `inference_log.py` | Grava cada frase atendida em `inferencias` (Postgres) em segundo plano; nunca afeta a resposta; texto só do simulador ou com `SINALIZA_LOG_TEXT=true` |
 | `vocabulary.py` | Lê `data/vocabulary.json` (`Vocabulary`, `Sign`); `lookup()` casa com acento primeiro; caminho por `SINALIZA_VOCABULARY` |
 | `embeddings.py` | `Embedder` (Protocol), `CharNgramEmbedder`, `SentenceTransformerEmbedder`, `build_embedder` |
 | `text_to_gloss.py` | `TextToGloss`: palavra → glosa por tabela, **lematizador** (simplemma) e, na falta, por embedding; formas de várias palavras; `Match` |
@@ -16,7 +20,7 @@ FastAPI 0.115+, pydantic v2, Python 3.11 (no Docker). Título "Sinaliza API", ve
 | `pose_format.py` | `POSE_COUNT=33`, `HAND_COUNT=21`, `NUM_KEYPOINTS=75`, `LOWER_BODY_START=23`, `LAYOUT` |
 | `schemas.py` | `PoseSequence`, `TranslateRequest`, `WordMatch`, `TranslateResponse`, `VocabularyResponse`, `CategoriesResponse` |
 
-Testes em `api/tests/` (`test_api.py`, `test_text_to_gloss.py`, `test_phrases.py`, `test_motion_generator.py`): **40, passam**. Requisitos: `requirements.txt` (inclui `numpy` e `simplemma`); opcional `requirements-semantic.txt` (`sentence-transformers`).
+Testes em `api/tests/` (`test_api.py`, `test_api_model.py`, `test_text_to_gloss.py`, `test_text_to_gloss_model.py`, `test_model_provider.py`, `test_inference_log.py`, `test_phrases.py`, `test_motion_generator.py`): **63, passam** (2026-11-05; usam um classificador falso, não precisam do MLflow nem do spaCy; `pytest.ini` põe a raiz do repositório no path para achar `textgloss`). Requisitos: `requirements.txt` (inclui `numpy` e `simplemma`); `requirements-ml.txt` (modelo T1 e gravação: scikit-learn, skops, mlflow-skinny, spaCy, pandas, SQLAlchemy, psycopg; é o que o Docker instala); opcional `requirements-semantic.txt` (`sentence-transformers`).
 
 ## Vocabulário
 
@@ -25,9 +29,17 @@ Testes em `api/tests/` (`test_api.py`, `test_text_to_gloss.py`, `test_phrases.py
 ## Fluxo do `POST /translate`
 
 ```
-texto ──► TextToGloss.resolve ──► matches (por palavra) ──► glosas ──► generator.generate ──► pose
+texto ──► classificador T1 (ML) ──► decisões por palavra ──► TextToGloss.resolve ──► matches ──► glosas ──► generator ──► pose
+                 │                                                                                                     
+                 └─ sem modelo (ainda carregando, MLflow fora, falha): lista fixa FUNCTION_WORDS, model_version "lista-fixa"
 ```
 
+0. **Classificador T1 (ML nosso).** `infer.T1Classifier.decide` roda o spaCy no texto (os mesmos atributos do treino) e devolve, para cada palavra, a probabilidade de MANTER (`>= 0,5` é MANTER). As decisões são alinhadas às palavras do `\w+` pela **posição em caracteres** (o spaCy e a regex quebram palavras de forma diferente). Regras que decorrem disso:
+   - **DESCARTAR** → `kind: "function"`, sem sinal, **mesmo que a palavra esteja no vocabulário**. É o modelo que manda; para o vocabulário curado vencer, `SINALIZA_MODEL_DISCARDS_KNOWN=false` (a palavra conhecida vira `exact` com `decision: DESCARTAR`);
+   - **MANTER** → segue para tabela/lema (`exact`), aproximação (`approx`) ou `ignored`;
+   - **formas de várias palavras da tabela** ("dor de cabeça") vencem o modelo (regra): a `probability` delas é a média das palavras e a `decision` sai da média;
+   - palavra que o spaCy não cobriu cai na lista fixa só para ela.
+   - O modelo erra: em 2026-11-05, "preciso/precisa" saiu DESCARTAR (p ≈ 0,005) de forma consistente (provável erro de classe gramatical do spaCy), e "Eu" ficou em 0,44. É o limite de um F1-macro de 0,885 e deve aparecer na apresentação.
 1. `resolve` tokeniza com `\w+`. Em cada posição tenta primeiro **formas de várias palavras** (até 3, ex.: "dor de cabeça", "por favor", "com licença") e depois a palavra sozinha, e classifica:
    - **`exact`**: a forma (com acento, sem diferença de caixa) é de um sinal; ou o **lema** dela é (`aconteceram` → `acontecer`, `comprando` → `comprar`). Sem acento só vale se **uma única** glosa casar (assim "avó" e "avô" não se misturam); `score` 1.0;
    - **`function`**: artigo, preposição, conjunção, pronome, "ser/estar" etc. sem sinal próprio, ou palavra de até 2 letras. Não é falha;
@@ -42,7 +54,9 @@ Isto **não é tradução para Libras**: é a sequência de sinais isolados na o
 
 ## Endpoints
 
-### `GET /health` → `{"status": "ok"}`
+### `GET /health` → `{"status": "ok", "contract_version": "1", "mock": false, "model": "sinaliza-t1/1"}`
+
+`model` é quem decide as palavras agora: `"sinaliza-t1/<versão>"`, `"lista-fixa (carregando o modelo)"` ou `"lista-fixa"` (modelo desligado). O `/health` responde logo; o modelo (864 MB) leva de 10 a 20 s para chegar.
 
 ### `POST /translate`
 Request: `{"text": "..."}` (até 500 caracteres; `strip()` e não pode ficar vazio → 422).
@@ -52,16 +66,20 @@ Request: `{"text": "..."}` (até 500 caracteres; `strip()` e não pode ficar vaz
   "text": "O filho está com dor de cabeça.",
   "glosses": ["FILHO", "DOR DE CABEÇA"],
   "matches": [
-    {"word": "O", "gloss": null, "kind": "function", "score": 0.0},
-    {"word": "filho", "gloss": "FILHO", "kind": "exact", "score": 1.0},
-    {"word": "está", "gloss": null, "kind": "function", "score": 0.0},
-    {"word": "com", "gloss": null, "kind": "function", "score": 0.0},
-    {"word": "dor de cabeça", "gloss": "DOR DE CABEÇA", "kind": "exact", "score": 1.0}
+    {"word": "O", "gloss": null, "kind": "function", "score": 0.0, "decision": "DESCARTAR", "probability": 0.0},
+    {"word": "filho", "gloss": "FILHO", "kind": "exact", "score": 1.0, "decision": "MANTER", "probability": 0.92},
+    {"word": "está", "gloss": null, "kind": "function", "score": 0.0, "decision": "DESCARTAR", "probability": 0.0},
+    {"word": "com", "gloss": null, "kind": "function", "score": 0.0, "decision": "DESCARTAR", "probability": 0.01},
+    {"word": "dor de cabeça", "gloss": "DOR DE CABEÇA", "kind": "exact", "score": 1.0, "decision": "MANTER", "probability": 0.6}
   ],
-  "pose": {"fps": 15, "layout": {"pose": [0, 33], "left_hand": [33, 54], "right_hand": [54, 75]}, "frames": []}
+  "pose": {"fps": 15, "layout": {"pose": [0, 33], "left_hand": [33, 54], "right_hand": [54, 75]}, "frames": []},
+  "model_version": "sinaliza-t1/1",
+  "latency_ms": 180
 }
 ```
-(`frames` abreviado.) Em `ignored`, o `score` é a melhor similaridade encontrada, abaixo do limiar.
+(`frames` abreviado; probabilidades ilustrativas.) Em `ignored`, o `score` é a melhor similaridade encontrada, abaixo do limiar. Campos novos (contrato v1, `docs/contrato-api-web.md`): `matches[].decision` (o que o **modelo** decidiu) e `probability` (de MANTER), `model_version` e `latency_ms`. `decision` e `kind` são coisas diferentes: uma palavra pode ser MANTER e ainda assim `ignored` por não ter sinal. **Sem modelo** (`model_version: "lista-fixa"`), `probability` é só 0 ou 1 (regra da lista, não ML).
+
+**Gravação:** depois de responder, a API grava a frase em `inferencias` (se `SINALIZA_LOG_DATABASE_URL` estiver definida): contagens, probabilidade média, decisões, latência, versão do modelo, origem (cabeçalho opcional `X-Origem`, só `[a-z0-9_-]` até 32 caracteres; o simulador envia `simulador`). **Texto e palavras só são gravados** para `X-Origem: simulador` (frases públicas) ou com `SINALIZA_LOG_TEXT=true`. Erro de gravação só vai para o log.
 
 ### `GET /vocabulary`
 `{"signs": [{"gloss", "forms", "contexts", "note"}]}`.
@@ -116,6 +134,8 @@ Escolhido quando `SINALIZA_MOTIONS` aponta para um arquivo `.npz` de movimentos 
 `test_api.py` força o stub (mesmo que `SINALIZA_MOTIONS` esteja definida na máquina) e assume 1 s por glosa.
 
 ## Docker
+
+**Fase 8 (2026-11-05):** a imagem agora é Python 3.12 com `requirements-ml.txt` e o modelo `pt_core_news_md` do spaCy (**1,43 GB**), e copia só `config.py`, `features.py`, `infer.py` e `monitor.py` do `textgloss`. O serviço `api` do compose define `MLFLOW_TRACKING_URI`, `SINALIZA_MODEL_CACHE` (volume `modelcache`, para não baixar o modelo a cada subida), `SINALIZA_LOG_DATABASE_URL` e `SINALIZA_LOG_TEXT`, e depende de `postgres` e `mlflow`. **Memória (medida):** o modelo chega a ~2,2 a 2,8 GB na carga e fica em ~1,26 GB (carregou em ~13 s no compose normal, em 2026-11-05; suba a API antes do Airflow); ver [`14-como-rodar-e-testar.md`](14-como-rodar-e-testar.md). Variáveis: `SINALIZA_USE_MODEL=false` (só lista fixa), `SINALIZA_MODEL_VERSION` (fixa a versão; padrão é a mais alta), `SINALIZA_MODEL_DISCARDS_KNOWN=false`. Para rodar fora do Docker, com o `textgloss` na raiz: `$env:PYTHONPATH=".."`.
 
 O build da API usa a **raiz do repositório** como contexto para copiar `data/vocabulary.json` e `data/phrases.json` para `/srv/data/`. O `docker-compose.yml` monta a pasta de movimentos do host em `/srv/motions` (somente leitura) e aponta `SINALIZA_MOTIONS` para `/srv/motions/motions.npz`:
 
