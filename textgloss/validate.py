@@ -67,7 +67,8 @@ def cv(sentences: int = CV_SENTENCES, models: tuple = MODELS) -> pd.DataFrame:
     mlflow.set_experiment(train.EXPERIMENT)
     words = modeling.load_words()
     pool = words[words["split"] == "treino"]
-    chosen = pool["frase_id"].drop_duplicates().sample(sentences, random_state=config.SEED)
+    unique = pool["frase_id"].drop_duplicates()
+    chosen = unique.sample(min(sentences, len(unique)), random_state=config.SEED)
     sample = pool[pool["frase_id"].isin(chosen)].reset_index(drop=True)
     y, groups = sample[modeling.TARGET].to_numpy(), sample["frase_id"].to_numpy()
     folds = list(StratifiedGroupKFold(n_splits=CV_FOLDS, shuffle=True, random_state=config.SEED).split(sample, y, groups))
@@ -173,6 +174,16 @@ def dominio(models: tuple = MODELS) -> pd.DataFrame:
     return table
 
 
+def teste_final_executado() -> bool:
+    """True se já existe uma run do teste final no experimento (ele só pode rodar uma vez)."""
+    mlflow.set_tracking_uri(train.TRACKING_URI)
+    client = mlflow.MlflowClient()
+    experiment = client.get_experiment_by_name(train.EXPERIMENT)
+    if experiment is None:
+        return False
+    return bool(client.search_runs([experiment.experiment_id], filter_string="tags.etapa = 'teste-final'", max_results=1))
+
+
 def teste_final(name: str) -> dict:
     """Teste final: treina o modelo escolhido em TODO o treino e avalia no teste (10% das frases), uma única vez.
 
@@ -218,10 +229,15 @@ def main() -> None:
     parser.add_argument("etapa", choices=["cv", "curva", "dominio", "teste"])
     parser.add_argument("--frases", type=int, default=CV_SENTENCES)
     parser.add_argument("--modelo", choices=MODELS)
+    parser.add_argument("--se-pendente", action="store_true",
+                        help="no teste final: se já foi executado, não faz nada e sai com sucesso (uso nos DAGs)")
     args = parser.parse_args()
     if args.etapa == "teste":
         if not args.modelo:
             raise SystemExit("Informe --modelo.")
+        if args.se_pendente and teste_final_executado():
+            print("O teste final já foi executado neste MLflow; nada a fazer.")
+            return
         print(json.dumps(teste_final(args.modelo), indent=2))
     elif args.etapa == "cv":
         print(cv(args.frases).groupby("modelo").f1_macro_val.agg(["mean", "std"]))

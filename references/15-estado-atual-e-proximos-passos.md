@@ -1,8 +1,8 @@
 # Estado atual e próximos passos
 
-## Retomada (ponto de parada em 2026-11-02)
+## Retomada (atualizada em 2026-11-05, após a Fase 7)
 
-**Resumo.** Fases 1 a 6 do [plano de ML](22-plano-ml-texto-glosa.md) concluídas, ~55% dos entregáveis que dão a nota ([checklist](23-checklist-requisitos-ml.md)). O modelo do T1 (manter ou descartar cada palavra) é o **Random Forest otimizado**, F1-macro 0,885 no teste final contra 0,823 da lista fixa, registrado no MLflow como `sinaliza-t1` v1. Falta transformar isso em sistema: Airflow, integração na API, Docker Compose completo, painel e apresentação.
+**Resumo.** Fases 1 a 7 do [plano de ML](22-plano-ml-texto-glosa.md) concluídas, ~65% dos entregáveis que dão a nota ([checklist](23-checklist-requisitos-ml.md)). O modelo do T1 (manter ou descartar cada palavra) é o **Random Forest otimizado**, F1-macro 0,885 no teste final contra 0,823 da lista fixa, registrado no MLflow como `sinaliza-t1` v1. O Airflow já orquestra o pipeline (4 DAGs em `pipeline/dags/`, serviço `airflow` no compose). Falta transformar o modelo em sistema: integração na API, painel, Compose completo testado em máquina limpa e apresentação.
 
 ### O que está feito (e onde)
 
@@ -19,7 +19,7 @@ Decisões fechadas: abordagem por **glosa** aprovada pelo orientador; **embarcad
 
 ### O que falta (ordem sugerida)
 
-1. **Fase 7, Airflow (entregável 2).** DAGs `vlibrasbd_ingestao`, `preparacao_t1`, `treino_t1` e `monitoramento` chamando `textgloss.ingest`, `textgloss.prepare` e `textgloss.train`/`tune`/`validate`. Adicionar o serviço `airflow` ao compose (consome alguns GB de memória).
+1. ~~Fase 7, Airflow (entregável 2)~~ **feita em 2026-11-05**: DAGs `vlibrasbd_ingestao`, `preparacao_t1`, `treino_t1` e `monitoramento` e o serviço `airflow`. Como rodar e recursos em [`14`](14-como-rodar-e-testar.md); descrição dos DAGs em [`24`](24-pipeline-de-dados-ponta-a-ponta.md). Validação: ingestão e preparação (`limite` 3.000) e treino até a validação cruzada rodaram no Airflow, numa amostra e num experimento descartável (apagado); o gate do teste final (`--se-pendente`) foi conferido no MLflow real; o monitoramento foi testado com frases sintéticas. **Não foi feita** a execução completa dentro do Docker (preparação de 127 mil frases, Optuna de 25 tentativas): num Docker com 2 CPUs o primeiro trial já levou 12 min.
 2. **Fase 8, integração (entregável 7).** A API carrega `sinaliza-t1` do MLflow e usa o classificador no lugar de `FUNCTION_WORDS` (`api/app/text_to_gloss.py`), devolvendo a probabilidade de cada decisão e a versão do modelo; sem modelo, volta à lista fixa e avisa. O spaCy entra na API (hoje só em `textgloss/`). Gravar cada frase recebida no Postgres e criar o **simulador de uso** (faz o papel do embarcado). Definir finalidade, retenção e aviso de privacidade antes de gravar texto de usuário.
 3. **Fase 9, Docker Compose completo (entregável 8).** Acrescentar `airflow` e `dashboard`; um único `docker compose up` sobe tudo; testar em máquina limpa; documentar o mínimo de memória em [`14-como-rodar-e-testar.md`](14-como-rodar-e-testar.md).
 4. **Fase 10, painel (entregável 9).** Streamlit lendo o banco, a API e o MLflow: frases por hora, latência, palavras sem sinal, distribuição das probabilidades, últimas inferências, versão e métricas do modelo, estado dos serviços.
@@ -38,8 +38,10 @@ Decisões fechadas: abordagem por **glosa** aprovada pelo orientador; **embarcad
 docker compose up -d postgres mlflow
 ```
 
+(Para o Airflow: `docker compose up -d airflow`, interface em http://localhost:8080; ver [`14`](14-como-rodar-e-testar.md).)
+
 - MLflow: http://localhost:5000 (experimento `t1-manter-descartar`). Postgres: `localhost:5432`, usuário/senha/banco `sinaliza`.
-- Ambiente Python do ML: `textgloss/.venv` (Python 3.12). Testes: `cd textgloss && .venv/Scripts/python -m pytest` (20 passam).
+- Ambiente Python do ML: `textgloss/.venv` (Python 3.12). Testes: `cd textgloss && .venv/Scripts/python -m pytest` (25 passam).
 - Dados em `data/raw/vlibrasbd/` e `data/processed/vlibrasbd/` não são versionados. Se sumirem: `python -m textgloss.ingest`, depois `python -m textgloss.prepare --processos 4`.
 - Os modelos e as runs vivem no volume `mlartifacts` e no Postgres do compose. Se o volume for apagado, refazer: `train baseline`, `train modelos`, `tune` (~40 min), `validate cv|curva|dominio` (~1 h) e **não** repetir o teste final (o código se recusa; ver abaixo).
 
@@ -58,13 +60,13 @@ docker compose up -d postgres mlflow
 > | Requisito | Situação |
 > | --- | --- |
 > | Bootstrap dataset (VLibrasBD) + persistência no banco | **Feito em 2026-11-02** (`textgloss/ingest.py`, Postgres) |
-> | Airflow + notebook de EDA + preparação | Notebooks e preparação **feitos em 2026-11-02**; falta Airflow e a conferência manual de 200 rótulos |
+> | Airflow + notebook de EDA + preparação | Notebooks e preparação **feitos em 2026-11-02**; DAGs do Airflow **feitos em 2026-11-05**; falta a conferência manual de 200 rótulos |
 > | Baseline no MLflow | **Feito em 2026-11-02** (F1-macro 0,876 contra 0,822 da lista fixa) |
 > | Três modelos comparados com gráficos | **Feito em 2026-11-02** (melhor: Regressão Logística, F1-macro 0,876) |
 > | Optuna | **Feito em 2026-11-02** (Random Forest 0,852 → 0,884) |
 > | Validação cruzada e generalização | **Feito em 2026-11-02**; teste final: Random Forest otimizado, F1-macro 0,885 |
 > | Modelo integrado à API, consumindo frases novas | Falta |
-> | Docker Compose com Postgres, MLflow, Airflow, API, web e painel | Parcial (`api`, `web`, `postgres` e `mlflow`) |
+> | Docker Compose com Postgres, MLflow, Airflow, API, web e painel | Parcial (`api`, `web`, `postgres`, `mlflow` e `airflow`; faltam `dashboard` e o teste em máquina limpa) |
 > | Painel | Falta |
 > | Embarcado + MQTT | Fora do escopo (decisão do Carlos; ver `23-checklist-requisitos-ml.md`) |
 >

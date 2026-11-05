@@ -167,7 +167,7 @@ Painel (proposta: Streamlit, lendo o banco e a API) com:
 | Otimização de hiperparâmetros | Optuna sobre o melhor modelo | Falta |
 | Validação cruzada e generalização | `StratifiedGroupKFold` por frase, curva de aprendizado, teste fora do domínio | Falta (a ideia de validar em dado não visto já existe no modelo de movimento) |
 | Modelo integrado ao pipeline | API com o classificador; frases gravadas e processadas pelo DAG `monitoramento` | Falta |
-| Docker Compose com tudo | `postgres`, `mlflow`, `airflow`, `api`, `web`, `dashboard` | Parcial: só `api` e `web` |
+| Docker Compose com tudo | `postgres`, `mlflow`, `airflow`, `api`, `web`, `dashboard` | Parcial: `api`, `web`, `postgres`, `mlflow` e `airflow` |
 | Painel | Streamlit com indicadores e inferências | Falta |
 | Apresentação integrada | Demonstração ponta a ponta com o simulador de uso | Falta |
 
@@ -187,7 +187,7 @@ Cada fase termina com algo demonstrável. As fases 7 a 10 podem começar em para
 - [x] **4. Comparação** (2026-11-02): Árvore de Decisão, Random Forest e KNN no MLflow; gráficos; análise crítica. Ver [`26-comparacao-de-modelos-t1.md`](26-comparacao-de-modelos-t1.md).
 - [x] **5. Otimização** (2026-11-02): Optuna sobre o Random Forest (escolhido pelo grupo), todos os trials no MLflow. Ver [`27-otimizacao-random-forest.md`](27-otimizacao-random-forest.md).
 - [x] **6. Validação** (2026-11-02): k-fold agrupado, estabilidade, sobreajuste, fora do domínio e teste final (Random Forest otimizado, F1-macro 0,885, registrado como `sinaliza-t1`) em [`28-validacao-e-generalizacao-t1.md`](28-validacao-e-generalizacao-t1.md). **Falta a avaliação ponta a ponta** contra a lista fixa e o `vlibras-translate` (BLEU/chrF/WER), que não é exigida pela rubrica.
-- [ ] **7. Airflow:** os quatro DAGs.
+- [x] **7. Airflow** (2026-11-05): os quatro DAGs em `pipeline/dags/` e o serviço `airflow` no compose; ver [`24`](24-pipeline-de-dados-ponta-a-ponta.md) e [`14`](14-como-rodar-e-testar.md).
 - [ ] **8. Integração:** classificador na API, modelo vindo do MLflow, frases gravadas no banco, simulador de uso.
 - [ ] **9. Docker Compose completo.**
 - [ ] **10. Painel.**

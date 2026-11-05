@@ -16,6 +16,21 @@ docker compose up --build
 - `model/` e `data/` **não** entram no compose (são CLIs).
 - Os builds da API e do front usam a **raiz do repositório** como contexto (`.dockerignore` na raiz; o front precisa de `data/vocabulary.json`). Histórico: o build da API usa a raiz (a imagem leva `data/vocabulary.json` e `data/phrases.json`). Verificado em 2026-10-19: `docker compose up --build` constrói as duas imagens (api 358 MB, web 103 MB), a API fica saudável e `/health`, `/translate`, `/vocabulary` e `/categories` respondem direto (porta 8000) e pelo proxy do nginx (`localhost:5173/api/...`); o front carrega as categorias. O primeiro build revelou que o `numpy` faltava no `api/requirements.txt` (nos testes locais ele vinha do Python do sistema); corrigido.
 
+## Pipeline de ML (Postgres, MLflow e Airflow)
+
+```powershell
+docker compose up -d postgres mlflow airflow
+```
+
+- Airflow: http://localhost:8080 (sem login; só local). Os 4 DAGs (`vlibrasbd_ingestao`, `preparacao_t1`, `treino_t1`, `monitoramento`) já nascem ativos. MLflow: http://localhost:5000.
+- **Primeira vez, do zero:** dispare `vlibrasbd_ingestao` na interface (ou `docker compose exec airflow airflow dags trigger vlibrasbd_ingestao`). Ela baixa o CSV (31 MB, hash conferido), carrega o Postgres e dispara `preparacao_t1`. Depois dispare `treino_t1` (manual). Descrição de cada DAG e dos parâmetros: [`24-pipeline-de-dados-ponta-a-ponta.md`](24-pipeline-de-dados-ponta-a-ponta.md).
+- Os arquivos do pipeline ficam no volume `dados` (não em `data/` do host). O Airflow guarda o próprio estado no banco `airflow` do Postgres, criado pelo `airflow/entrypoint.sh` se faltar.
+- **Recursos (medido em 2026-11-05, Docker com 2 CPUs e 3,8 GB):** o Airflow ocupa cerca de 1 GB parado e o MLflow cerca de 1,5 GB; o treino do Random Forest usa todos os CPUs e deixa tudo lento (até os comandos `docker compose exec`). Num Docker com 2 CPUs, um único trial do Optuna sobre uma amostra de apenas ~2.400 frases levou 12 min. Para a execução completa (25 tentativas, 6.000 frases), reserve mais CPU e memória ao Docker (estimativa, não medida: 4 CPUs e 8 GB) ou use `amostra_frases` menor na demonstração. A execução completa dentro do Docker ainda não foi feita; os números do treino real de 2026-11-02 vieram do ambiente local. Mínimo para só subir o Airflow: 4 GB.
+- A imagem `airflow` tem 4,6 GB (Airflow mais o ambiente de ML com spaCy, scikit-learn, MLflow e Optuna) e o primeiro build demora.
+- Para testar os DAGs sem sujar os dados reais, aponte `SINALIZA_DATABASE_URL` para outro banco e `SINALIZA_MLFLOW_EXPERIMENT` para outro experimento (um `docker-compose.override` só com isso no serviço `airflow`) e passe `registrar_modelo=false` ao `treino_t1`.
+- O MLflow roda com `--allowed-hosts` (versão 3.17 rejeita `Host: mlflow:5000` por padrão, o que quebrava as tarefas do Airflow com 403).
+- Ambiente local do ML fora do Docker (notebooks, testes): `textgloss/.venv`; testes com `cd textgloss; .venv/Scripts/python -m pytest` (25 passam).
+
 ## API
 
 ```powershell
