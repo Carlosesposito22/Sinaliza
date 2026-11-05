@@ -22,6 +22,7 @@ services:
       mlflow server --host 0.0.0.0 --port 5000
       --backend-store-uri postgresql://sinaliza:${POSTGRES_PASSWORD:-sinaliza}@postgres:5432/mlflow
       --artifacts-destination /mlartifacts --serve-artifacts
+      --allowed-hosts mlflow:5000,localhost:5000,127.0.0.1:5000,localhost,127.0.0.1
     ports:
       - "5000:5000"
     volumes:
@@ -29,6 +30,41 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+  # Orquestrador do pipeline de dados e de ML (fluxos em pipeline/dags). Interface em http://localhost:8080.
+  # Sem login (SimpleAuthManager com todos admin): só para uso local. Consome alguns GB de memória.
+  airflow:
+    build:
+      context: .
+      dockerfile: airflow/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://sinaliza:${POSTGRES_PASSWORD:-sinaliza}@postgres:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_ALL_ADMINS: "true"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+      # Poucos workers: as tarefas pesadas (treino) são sequenciais e cada processo extra gasta memória.
+      AIRFLOW__CORE__PARALLELISM: "4"
+      # O token da API de execução vence em 10 min por padrão e derruba tarefas longas (Optuna, treino).
+      AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME: "86400"
+      # Usadas pelas tarefas (pacote textgloss).
+      SINALIZA_ROOT: /opt/sinaliza
+      SINALIZA_DATABASE_URL: postgresql+psycopg://sinaliza:${POSTGRES_PASSWORD:-sinaliza}@postgres:5432/sinaliza
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_DISABLE_AGENT_HINT: "1"
+    volumes:
+      - ./pipeline/dags:/opt/airflow/dags:ro
+      - ./textgloss:/opt/sinaliza/textgloss:ro
+      # A lista fixa (referência sem ML) é lida do código-fonte da API; ver textgloss/modeling.py.
+      - ./api/app/text_to_gloss.py:/opt/sinaliza/api/app/text_to_gloss.py:ro
+      - dados:/opt/sinaliza/data
+      - airflow-logs:/opt/airflow/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mlflow:
+        condition: service_started
 
   # Mock da API para o time do web trabalhar sem o ML. Usa a porta 8000, a mesma da `api`:
   # suba um OU outro. `docker compose --profile mock up mock-api`
@@ -78,3 +114,5 @@ services:
 volumes:
   pgdata:
   mlartifacts:
+  dados:
+  airflow-logs:

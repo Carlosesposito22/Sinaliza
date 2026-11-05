@@ -25,7 +25,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [ ] **R0.2** Seção "Onde está o ML": qual tarefa de classificação, quais atributos, quais rótulos, quais modelos, onde o modelo decide algo na saída final.
 - [ ] **R0.3** Cada etapa da pipeline com entrada, saída, onde roda (Airflow, notebook, API) e como reproduzir.
 - [ ] **R0.4** README do repositório aponta para esse documento e para o checklist.
-- [ ] **R0.5** (notebooks 01 a 05 feitos; faltam os DAGs) Notebooks e DAGs com texto explicando o que e por quê, não só código.
+- [ ] **R0.5** (notebooks 01 a 05 e os 4 DAGs feitos, cada DAG com `doc_md`; falta revisar) Notebooks e DAGs com texto explicando o que e por quê, não só código.
 - [ ] **R0.6** Apresentação final percorre esse mesmo fluxo (liga com o entregável 10).
 
 > Em 2026-11-02 o Carlos relatou que o orientador concordou que a glosa é a forma mais adequada. A formulação exata do modelo (classificação por palavra, T1) é escolha nossa dentro desse caminho e deve ser justificada no baseline (entregável 3).
@@ -35,13 +35,13 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 | # | Entregável | Fase do plano | Situação |
 | --- | --- | --- | --- |
 | 1 | Infraestrutura inicial + bootstrap dataset + persistência | 0, 1 | Parcial (corpus no Postgres; falta simulador de uso) |
-| 2 | Pipeline de dados no Airflow + notebook de EDA e preparação | 1, 2, 7 | Parcial (notebooks e preparação prontos; falta Airflow e a conferência manual) |
+| 2 | Pipeline de dados no Airflow + notebook de EDA e preparação | 1, 2, 7 | Quase feito (2026-11-05: DAGs e notebooks prontos; falta a conferência manual dos 200 rótulos) |
 | 3 | Modelo baseline + MLflow | 3 | **Feito** (2026-11-02): F1-macro 0,876 contra 0,822 da lista fixa |
 | 4 | Três modelos comparados + gráficos + análise crítica | 4 | **Feito** (2026-11-02): Regressão Logística 0,876 > Árvore 0,870 > Random Forest 0,852 > KNN 0,846 |
 | 5 | Otimização de hiperparâmetros (Optuna) | 5 | **Feito** (2026-11-02): Random Forest 0,852 → 0,884 |
 | 6 | Validação cruzada e generalização | 6 | **Feito** (2026-11-02): teste final do Random Forest otimizado F1-macro 0,885, contra 0,823 da lista fixa |
 | 7 | Integração do modelo ao pipeline | 8 | Não iniciado |
-| 8 | Conteinerização com Docker Compose | 9 | Parcial (`api`, `web`, `postgres` e `mlflow`) |
+| 8 | Conteinerização com Docker Compose | 9 | Parcial (`api`, `web`, `postgres`, `mlflow` e `airflow`; faltam `dashboard` e o teste em máquina limpa) |
 | 9 | Dashboard integrado | 10 | Não iniciado |
 | 10 | Apresentação da solução completa | 11 | Não iniciado |
 
@@ -62,8 +62,9 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
 > Implementação do pipeline de dados. A equipe deverá desenvolver um fluxo automatizado utilizando Apache Airflow para orquestrar as etapas de ingestão, preparação e disponibilização dos dados para treinamento do modelo. A entrega deverá incluir um notebook contendo a análise exploratória (EDA) do bootstrap dataset, as etapas de preparação dos dados (limpeza, normalização, encoding, tratamento de valores ausentes etc.) e a justificativa das principais decisões adotadas.
 
-- [ ] DAG de ingestão (`vlibrasbd_ingestao`)
-- [ ] DAG de preparação (`preparacao_t1`)
+- [x] DAG de ingestão (`vlibrasbd_ingestao`, 2026-11-05; `pipeline/dags/vlibrasbd_ingestao.py`; rodou no Airflow: baixou, conferiu o hash e carregou 127.349 linhas, e disparou a preparação)
+- [x] DAG de preparação (`preparacao_t1`, 2026-11-05; `pipeline/dags/preparacao_t1.py`; rodou no Airflow com `limite` 3.000 e gerou os conjuntos e `palavras_t1`; a execução completa não foi refeita, pois os dados reais de 2026-11-02 já existem)
+- [x] DAG de treino (`treino_t1`, 2026-11-05; baseline → comparação → Optuna → validação cruzada → teste final com `--se-pendente`; rodou até a validação cruzada numa amostra pequena e num experimento descartável; o teste final foi pulado de propósito)
 - [x] Notebook 01: EDA do VLibrasBD (`notebooks/01-eda-vlibrasbd.ipynb`, executado)
 - [x] Notebook 02: preparação (limpeza, normalização, encoding, ausentes) com justificativas (`notebooks/02-preparacao.ipynb`, executado)
 - [x] Rotulagem T1 por alinhamento de lemas (`textgloss/align.py`)
@@ -121,7 +122,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [ ] Modelo carregado do MLflow pela API
 - [ ] Classificador em `textgloss/infer.py` usado no `/translate`
 - [ ] Frases novas (do simulador) gravadas no banco
-- [ ] DAG `monitoramento` consome novas frases, processa e grava inferências
+- [ ] DAG `monitoramento` consome novas frases, processa e grava inferências (DAG e `textgloss/monitor.py` prontos e testados em 2026-11-05 com frases sintéticas; falta a API gravar em `inferencias`, fase 8)
 - [ ] Demonstração automática ponta a ponta
 
 ## 8. Conteinerização (Docker Compose)
@@ -131,7 +132,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] Serviços `api` e `web` (verificado em 2026-10-19; falta reverificar com a versão final)
 - [x] `postgres` (compose, healthcheck; 2026-11-02)
 - [x] `mlflow` (compose, backend no Postgres; 2026-11-02)
-- [ ] `airflow`
+- [x] `airflow` (compose + `airflow/Dockerfile`, Airflow 3.1.5 standalone, 2026-11-05; 4 DAGs carregam sem erro)
 - [ ] `dashboard`
 - [ ] Um único comando sobe tudo, testado em máquina limpa
 

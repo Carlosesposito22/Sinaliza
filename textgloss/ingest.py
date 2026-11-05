@@ -4,6 +4,7 @@ ETAPA: infraestrutura de dados (sem ML). Alimenta a tabela `corpus_bruto`.
 Uso: python -m textgloss.ingest
 """
 import hashlib
+import shutil
 import urllib.request
 from pathlib import Path
 
@@ -26,7 +27,12 @@ def download(destination: Path | None = None) -> Path:
     destination = destination or config.RAW_DIR / config.CSV_NAME
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists():
-        urllib.request.urlretrieve(config.CSV_URL, destination)
+        # O Mendeley responde 403 ao User-Agent padrão do urllib.
+        request = urllib.request.Request(config.CSV_URL, headers={"User-Agent": "Mozilla/5.0 (compatible; sinaliza-pipeline)"})
+        partial = destination.with_suffix(destination.suffix + ".part")
+        with urllib.request.urlopen(request, timeout=120) as response, partial.open("wb") as out:
+            shutil.copyfileobj(response, out)
+        partial.replace(destination)
     found = sha256(destination)
     if found != config.CSV_SHA256:
         raise ValueError(f"Hash do corpus diverge: esperado {config.CSV_SHA256}, obtido {found}")
