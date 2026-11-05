@@ -50,7 +50,8 @@ def suggest(trial: optuna.Trial) -> dict:
 
 def cv_sample(fit, n_sentences: int):
     """Amostra de FRASES inteiras (para o agrupamento fazer sentido) e dobras estratificadas por frase."""
-    sentences = fit["frase_id"].drop_duplicates().sample(n_sentences, random_state=config.SEED)
+    unique = fit["frase_id"].drop_duplicates()
+    sentences = unique.sample(min(n_sentences, len(unique)), random_state=config.SEED)
     return fit[fit["frase_id"].isin(sentences)].reset_index(drop=True)
 
 

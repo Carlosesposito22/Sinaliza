@@ -26,7 +26,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 from . import config, modeling
 
-EXPERIMENT = "t1-manter-descartar"
+EXPERIMENT = os.environ.get("SINALIZA_MLFLOW_EXPERIMENT", "t1-manter-descartar")
 TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:5000")
 KNN_SAMPLE = 200_000
 MODEL_NAMES = ["regressao-logistica", "arvore-de-decisao", "random-forest", "knn"]
@@ -181,7 +181,7 @@ def modelos() -> None:
     mlflow.set_experiment(EXPERIMENT)
     fit, val = modeling.train_validation(modeling.load_words())
     params = dataset_params(fit, val)
-    knn_fit = fit.sample(KNN_SAMPLE, random_state=config.SEED)
+    knn_fit = fit.sample(min(KNN_SAMPLE, len(fit)), random_state=config.SEED)
     out = {}
     for name, build, frame, extra in (
         ("arvore-de-decisao", tree_model, fit, log_importances),
