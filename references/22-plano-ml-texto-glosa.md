@@ -168,7 +168,7 @@ Painel (proposta: Streamlit, lendo o banco e a API) com:
 | Validação cruzada e generalização | `StratifiedGroupKFold` por frase, curva de aprendizado, teste fora do domínio | Falta (a ideia de validar em dado não visto já existe no modelo de movimento) |
 | Modelo integrado ao pipeline | API com o classificador; frases gravadas e processadas pelo DAG `monitoramento` | Falta |
 | Docker Compose com tudo | `postgres`, `mlflow`, `airflow`, `api`, `web`, `dashboard` | Parcial: `api`, `web`, `postgres`, `mlflow` e `airflow` |
-| Painel | Streamlit com indicadores e inferências | Falta |
+| Painel | Streamlit com indicadores e inferências | **Feito em 2026-11-07** |
 | Apresentação integrada | Demonstração ponta a ponta com o simulador de uso | Falta |
 
 ## Requisitos que não se aplicam
@@ -190,7 +190,7 @@ Cada fase termina com algo demonstrável. As fases 7 a 10 podem começar em para
 - [x] **7. Airflow** (2026-11-05): os quatro DAGs em `pipeline/dags/` e o serviço `airflow` no compose; ver [`24`](24-pipeline-de-dados-ponta-a-ponta.md) e [`14`](14-como-rodar-e-testar.md).
 - [x] **8. Integração** (2026-11-05): classificador na API, modelo vindo do MLflow, frases gravadas no banco, simulador de uso; ver [`12-api.md`](12-api.md) e [`24`](24-pipeline-de-dados-ponta-a-ponta.md).
 - [x] **9. Docker Compose completo** (2026-11-07, sem `web` e `dashboard`): healthchecks e ordem de subida, bootstrap da primeira subida e teste numa cópia limpa; ver [`14`](14-como-rodar-e-testar.md). Falta o `web` compilar (PR do time do web) e o `dashboard` (fase 10).
-- [ ] **10. Painel.**
+- [x] **10. Painel** (2026-11-07): `dashboard/` (Streamlit), serviço `dashboard` no compose; ver [`14`](14-como-rodar-e-testar.md).
 - [ ] **11. Apresentação:** demonstração ponta a ponta, decisões técnicas e limitações (ordem dos sinais, ausência de validação surda, ruído da rotulagem).
 - [ ] **Extensões, se houver tempo:** T2, T3 e o PTT5/ByT5 como quarto sistema.
 

@@ -137,6 +137,33 @@ services:
       retries: 40
       start_period: 20s
 
+  # Painel de monitoramento (Streamlit): frases por hora, latência, palavras sem sinal, probabilidades do modelo,
+  # últimas inferências, versão e métricas do modelo (MLflow) e estado dos serviços. http://localhost:8501
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      SINALIZA_DATABASE_URL: postgresql+psycopg://sinaliza:${POSTGRES_PASSWORD:-sinaliza}@postgres:5432/sinaliza
+      SINALIZA_API_URL: http://api:8000
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      # Endereço do MLflow aberto no navegador (o link do painel); o de cima é o interno da rede do compose.
+      SINALIZA_MLFLOW_PUBLIC_URL: http://localhost:5000
+      SINALIZA_AIRFLOW_URL: http://airflow:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
   web:
     build:
       # Raiz do repositório: o build baixa os sinais do VLibras a partir de data/vocabulary.json.
