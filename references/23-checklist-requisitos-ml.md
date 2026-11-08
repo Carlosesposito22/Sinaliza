@@ -42,7 +42,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 | 6 | Validação cruzada e generalização | 6 | **Feito** (2026-11-02): teste final do Random Forest otimizado F1-macro 0,885, contra 0,823 da lista fixa |
 | 7 | Integração do modelo ao pipeline | 8 | **Quase feito** (2026-11-05: modelo na API, simulador, gravação e monitoramento; falta a demonstração com a pilha completa) |
 | 8 | Conteinerização com Docker Compose | 9 | **Quase feito** (2026-11-07: ordem de subida, bootstrap e teste em máquina limpa sem o `web`; faltam o `web` (build quebrado pelo PR do time do web) e o `dashboard`) |
-| 9 | Dashboard integrado | 10 | Não iniciado |
+| 9 | Dashboard integrado | 10 | **Feito** (2026-11-07: painel Streamlit com 4 abas, verificado com dados reais, 24 testes; usa o `monitoramento` para os indicadores) |
 | 10 | Apresentação da solução completa | 11 | Não iniciado |
 
 ---
@@ -133,22 +133,22 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] `postgres` (compose, healthcheck; 2026-11-02)
 - [x] `mlflow` (compose, backend no Postgres; 2026-11-02)
 - [x] `airflow` (compose + `airflow/Dockerfile`, Airflow 3.1.5 standalone, 2026-11-05; 4 DAGs carregam sem erro)
-- [ ] `dashboard`
+- [x] `dashboard` (2026-11-07; porta 8501, depende de postgres e mlflow saudáveis)
 - [x] Ordem de subida com healthchecks (postgres → mlflow → api `/ready` → airflow e web; 2026-11-07)
 - [x] Primeira subida automática (ingestão → preparação → treino) em máquina limpa, perfis `demo` e `completo` (`airflow/bootstrap.sh`; só o `demo` foi executado)
 - [x] Testado numa cópia limpa do repositório, volumes vazios, perfil `demo` (2026-11-07): tudo de pé, modelo registrado e usado pela API, simulador e monitoramento funcionando; `down` e `up` repetidos
 - [ ] `web` compila e sobe no compose (o `tsc` do build do front falha na `main` após o merge do PR #1 do time do web: caminhos de import que não batem com os arquivos, e caixa de letras que o Linux do Docker distingue; detalhes em `15`; não é do ML)
-- [ ] Um único comando sobe tudo, **incluindo web e dashboard**, testado em máquina limpa
+- [ ] Um único comando sobe tudo, **incluindo web e dashboard**, testado em máquina limpa (o `dashboard` foi adicionado depois do teste em máquina limpa e não foi reexecutado nela; o `web` segue quebrado)
 
 ## 9. Dashboard
 
 > Desenvolvimento de um dashboard integrado à solução, capaz de consumir dados provenientes da infraestrutura de aquisição (~~via MQTT e/ou~~ API), apresentar indicadores relevantes da aplicação, visualizar as inferências realizadas pelo modelo e monitorar o funcionamento da solução em tempo de execução.
 
-- [ ] Painel (Streamlit) consumindo API e banco
-- [ ] Indicadores relevantes da aplicação
-- [ ] Visualização das inferências do modelo
-- [ ] Versão do modelo e métricas do último treino (lidas do MLflow)
-- [ ] Estado dos serviços (API, banco, MLflow) em tempo de execução
+- [x] Painel (Streamlit) consumindo API e banco (2026-11-07; `dashboard/`, serviço `dashboard` no compose, http://localhost:8501; lê Postgres, API, MLflow e Airflow)
+- [x] Indicadores relevantes da aplicação (frases e latência por hora, % mantidas, % sem sinal, % incertas, latência p95, frases pendentes)
+- [x] Visualização das inferências do modelo (últimas frases com a decisão de cada palavra e a sequência de sinais, histograma da probabilidade, baixa confiança, palavras sem sinal)
+- [x] Versão do modelo e métricas do último treino (lidas do MLflow: teste final do `sinaliza-t1`, comparação dos modelos; conferido com os valores reais 0,885 e +0,062 sobre a lista fixa)
+- [x] Estado dos serviços (API, banco, MLflow, Airflow) em tempo de execução (aba Serviços, checagens em paralelo; verificado com tudo no ar e com o Airflow parado)
 
 ## 10. Apresentação da solução completa
 

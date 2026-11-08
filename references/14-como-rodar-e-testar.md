@@ -29,7 +29,7 @@ docker compose up -d postgres mlflow airflow
 - A imagem `airflow` tem 4,6 GB (Airflow mais o ambiente de ML com spaCy, scikit-learn, MLflow e Optuna) e o primeiro build demora.
 - Para testar os DAGs sem sujar os dados reais, aponte `SINALIZA_DATABASE_URL` para outro banco e `SINALIZA_MLFLOW_EXPERIMENT` para outro experimento (um `docker-compose.override` só com isso no serviço `airflow`) e passe `registrar_modelo=false` ao `treino_t1`.
 - O MLflow roda com `--allowed-hosts` (versão 3.17 rejeita `Host: mlflow:5000` por padrão, o que quebrava as tarefas do Airflow com 403).
-- Ambiente local do ML fora do Docker (notebooks, testes): `textgloss/.venv`; testes com `cd textgloss; .venv/Scripts/python -m pytest` (33 passam). Testes da API: `cd api; .venv/Scripts/python -m pytest` (63 passam; o venv é criado com `py -3.12 -m venv .venv` e `pip install -r requirements.txt`).
+- Ambiente local do ML fora do Docker (notebooks, testes): `textgloss/.venv`; testes com `cd textgloss; .venv/Scripts/python -m pytest` (33 passam). Testes do painel: ver abaixo. Testes da API: `cd api; .venv/Scripts/python -m pytest` (63 passam; o venv é criado com `py -3.12 -m venv .venv` e `pip install -r requirements.txt`).
 
 ### Subir tudo com um comando (fase 9)
 
@@ -52,6 +52,20 @@ docker compose up -d --build
 - Ambiente já existente precisa de `--build` depois de atualizar o repositório (o healthcheck da API agora chama `/ready`; uma imagem antiga deixa a API `unhealthy` e o Airflow nunca sobe).
 - **Verificado em 2026-11-07 numa cópia limpa do repositório** (todos os arquivos versionados e novos, sem `data/`, sem venvs, projeto compose separado, volumes vazios, perfil `demo`): subida na ordem certa; ingestão, preparação (3.000 frases, parâmetro repassado pela cadeia) e treino com as 7 tarefas em `success`; `sinaliza-t1` v1 registrado; API passou a usar o modelo sozinha; simulador → API → DAG `monitoramento` consolidou 15 frases; `down` e `up` de novo: API carregou o modelo antes do Airflow e o bootstrap não repetiu nada. Pilha em regime: ~2,6 a 2,7 GB.
 - **Não coberto:** o serviço `web` (o build do front falha na `main` por causa do merge do PR #1 do time do web; ver [`15`](15-estado-atual-e-proximos-passos.md)), o `dashboard` (fase 10) e o perfil `completo` inteiro.
+
+### Painel (fase 10)
+
+```powershell
+docker compose up -d --build dashboard
+```
+
+- Painel: http://localhost:8501 (Streamlit, atualiza sozinho a cada 10 s; desligável na barra lateral; tema claro e escuro). Só precisa de `postgres` e `mlflow` de pé; o que a API ou o Airflow não responderem aparece como "fora do ar" na aba **Serviços**, sem derrubar o resto.
+- Quatro abas: **Visão geral** (frases, % mantidas, % sem sinal, % incertas, latência p95; frases por hora; latência p50 e p95; sem sinal e incertas por hora), **Inferências** (últimas frases com a decisão de cada palavra e a sequência de sinais; histograma da probabilidade de MANTER; decisões de baixa confiança; palavras sem sinal no vocabulário), **Modelo** (versão na API e no MLflow, métricas do teste final, comparação dos modelos) e **Serviços** (API `/health` e `/ready`, Postgres, MLflow, Airflow; frescor dos dados).
+- O painel lê só as tabelas `inferencias` e `indicadores_horarios`: os **indicadores dependem do DAG `monitoramento`** (a cada hora); frases ainda não consolidadas aparecem como "aguardando consolidação". O texto das frases só aparece onde a API o gravou (simulador ou opt-in).
+- Para ver o painel cheio: suba a API, rode `python -m textgloss.simulador --n 60` e dispare o DAG `monitoramento` no Airflow (ou `python -m textgloss.monitor`).
+- Variáveis (`dashboard/data.py`, `Config`): `SINALIZA_DATABASE_URL`, `SINALIZA_API_URL`, `MLFLOW_TRACKING_URI`, `SINALIZA_MLFLOW_PUBLIC_URL`, `SINALIZA_AIRFLOW_URL` (vazio = Airflow "não monitorado") e `SINALIZA_MLFLOW_EXPERIMENT`.
+- Memória medida: ~0,16 GB. Com o painel, a pilha toda (postgres, mlflow, api com o modelo, airflow e painel) ficou em ~2,65 GB dos 3,8 GB do Docker.
+- Rodar fora do Docker e testar: `cd dashboard; py -3.12 -m venv .venv; .venv/Scripts/python -m pip install -r requirements.txt -r requirements-dev.txt`; `.venv/Scripts/python -m streamlit run app.py`; `.venv/Scripts/python -m pytest` (24 passam).
 
 ### API com o modelo e simulador de uso (fase 8)
 
