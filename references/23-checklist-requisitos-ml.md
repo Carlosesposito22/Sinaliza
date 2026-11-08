@@ -41,7 +41,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 | 5 | Otimização de hiperparâmetros (Optuna) | 5 | **Feito** (2026-11-02): Random Forest 0,852 → 0,884 |
 | 6 | Validação cruzada e generalização | 6 | **Feito** (2026-11-02): teste final do Random Forest otimizado F1-macro 0,885, contra 0,823 da lista fixa |
 | 7 | Integração do modelo ao pipeline | 8 | **Quase feito** (2026-11-05: modelo na API, simulador, gravação e monitoramento; falta a demonstração com a pilha completa) |
-| 8 | Conteinerização com Docker Compose | 9 | Parcial (`api`, `web`, `postgres`, `mlflow` e `airflow`; faltam `dashboard` e o teste em máquina limpa) |
+| 8 | Conteinerização com Docker Compose | 9 | **Quase feito** (2026-11-07: ordem de subida, bootstrap e teste em máquina limpa sem o `web`; faltam o `web` (build quebrado pelo PR do time do web) e o `dashboard`) |
 | 9 | Dashboard integrado | 10 | Não iniciado |
 | 10 | Apresentação da solução completa | 11 | Não iniciado |
 
@@ -134,7 +134,11 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] `mlflow` (compose, backend no Postgres; 2026-11-02)
 - [x] `airflow` (compose + `airflow/Dockerfile`, Airflow 3.1.5 standalone, 2026-11-05; 4 DAGs carregam sem erro)
 - [ ] `dashboard`
-- [ ] Um único comando sobe tudo, testado em máquina limpa
+- [x] Ordem de subida com healthchecks (postgres → mlflow → api `/ready` → airflow e web; 2026-11-07)
+- [x] Primeira subida automática (ingestão → preparação → treino) em máquina limpa, perfis `demo` e `completo` (`airflow/bootstrap.sh`; só o `demo` foi executado)
+- [x] Testado numa cópia limpa do repositório, volumes vazios, perfil `demo` (2026-11-07): tudo de pé, modelo registrado e usado pela API, simulador e monitoramento funcionando; `down` e `up` repetidos
+- [ ] `web` compila e sobe no compose (o `tsc` do build do front falha na `main` após o merge do PR #1 do time do web: caminhos de import que não batem com os arquivos, e caixa de letras que o Linux do Docker distingue; detalhes em `15`; não é do ML)
+- [ ] Um único comando sobe tudo, **incluindo web e dashboard**, testado em máquina limpa
 
 ## 9. Dashboard
 

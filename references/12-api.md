@@ -56,7 +56,11 @@ Isto **não é tradução para Libras**: é a sequência de sinais isolados na o
 
 ### `GET /health` → `{"status": "ok", "contract_version": "1", "mock": false, "model": "sinaliza-t1/1"}`
 
-`model` é quem decide as palavras agora: `"sinaliza-t1/<versão>"`, `"lista-fixa (carregando o modelo)"` ou `"lista-fixa"` (modelo desligado). O `/health` responde logo; o modelo (864 MB) leva de 10 a 20 s para chegar.
+`model` é quem decide as palavras agora: `"sinaliza-t1/<versão>"`, `"lista-fixa (carregando o modelo)"`, `"lista-fixa (modelo indisponível)"` (a tentativa terminou sem modelo, ex.: nada registrado no MLflow) ou `"lista-fixa"` (modelo desligado). O `/health` responde logo; o modelo (864 MB) leva de 10 a 20 s para chegar.
+
+### `GET /ready` → `{"status": "ready"}` ou 503
+
+200 quando a primeira tentativa de carregar o modelo terminou (com ou sem sucesso) ou o modelo está desligado; 503 (`"carregando o modelo"`) antes disso. É o healthcheck do compose: faz a API passar pelo pico de memória da carga antes de o Airflow subir, e uma máquina sem modelo registrado também fica pronta. Fora do contrato com o web (só infraestrutura).
 
 ### `POST /translate`
 Request: `{"text": "..."}` (até 500 caracteres; `strip()` e não pode ficar vazio → 422).

@@ -34,6 +34,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
 
   # Orquestrador do pipeline de dados e de ML (fluxos em pipeline/dags). Interface em http://localhost:8080.
   # Sem login (SimpleAuthManager com todos admin): só para uso local. Consome alguns GB de memória.
@@ -58,6 +64,11 @@ services:
       MLFLOW_TRACKING_URI: http://mlflow:5000
       MLFLOW_DISABLE_AGENT_HINT: "1"
       SINALIZA_RETENCAO_DIAS: ${SINALIZA_RETENCAO_DIAS:-30}
+      # Máquina limpa (sem `corpus_bruto` no banco): o Airflow roda sozinho ingestão → preparação → treino na
+      # primeira subida. Perfil `demo` usa uma amostra pequena (minutos); `completo` usa o corpus todo (horas).
+      # Ambiente que já tem dados não é tocado. Ver airflow/bootstrap.sh e references/14.
+      SINALIZA_AUTO_PIPELINE: ${SINALIZA_AUTO_PIPELINE:-true}
+      SINALIZA_PERFIL: ${SINALIZA_PERFIL:-completo}
     volumes:
       - ./pipeline/dags:/opt/airflow/dags:ro
       - ./textgloss:/opt/sinaliza/textgloss:ro
@@ -65,11 +76,15 @@ services:
       - ./api/app/text_to_gloss.py:/opt/sinaliza/api/app/text_to_gloss.py:ro
       - dados:/opt/sinaliza/data
       - airflow-logs:/opt/airflow/logs
+    # Só sobe depois da API ficar pronta: o modelo T1 tem pico de ~2,8 GB na carga e não cabe junto com o Airflow
+    # num Docker de 4 GB.
     depends_on:
       postgres:
         condition: service_healthy
       mlflow:
-        condition: service_started
+        condition: service_healthy
+      api:
+        condition: service_healthy
 
   # Mock da API para o time do web trabalhar sem o ML. Usa a porta 8000, a mesma da `api`:
   # suba um OU outro. `docker compose --profile mock up mock-api`
@@ -112,13 +127,15 @@ services:
       postgres:
         condition: service_healthy
       mlflow:
-        condition: service_started
+        condition: service_healthy
+    # `/ready` só dá 200 depois da primeira tentativa de carregar o modelo (ou se ele está desligado); sem modelo
+    # registrado, a API também fica pronta e atende com a lista fixa.
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready')"]
       interval: 5s
       timeout: 3s
-      retries: 10
-      start_period: 5s
+      retries: 40
+      start_period: 20s
 
   web:
     build:

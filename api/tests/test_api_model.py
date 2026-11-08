@@ -36,8 +36,9 @@ class FakeClassifier:
 class FakeProvider:
     enabled = True
 
-    def __init__(self, classifier):
+    def __init__(self, classifier, settled=False):
         self.classifier = classifier
+        self.settled = settled
 
     def get(self):
         return self.classifier
@@ -124,3 +125,15 @@ def test_health_reports_the_model_in_use(monkeypatch):
     assert client.get("/health").json()["model"] == "sinaliza-t1/1"
     use_model(monkeypatch, None)
     assert client.get("/health").json()["model"] == "lista-fixa (carregando o modelo)"
+    monkeypatch.setattr(main, "model_provider", FakeProvider(None, settled=True))
+    assert client.get("/health").json()["model"] == "lista-fixa (modelo indisponível)"
+
+
+def test_ready_waits_for_the_first_load_attempt(monkeypatch):
+    monkeypatch.setattr(main, "model_provider", FakeProvider(None, settled=False))
+    response = client.get("/ready")
+    assert response.status_code == 503 and "carregando" in response.json()["detail"]
+    monkeypatch.setattr(main, "model_provider", FakeProvider(None, settled=True))
+    assert client.get("/ready").status_code == 200
+    monkeypatch.setattr(main, "model_provider", FakeProvider(FakeClassifier({}), settled=True))
+    assert client.get("/ready").json() == {"status": "ready"}

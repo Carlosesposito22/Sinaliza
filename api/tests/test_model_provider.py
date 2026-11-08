@@ -1,3 +1,4 @@
+import threading
 import time
 
 from app.model_provider import ModelProvider, create_provider
@@ -16,6 +17,29 @@ def test_without_loader_the_provider_is_disabled_and_returns_none():
     provider = ModelProvider(None)
     provider.start()
     assert not provider.enabled and provider.get() is None
+    assert provider.settled  # desligado: não há o que esperar
+
+
+def test_settled_after_the_first_attempt_even_if_it_fails():
+    release = threading.Event()
+
+    def loader():
+        release.wait(2)
+        raise LookupError("o modelo sinaliza-t1 não tem nenhuma versão registrada")
+
+    provider = ModelProvider(loader, retry_seconds=5)
+    provider.start()
+    assert not provider.settled  # carregando
+    release.set()
+    assert wait_for(lambda: provider.settled)
+    assert provider.get() is None  # sem modelo, mas pronta (atende com a lista fixa)
+    provider.stop()
+
+
+def test_settled_after_a_successful_load():
+    provider = ModelProvider(lambda: "modelo", retry_seconds=0.01)
+    provider.start()
+    assert wait_for(lambda: provider.settled and provider.get() == "modelo")
 
 
 def test_loads_in_background_and_retries_until_it_works():

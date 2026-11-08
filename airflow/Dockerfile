@@ -17,5 +17,6 @@ RUN mkdir -p /opt/sinaliza/data && chown -R airflow /opt/sinaliza
 USER airflow
 
 COPY --chown=airflow airflow/entrypoint.sh /entrypoint-sinaliza.sh
-RUN chmod +x /entrypoint-sinaliza.sh
+COPY --chown=airflow airflow/bootstrap.sh /opt/airflow/bootstrap.sh
+RUN chmod +x /entrypoint-sinaliza.sh /opt/airflow/bootstrap.sh
 ENTRYPOINT ["/entrypoint-sinaliza.sh"]
