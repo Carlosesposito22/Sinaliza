@@ -17,5 +17,8 @@ if cursor.fetchone() is None:
     print("banco airflow criado")
 PY
 
+# Primeira subida de máquina limpa: dispara ingestão → preparação → treino (ver bootstrap.sh). Em segundo plano.
+/opt/airflow/bootstrap.sh &
+
 # `standalone` (api-server, scheduler, dag-processor e triggerer num só container): suficiente para o projeto.
 exec airflow standalone

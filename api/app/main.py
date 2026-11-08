@@ -79,11 +79,25 @@ def health() -> dict[str, str | bool]:
     classifier = model_provider.get()
     if classifier is not None:
         model = classifier.version
+    elif model_provider.enabled and model_provider.settled:
+        model = "lista-fixa (modelo indisponível)"
     elif model_provider.enabled:
         model = "lista-fixa (carregando o modelo)"
     else:
         model = "lista-fixa"
     return {"status": "ok", "contract_version": "1", "mock": False, "model": model}
+
+
+@app.get("/ready")
+def ready() -> dict[str, str]:
+    """200 quando a primeira tentativa de carregar o modelo terminou; 503 enquanto carrega.
+
+    Usado pelo healthcheck do compose para a API passar pelo pico de memória da carga (~2,8 GB) antes de o
+    Airflow subir. Sem modelo registrado (máquina nova), também fica pronta e atende com a lista fixa.
+    """
+    if not model_provider.settled:
+        raise HTTPException(status_code=503, detail="carregando o modelo")
+    return {"status": "ready"}
 
 
 @app.get("/vocabulary", response_model=VocabularyResponse)

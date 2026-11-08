@@ -116,6 +116,8 @@ Os quatro fluxos ficam em `pipeline/dags/` e **só chamam os módulos do `textgl
 | `treino_t1` | baseline → comparação → Optuna → validação cruzada → teste final e registro de `sinaliza-t1` | **ML nosso** | `train baseline`, `train modelos`, `train comparar`, `tune`, `validate cv`, `validate teste` | manual (parâmetros `trials`, `timeout_s`, `frases_cv`, `registrar_modelo`) |
 | `monitoramento` | consolida as inferências novas (`inferencias`) em `indicadores_horarios` | estatística (sem ML novo) | `python -m textgloss.monitor` | a cada hora |
 
+**Primeira subida de uma máquina limpa:** `airflow/bootstrap.sh` (em segundo plano no container) dispara `vlibrasbd_ingestao` com `limite`/`processos` conforme `SINALIZA_PERFIL` (`demo` ou `completo`), espera a `preparacao_t1` e dispara o `treino_t1`. Só age se o banco não tem `corpus_bruto`. Detalhes e verificação em [`14`](14-como-rodar-e-testar.md). O `vlibrasbd_ingestao` repassa `limite` e `processos` à preparação.
+
 Cuidados:
 
 - **O teste final roda uma única vez por MLflow.** A tarefa dele usa `--se-pendente`: se a run `teste-final` já existe, não treina nem registra nada e termina com sucesso. Num MLflow vazio (máquina limpa), o primeiro `treino_t1` completo cria o `sinaliza-t1` v1.
