@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Progress } from "../../contract";
-import { goalPercent, lessonStatus, stars } from "./Trail";
+import { goalPercent, lessonStatus, stars } from "./trail";
 
 const progress = {
   lessons: {
