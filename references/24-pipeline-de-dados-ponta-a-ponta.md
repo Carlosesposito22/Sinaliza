@@ -1,48 +1,88 @@
-# Pipeline de dados e onde o ML entra (fases 1 e 2)
+# Pipeline ponta a ponta e onde o ML entra (R0)
 
-Documento exigido pelo orientador (requisito R0 do [checklist](23-checklist-requisitos-ml.md)): deixar claro **onde aplicamos machine learning** e como a pipeline funciona de ponta a ponta. Este arquivo cobre o que existe hoje (ingestão e preparação); as fases 3 em diante acrescentam as seções de treino, API e painel.
+Documento exigido pelo orientador (requisito R0 do [checklist](23-checklist-requisitos-ml.md)): deixar claro **onde aplicamos machine learning** e como a pipeline funciona **de ponta a ponta**. É o documento de referência da apresentação, que percorre este mesmo fluxo (roteiro em [`30-roteiro-da-demonstracao.md`](30-roteiro-da-demonstracao.md)). O treino e a validação estão detalhados em [`25`](25-baseline-t1.md) a [`28`](28-validacao-e-generalizacao-t1.md), a API em [`12`](12-api.md) e os comandos em [`14`](14-como-rodar-e-testar.md).
 
-Legenda do tipo de cada etapa: **ML nosso** (treinado no nosso pipeline), **regra** (código determinístico nosso), **extração** (gera atributos, não decide), **externo** (terceiros, sem decisão de ML nossa), **infra** (dados e serviços).
+Legenda do tipo de cada etapa: **ML nosso** (treinado no nosso pipeline), **regra** (código determinístico nosso), **extração** (gera atributos, não decide), **externo** (terceiros, sem decisão de ML nossa), **estatística** (contas sobre dados já gerados, sem modelo novo), **infra** (dados e serviços).
 
 ## Visão geral
 
 ```
-VLibrasBD (CSV, Mendeley)          infra/externo
+VLibrasBD (CSV, Mendeley)                          infra/externo
    │  download + conferência do SHA-256
    ▼
-Postgres: corpus_bruto             infra            textgloss/ingest.py
-   │  limpeza (vazias, duplicadas)
+Postgres: corpus_bruto (127.349 pares)             infra            DAG vlibrasbd_ingestao · textgloss/ingest.py
+   │  limpeza (vazias, duplicadas, glosa sem sinal)
    ▼
-frases limpas                      regra            textgloss/prepare.py · clean()
+frases limpas                                      regra            DAG preparacao_t1 · textgloss/prepare.py
    │  spaCy: lema, classe gramatical, morfologia
    ▼
-atributos por palavra              extração         textgloss/features.py
-   │  glosa → chaves; palavra ∈ glosa?
+atributos por palavra                              extração         textgloss/features.py
+   │  a palavra (ou o lema) aparece na glosa do intérprete?
    ▼
-rótulo MANTER / DESCARTAR          regra (gera o   textgloss/corpus.py · align.py
-   │                               alvo do ML)
+rótulo MANTER / DESCARTAR                          regra (gera o alvo do ML)     textgloss/align.py
+   │  divisão 90% treino / 10% teste, por frase
    ▼
-divisão treino 90% / teste 10%     regra            prepare.split_by_sentence()
-(por frase, estratificada)
+palavras_t1 (1,6 milhão de palavras)               infra
    │
-   ▼  ─ ─ ─ fases 3 a 6 ─ ─ ─
-CLASSIFICADOR: a palavra vira      ML nosso         textgloss/train.py (baseline feito: ver 25)
-sinal?                             Regressão Logística ✔ → Árvore ✔, Random Forest ✔, KNN ✔ (ver 26) → Optuna ✔ (ver 27)
-   │
-   ▼  ─ ─ ─ fase 8 ─ ─ ─
-API /translate  →  glosa  →  player do VLibras (avatar)      externo (só toca os sinais)
+   ▼  DAG treino_t1 (o MLflow registra parâmetros, métricas e artefatos de tudo)
+Baseline (Regressão Logística)  →  Árvore, Random Forest, KNN  →  Optuna sobre o Random Forest  →  validação cruzada
+   │                                                                                    ML nosso   textgloss/train.py, tune.py, validate.py
+   ▼  teste final: 10% das frases, usado uma única vez
+Model Registry do MLflow: sinaliza-t1              ML nosso (Random Forest otimizado)
+   │  a API carrega em segundo plano; sem ele, volta à lista fixa
+   ▼
+texto digitado ─► spaCy ─► CLASSIFICADOR T1 ─► decisão por palavra: MANTER ou DESCARTAR, com a probabilidade
+                 extração   ML NOSSO            │
+                                                ├─ DESCARTAR: a palavra não vira sinal
+                                                └─ MANTER: tabela do vocabulário, lema ou aproximação por embedding     regra / externo
+                                                       ▼
+                                        sequência de sinais (glosas)  ─►  player do VLibras (avatar)     externo (só toca)
+   │  cada frase atendida pela API
+   ▼
+Postgres: inferencias ─► DAG monitoramento ─► indicadores_horarios ─► Painel (Streamlit)
+                         estatística, sem ML novo                       visualização, sem ML novo
 ```
+
+O que o usuário vê (a sequência de sinais) **depende do ML em um ponto**: o classificador T1 decide, palavra por palavra, o que entra. Todo o resto é regra, extração, infraestrutura ou externo.
 
 ## Onde está o ML (e onde não está)
 
 | Pergunta | Resposta |
 | --- | --- |
 | Qual é a tarefa de ML? | **T1**: classificação binária por palavra, "essa palavra vira sinal na glosa do intérprete?" (`MANTER`/`DESCARTAR`) |
+| Quais atributos o modelo usa? | Lema (2.000 mais frequentes), classe gramatical e dependência (spaCy), morfologia (gênero, número, tempo, modo, pessoa...), classes vizinhas, posição e tamanho da frase, tipo de frase, se é stopword (lista completa em `textgloss/modeling.py`) |
 | De onde vêm os rótulos? | Da glosa feita à mão por intérpretes certificados no VLibrasBD, alinhada por lema. A **regra de alinhamento** só transforma essa anotação humana em exemplos; o que ela não consegue generalizar é o que o modelo aprende |
-| O que o modelo vai decidir? | Quais palavras de uma frase **nova** viram sinal, no lugar da lista fixa `FUNCTION_WORDS` da API |
-| O que **não** é ML nosso? | O spaCy (extração de atributos), o player do VLibras (apenas toca as glosas) e o `vlibras-translate` (só linha de base de avaliação) |
-| O que o ML não resolve? | A **ordem** dos sinais (T1 mantém a ordem do português) e a validação por pessoas surdas |
-| Contra o que o modelo é comparado? | A lista fixa atual: **F1-macro 0,822** no corpus inteiro (EDA, seção 5). O modelo só se justifica se superar isso no teste |
+| Quais modelos foram treinados? | Regressão Logística (baseline), Árvore de Decisão, Random Forest e KNN; o Random Forest foi otimizado com Optuna e é o escolhido (`sinaliza-t1`) |
+| Quão bom é? | **F1-macro 0,885** no teste final (10% das frases, uma única vez), contra **0,823** da lista fixa que a API usava antes; validação cruzada 0,879 ± 0,001; cai de 2 a 4 pontos fora do domínio. Ver [`28`](28-validacao-e-generalizacao-t1.md) |
+| Onde o modelo decide algo na saída final? | Na API (`POST /translate`): para cada palavra, a probabilidade de `MANTER` define se ela segue para o vocabulário. Aparece na resposta (`decision`, `probability`, `model_version`) e na interface do painel |
+| O que **não** é ML nosso? | O spaCy (extração de atributos), o simplemma e o embedding de caracteres (aproximação de palavras fora do vocabulário), a tabela do vocabulário, o player do VLibras (só toca as glosas) e o `vlibras-translate` (só linha de base de avaliação) |
+| O que o ML não resolve? | A **ordem** dos sinais (o T1 mantém a ordem do português), a validação por pessoas surdas e o texto com várias frases (a API trata tudo como uma frase) |
+| Contra o que o modelo foi comparado? | A lista fixa (`FUNCTION_WORDS`): F1-macro 0,822 na validação e 0,823 no teste. O modelo só se justificaria se a superasse, e superou por 6 pontos |
+| Como o modelo falha? | Erra palavras que o spaCy classifica mal (ex.: "preciso" é descartado com probabilidade ~0,005) e que os intérpretes usam de formas diferentes (ex.: "eu"). O painel mostra as decisões de baixa confiança |
+
+## Mapa das etapas: entrada, saída, onde roda e como reproduzir
+
+Cada linha roda no Airflow (DAG), em notebook ou na API; o comando equivalente fora do Airflow está na última coluna (na raiz do repositório, com `textgloss/.venv`). Etapas de treino registram tudo no MLflow, experimento `t1-manter-descartar`.
+
+| # | Etapa | Tipo | Entrada | Saída | Onde roda | Como reproduzir |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | Ingestão | infra | CSV do VLibrasBD (31 MB, hash conferido) | tabela `corpus_bruto` | DAG `vlibrasbd_ingestao` | `python -m textgloss.ingest` |
+| 2 | Análise exploratória | extração/estatística | `corpus_bruto` | decisões documentadas | notebook `01-eda-vlibrasbd` | `jupyter nbconvert --execute` |
+| 3 | Limpeza e rotulagem | regra + extração | `corpus_bruto` | `palavras_t1`, `palavras.parquet`, `frases.parquet`, relatório, amostra de conferência | DAG `preparacao_t1`; notebook `02-preparacao` | `python -m textgloss.prepare --processos 4` |
+| 4 | Conferência dos rótulos | estatística | `amostra_conferencia_200.csv` preenchida pela equipe | taxa de rótulo errado por classe, com intervalo | notebook `02-preparacao` (última célula) | `python -m textgloss.ruido` |
+| 5 | Baseline | **ML nosso** | `palavras_t1` (treino) | Regressão Logística e lista fixa no MLflow | DAG `treino_t1`; [`25`](25-baseline-t1.md) | `python -m textgloss.train baseline` |
+| 6 | Comparação de modelos | **ML nosso** | idem | Árvore, Random Forest, KNN; matrizes de confusão, ROC, erros | DAG `treino_t1`; notebook `03`; [`26`](26-comparacao-de-modelos-t1.md) | `python -m textgloss.train modelos` e `comparar` |
+| 7 | Otimização | **ML nosso** | idem | 25 tentativas do Optuna e o melhor Random Forest | DAG `treino_t1`; notebook `04`; [`27`](27-otimizacao-random-forest.md) | `python -m textgloss.tune` |
+| 8 | Validação | **ML nosso** | idem | validação cruzada agrupada por frase, curva de aprendizado, teste fora do domínio | DAG `treino_t1`; notebook `05`; [`28`](28-validacao-e-generalizacao-t1.md) | `python -m textgloss.validate cv`, `curva`, `dominio` |
+| 9 | Teste final e registro | **ML nosso** | `palavras_t1` (teste, uma única vez) | `sinaliza-t1` no Model Registry | DAG `treino_t1` (`--se-pendente`) | `python -m textgloss.validate teste --modelo random-forest-otimizado` |
+| 10 | Inferência | **ML nosso** + extração | texto do usuário | probabilidade de `MANTER` por palavra | API (`textgloss/infer.py`) | `docker compose up -d api` e `POST /translate` |
+| 11 | Glosa final | regra / externo | palavras mantidas | sequência de sinais | API (`text_to_gloss.py`) | idem |
+| 12 | Gravação | infra | resposta da API | linha em `inferencias` | API (`inference_log.py`) | idem |
+| 13 | Dados novos | infra | `data/phrases.json` ou o conjunto de teste | frases enviadas à API | script | `python -m textgloss.simulador` |
+| 14 | Consolidação | estatística | `inferencias` | `indicadores_horarios` | DAG `monitoramento` | `python -m textgloss.monitor` |
+| 15 | Painel | visualização | Postgres, API, MLflow, Airflow | indicadores, inferências, modelo e serviços | serviço `dashboard` | `docker compose up -d --build dashboard` |
+
+Tudo isso sobe com `docker compose up -d --build`; numa máquina limpa o Airflow roda sozinho as etapas 1 a 9 (perfil `demo` em minutos, `completo` em horas). A demonstração automática de ponta a ponta é `python -m textgloss.demo`.
 
 ## Etapas implementadas
 
@@ -146,7 +186,7 @@ Limites: o modelo foi treinado em frases isoladas e a API o aplica ao texto inte
 
 ## Pendente nesta etapa
 
-- **Conferência manual** das 200 palavras de `data/processed/vlibrasbd/amostra_conferencia_200.csv` (preencher `rotulo_correto` e rodar a última célula do notebook 02). Sem ela não há taxa de ruído medida; o plano exige isso antes de treinar.
+- **Conferência manual** das 200 palavras: a equipe informou que já conferiu, mas **a planilha preenchida não está neste repositório** (`data/processed/vlibrasbd/amostra_conferencia_200.csv` ainda está com `rotulo_correto` vazio). Com o arquivo preenchido, `python -m textgloss.ruido` (ou a última célula do notebook 02) calcula a taxa de rótulo errado por classe, com intervalo de confiança e ponderada pela proporção real das classes; ferramenta pronta e testada, falta só o arquivo.
 
 ## Créditos
 

@@ -21,29 +21,29 @@ O orientador viu o relatório sobre português sinalizado e a melhor forma de co
 
 Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
-- [ ] **R0.1** (parcial: fases 1 e 2 em `24-pipeline-de-dados-ponta-a-ponta.md`; faltam treino, API e painel) Documento de arquitetura ponta a ponta (`references/` ou `docs/`): diagrama do fluxo texto → pré-processamento → classificador → glosa → avatar, com cada etapa dizendo se é **ML (treinado por nós)**, **regra/tabela** ou **externo** (ex.: player do VLibras, spaCy).
-- [ ] **R0.2** Seção "Onde está o ML": qual tarefa de classificação, quais atributos, quais rótulos, quais modelos, onde o modelo decide algo na saída final.
-- [ ] **R0.3** Cada etapa da pipeline com entrada, saída, onde roda (Airflow, notebook, API) e como reproduzir.
-- [ ] **R0.4** README do repositório aponta para esse documento e para o checklist.
-- [ ] **R0.5** (notebooks 01 a 05 e os 4 DAGs feitos, cada DAG com `doc_md`; falta revisar) Notebooks e DAGs com texto explicando o que e por quê, não só código.
-- [ ] **R0.6** Apresentação final percorre esse mesmo fluxo (liga com o entregável 10).
+- [x] **R0.1** (2026-11-08) Documento de arquitetura ponta a ponta: `24-pipeline-de-dados-ponta-a-ponta.md` reescrito com o diagrama do fluxo completo (dados → Airflow → MLflow → API → monitoramento → painel) e o tipo de cada etapa (ML nosso, regra, extração, externo, estatística, infra).
+- [x] **R0.2** (2026-11-08) Seção "Onde está o ML (e onde não está)" em `24`: tarefa T1, atributos, rótulos, modelos, resultado, onde o modelo decide na saída final e como falha.
+- [x] **R0.3** (2026-11-08) "Mapa das etapas" em `24`: 15 etapas com entrada, saída, onde roda (DAG, notebook, API) e o comando para reproduzir.
+- [x] **R0.4** (2026-11-08) `README.md` da raiz reescrito (arquitetura atual) e aponta para `24`, `30`, este checklist, `14` e `15`; `references/README.md` lista o `30`.
+- [x] **R0.5** (2026-11-08) Notebooks 01 a 05 (557 a 910 palavras de texto cada, metade das células é texto) e os 4 DAGs (cada um com `doc_md`) explicam o que e por quê.
+- [x] **R0.6** (2026-11-08) A apresentação (14 slides) e o roteiro `30` percorrem o mesmo fluxo do `24`: dados, Airflow, MLflow, modelo, API, dados novos, monitoramento e painel.
 
 > Em 2026-11-02 o Carlos relatou que o orientador concordou que a glosa é a forma mais adequada. A formulação exata do modelo (classificação por palavra, T1) é escolha nossa dentro desse caminho e deve ser justificada no baseline (entregável 3).
 
-## Quadro-resumo (atualizado em 2026-11-02, após as fases 1 e 2)
+## Quadro-resumo (atualizado em 2026-11-08)
 
 | # | Entregável | Fase do plano | Situação |
 | --- | --- | --- | --- |
 | 1 | Infraestrutura inicial + bootstrap dataset + persistência | 0, 1 | **Feito** (2026-11-05: corpus no Postgres, simulador de uso e persistência das frases) |
-| 2 | Pipeline de dados no Airflow + notebook de EDA e preparação | 1, 2, 7 | Quase feito (2026-11-05: DAGs e notebooks prontos; falta a conferência manual dos 200 rótulos) |
+| 2 | Pipeline de dados no Airflow + notebook de EDA e preparação | 1, 2, 7 | Quase feito (DAGs e notebooks prontos; ferramenta do ruído pronta; falta só a planilha preenchida pela equipe, que não está no repositório) |
 | 3 | Modelo baseline + MLflow | 3 | **Feito** (2026-11-02): F1-macro 0,876 contra 0,822 da lista fixa |
 | 4 | Três modelos comparados + gráficos + análise crítica | 4 | **Feito** (2026-11-02): Regressão Logística 0,876 > Árvore 0,870 > Random Forest 0,852 > KNN 0,846 |
 | 5 | Otimização de hiperparâmetros (Optuna) | 5 | **Feito** (2026-11-02): Random Forest 0,852 → 0,884 |
 | 6 | Validação cruzada e generalização | 6 | **Feito** (2026-11-02): teste final do Random Forest otimizado F1-macro 0,885, contra 0,823 da lista fixa |
-| 7 | Integração do modelo ao pipeline | 8 | **Quase feito** (2026-11-05: modelo na API, simulador, gravação e monitoramento; falta a demonstração com a pilha completa) |
-| 8 | Conteinerização com Docker Compose | 9 | **Quase feito** (todos os serviços existem e sobem: `web` voltou a compilar em 2026-11-08 e o `dashboard` veio na fase 10; falta repetir o teste em máquina limpa com tudo junto e o perfil `completo`) |
+| 7 | Integração do modelo ao pipeline | 8 | **Feito** (2026-11-08: modelo na API, simulador, gravação, monitoramento e demonstração automática 7/7) |
+| 8 | Conteinerização com Docker Compose | 9 | **Quase feito** (2026-11-08: pilha completa testada numa cópia limpa (perfil `demo`, demonstração automática 7/7); falta registrar o perfil `completo` inteiro, em andamento) |
 | 9 | Dashboard integrado | 10 | **Feito** (2026-11-07: painel Streamlit com 4 abas, verificado com dados reais, 24 testes; usa o `monitoramento` para os indicadores) |
-| 10 | Apresentação da solução completa | 11 | Não iniciado |
+| 10 | Apresentação da solução completa | 11 | **Quase feito** (2026-11-08: deck de 14 slides e roteiro prontos; faltam 3 números do slide 5 e ensaiar) |
 
 ---
 
@@ -68,7 +68,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] Notebook 01: EDA do VLibrasBD (`notebooks/01-eda-vlibrasbd.ipynb`, executado)
 - [x] Notebook 02: preparação (limpeza, normalização, encoding, ausentes) com justificativas (`notebooks/02-preparacao.ipynb`, executado)
 - [x] Rotulagem T1 por alinhamento de lemas (`textgloss/align.py`)
-- [ ] Conferência manual de 200 rótulos e taxa de ruído (`data/processed/vlibrasbd/amostra_conferencia_200.csv`, aguarda a equipe)
+- [ ] Conferência manual de 200 rótulos e taxa de ruído: **ferramenta pronta** (`python -m textgloss.ruido`, última célula do notebook 02, 6 testes: taxa por classe com IC de 95% e taxa geral ponderada pela proporção real das classes). A equipe informou que já conferiu, mas **a planilha preenchida não está no repositório** (`data/processed/vlibrasbd/amostra_conferencia_200.csv` segue com `rotulo_correto` vazio nas 200 linhas). Falta só o arquivo; os 3 números do slide 5 dependem dele.
 - [x] Divisão treino/teste agrupada por frase (90/10, por domínio, semente fixa)
 - [x] Dados preparados disponibilizados para o treino (`palavras.parquet` e tabela `palavras_t1`)
 
@@ -123,7 +123,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] Classificador em `textgloss/infer.py` usado no `/translate` (2026-11-05; campos `decision`, `probability`, `model_version`, `latency_ms` do contrato v1)
 - [x] Frases novas (do simulador) gravadas no banco (2026-11-05)
 - [x] DAG `monitoramento` consome novas frases, processa e grava inferências (2026-11-05; `monitor.py` consolidou as 25 frases reais do simulador; o DAG do Airflow também consolidou 20 frases reais do simulador na pilha completa, em 2026-11-05)
-- [ ] Demonstração automática ponta a ponta (simulador → API → banco → monitoramento já foi executada à mão; falta um roteiro único com o compose completo, fases 9 e 11)
+- [x] Demonstração automática ponta a ponta (2026-11-08): `python -m textgloss.demo` percorre 7 etapas (serviços de pé, modelo registrado e em uso, inferência palavra por palavra, simulador, consolidação pelo DAG `monitoramento` acionado pela API do Airflow, indicadores, painel) e sai com código 0; 10 testes. Rodou 7/7 numa cópia limpa do repositório com os 6 serviços de pé. Roteiro falado em [`30-roteiro-da-demonstracao.md`](30-roteiro-da-demonstracao.md).
 
 ## 8. Conteinerização (Docker Compose)
 
@@ -138,7 +138,8 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] Primeira subida automática (ingestão → preparação → treino) em máquina limpa, perfis `demo` e `completo` (`airflow/bootstrap.sh`; só o `demo` foi executado)
 - [x] Testado numa cópia limpa do repositório, volumes vazios, perfil `demo` (2026-11-07): tudo de pé, modelo registrado e usado pela API, simulador e monitoramento funcionando; `down` e `up` repetidos
 - [x] `web` compila e sobe no compose (2026-11-08: imports corrigidos em 2026-11-08 (sem mover nem renomear arquivos): `App.tsx` apontava `about`, `lesson` e `translator` para `src/features/...`, `Translatorpage.tsx` importava `../../api` e `Trail.test.ts`/`TrailPage.tsx` importavam `./Trail` (o arquivo é `trail.ts`); verificado: `tsc` + `vite build`, vitest 6/6 e `docker compose up --build web` com a API real; a aba Trilha depende de `/learn/*`, que só o `mock-api` tem)
-- [ ] Um único comando sobe tudo, **incluindo web e dashboard**, testado em máquina limpa (`web` e `dashboard` foram verificados em separado, depois do teste em máquina limpa; falta repetir o teste do zero com tudo junto)
+- [x] Um único comando sobe tudo, **incluindo web e dashboard**, testado em máquina limpa (2026-11-08: cópia limpa do repositório, volumes vazios, perfil `demo`, `docker compose up -d --build`: 6 serviços; o Airflow rodou ingestão, preparação e treino sozinho, a API pegou o `sinaliza-t1` sem reiniciar, `python -m textgloss.demo` 7/7; web e painel respondendo; pilha em ~2,2 GB). O teste achou e corrigiu duas falhas: o `ingest` gravava a resposta ruim do Mendeley (um erro em JSON de 395 bytes com status 200) como se fosse o CSV e nunca baixava de novo, e o `--allowed-hosts` do MLflow bloqueava quem remapeasse a porta.
+- [ ] Perfil `completo` executado inteiro no Docker (em andamento: começou em 2026-11-07 às 23:51 numa pilha limpa; resultado e duração a registrar)
 
 ## 9. Dashboard
 
@@ -154,8 +155,8 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
 > Apresentação da solução completa, demonstrando o funcionamento integrado de toda a arquitetura: ~~aquisição dos dados pelo sistema embarcado, comunicação via MQTT,~~ armazenamento, orquestração do pipeline com Apache Airflow, treinamento e rastreamento de experimentos com MLflow, implantação da solução utilizando Docker Compose, disponibilização das inferências por meio da API e visualização dos resultados no dashboard. A equipe deverá justificar as principais decisões técnicas e discutir as limitações da solução.
 
-- [ ] Roteiro da demonstração ponta a ponta
-- [ ] Ensaio com `docker compose up` do zero
-- [ ] Justificativa das decisões técnicas
-- [ ] Limitações discutidas (ordem dos sinais, ausência de validação por pessoas surdas, ruído da rotulagem, escopo sem embarcado/MQTT e o porquê)
-- [ ] Slides/apresentação pronta
+- [x] Roteiro da demonstração ponta a ponta (2026-11-08): [`30-roteiro-da-demonstracao.md`](30-roteiro-da-demonstracao.md), com tempos, o que falar e mostrar, onde está o ML, limitações, perguntas prováveis e o que fazer se algo falhar.
+- [x] Ensaio com `docker compose up` do zero (2026-11-08): numa cópia limpa do repositório, ver o item 8 e a demonstração automática 7/7.
+- [x] Justificativa das decisões técnicas (slide 12 e tabela de perguntas prováveis do roteiro).
+- [x] Limitações discutidas (slide 11 e seção do roteiro): ordem dos sinais, ausência de validação por falantes de Libras, ruído dos rótulos, escopo sem embarcado/MQTT e o porquê, privacidade, infraestrutura.
+- [x] Slides/apresentação pronta (2026-11-08): deck de 14 slides com notas de fala, publicado como artefato privado. **Pendente:** o slide 5 tem 3 números `[__ %]` a preencher com a conferência manual; o layout não foi conferido visualmente; ensaiar com o grupo.

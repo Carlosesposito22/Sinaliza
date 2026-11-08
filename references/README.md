@@ -41,12 +41,13 @@ Esta pasta existe para que uma sessão nova do Claude (ou uma pessoa nova na equ
 | [`11-modelo-ml.md`](11-modelo-ml.md) | `model/`: gerador de movimento, linhas de base, métrica DTW (experimento; a entrega de ML agora é o 22) |
 | [`22-plano-ml-texto-glosa.md`](22-plano-ml-texto-glosa.md) | **Plano de ML vigente:** texto → glosa por classificação no VLibrasBD, mapa dos requisitos de ML da disciplina e fases |
 | [`23-checklist-requisitos-ml.md`](23-checklist-requisitos-ml.md) | **Checklist dos 10 entregáveis de ML que dão a nota**, com texto original e subitens para marcar |
-| [`24-pipeline-de-dados-ponta-a-ponta.md`](24-pipeline-de-dados-ponta-a-ponta.md) | **Pipeline de dados e onde o ML entra** (R0): ingestão, preparação, rótulos T1, como reproduzir |
+| [`24-pipeline-de-dados-ponta-a-ponta.md`](24-pipeline-de-dados-ponta-a-ponta.md) | **Pipeline ponta a ponta e onde o ML entra** (R0): diagrama, "onde está o ML", mapa de etapas com entrada, saída, onde roda e como reproduzir |
 | [`25-baseline-t1.md`](25-baseline-t1.md) | Baseline do T1: Regressão Logística contra a lista fixa, métricas, justificativa, MLflow |
 | [`26-comparacao-de-modelos-t1.md`](26-comparacao-de-modelos-t1.md) | Comparação de Regressão Logística, Árvore, Random Forest e KNN no T1, análise crítica |
 | [`27-otimizacao-random-forest.md`](27-otimizacao-random-forest.md) | Optuna sobre o Random Forest: estratégia, espaço de busca, resultado (0,852 → 0,884) |
 | [`28-validacao-e-generalizacao-t1.md`](28-validacao-e-generalizacao-t1.md) | Validação cruzada, curva de aprendizado e teste fora do domínio da Regressão e do Random Forest |
 | [`29-roteiro-orientador-e-divisao-do-grupo.md`](29-roteiro-orientador-e-divisao-do-grupo.md) | Roteiro da reunião com o orientador e divisão do que falta em 6 pacotes independentes |
+| [`30-roteiro-da-demonstracao.md`](30-roteiro-da-demonstracao.md) | **Roteiro da apresentação e da demonstração ponta a ponta** (`python -m textgloss.demo`), limitações, perguntas prováveis e o que fazer se algo falhar |
 | [`../docs/guia-web-trilha.md`](../docs/guia-web-trilha.md) | **Guia de partida para as duas pessoas do web**: missão, inspiração no Duolingo, telas, exercícios, cuidados com o avatar, divisão e marcos |
 | [`../docs/contrato-api-web.md`](../docs/contrato-api-web.md) | **Contrato da API para o web** (tradutor e trilha gamificada), regras de gamificação e como usar o mock |
 | [`12-api.md`](12-api.md) | `api/`: endpoints, gerador stub, como plugar o modelo |
