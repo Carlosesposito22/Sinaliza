@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router-dom";
-import { AboutPage } from "../features/about/AboutPage";
-import { LessonPage } from "../features/lesson/LessonPage";
+import { AboutPage } from "../about/AboutPage";
+import { LessonPage } from "../lesson/LessonPage";
 import { TrailPage } from "../features/trail/TrailPage";
-import { TranslatorPage } from "../features/translator/TranslatorPage";
+import { TranslatorPage } from "../translator/Translatorpage";
 import { AvatarProvider } from "./AvatarContext";
 import { Layout } from "./Layout";
 

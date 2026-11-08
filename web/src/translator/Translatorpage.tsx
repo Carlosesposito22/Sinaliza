@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { fetchCategories, fetchVocabulary, translate, type Category, type TranslateResponse, type WordMatch } from "../../api";
+import { fetchCategories, fetchVocabulary, translate, type Category, type TranslateResponse, type WordMatch } from "../api";
 import { useAvatarGlosses } from "../app/AvatarContext";
 
 function MatchWord({ match }: { match: WordMatch }) {

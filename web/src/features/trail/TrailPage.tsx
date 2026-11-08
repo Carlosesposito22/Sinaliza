@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import type { PathResponse, Progress } from "../../contract";
 import { fetchPath, fetchProgress } from "../../learnApi";
-import { goalPercent, lessonStatus, stars } from "./Trail";
+import { goalPercent, lessonStatus, stars } from "./trail";
 
 const STATE_LABEL = { locked: "Bloqueada", available: "Começar", completed: "Concluída" } as const;
 
