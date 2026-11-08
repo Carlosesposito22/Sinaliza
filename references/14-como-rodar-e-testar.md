@@ -29,7 +29,7 @@ docker compose up -d postgres mlflow airflow
 - A imagem `airflow` tem 4,6 GB (Airflow mais o ambiente de ML com spaCy, scikit-learn, MLflow e Optuna) e o primeiro build demora.
 - Para testar os DAGs sem sujar os dados reais, aponte `SINALIZA_DATABASE_URL` para outro banco e `SINALIZA_MLFLOW_EXPERIMENT` para outro experimento (um `docker-compose.override` só com isso no serviço `airflow`) e passe `registrar_modelo=false` ao `treino_t1`.
 - O MLflow roda com `--allowed-hosts` (versão 3.17 rejeita `Host: mlflow:5000` por padrão, o que quebrava as tarefas do Airflow com 403).
-- Ambiente local do ML fora do Docker (notebooks, testes): `textgloss/.venv`; testes com `cd textgloss; .venv/Scripts/python -m pytest` (33 passam). Testes do painel: ver abaixo. Testes da API: `cd api; .venv/Scripts/python -m pytest` (63 passam; o venv é criado com `py -3.12 -m venv .venv` e `pip install -r requirements.txt`).
+- Ambiente local do ML fora do Docker (notebooks, testes): `textgloss/.venv`; testes com `cd textgloss; .venv/Scripts/python -m pytest` (54 passam). Testes do painel: ver abaixo. Testes da API: `cd api; .venv/Scripts/python -m pytest` (63 passam; o venv é criado com `py -3.12 -m venv .venv` e `pip install -r requirements.txt`).
 
 ### Subir tudo com um comando (fase 9)
 
@@ -51,7 +51,10 @@ docker compose up -d --build
 - Só age se o banco **não** tem `corpus_bruto`, se `SINALIZA_AUTO_PIPELINE` não é `false` e se ainda não rodou naquele volume (marca em `/opt/sinaliza/data/.bootstrap-feito`). **Ambiente com dados (como o seu) não é tocado:** verificado, a mensagem foi "o banco já tem o corpus; nada a fazer", sem nenhuma execução criada. Se falhar no meio, ele não retoma sozinho: dispare os DAGs à mão no Airflow.
 - Ambiente já existente precisa de `--build` depois de atualizar o repositório (o healthcheck da API agora chama `/ready`; uma imagem antiga deixa a API `unhealthy` e o Airflow nunca sobe).
 - **Verificado em 2026-11-07 numa cópia limpa do repositório** (todos os arquivos versionados e novos, sem `data/`, sem venvs, projeto compose separado, volumes vazios, perfil `demo`): subida na ordem certa; ingestão, preparação (3.000 frases, parâmetro repassado pela cadeia) e treino com as 7 tarefas em `success`; `sinaliza-t1` v1 registrado; API passou a usar o modelo sozinha; simulador → API → DAG `monitoramento` consolidou 15 frases; `down` e `up` de novo: API carregou o modelo antes do Airflow e o bootstrap não repetiu nada. Pilha em regime: ~2,6 a 2,7 GB.
-- **Não coberto nesse teste:** o serviço `web` (na hora o build do front falhava por imports quebrados do PR #1 do time do web; **corrigido em 2026-11-08**, e o `web` subiu pelo compose com a API real, ver [`15`](15-estado-atual-e-proximos-passos.md)), o `dashboard` (fase 10) e o perfil `completo` inteiro.
+- **Verificado de novo em 2026-11-08, numa cópia limpa com a pilha inteira** (`docker compose up -d --build` com `SINALIZA_PERFIL=demo`, volumes vazios, 6 serviços): subida na ordem certa, o Airflow rodou ingestão, preparação e treino sozinho, a API pegou o `sinaliza-t1` sem reiniciar, web, painel e Airflow responderam e `python -m textgloss.demo` passou 7 de 7. Memória: ~2,2 GB (o modelo do perfil `demo` é pequeno). O teste achou duas falhas, já corrigidas: o `ingest` gravava a resposta de erro do Mendeley como se fosse o CSV (agora baixa num arquivo temporário, confere o hash antes de aceitar e tenta de novo até 4 vezes) e o `--allowed-hosts` do MLflow fixava a porta (agora aceita `localhost:*`).
+- **Demonstração automática:** `python -m textgloss.demo` (7 etapas; opções `--api`, `--mlflow`, `--airflow`, `--painel`, `--banco` para outras portas). Roteiro falado em [`30-roteiro-da-demonstracao.md`](30-roteiro-da-demonstracao.md).
+- **Conferência dos rótulos:** `python -m textgloss.ruido` lê a planilha preenchida pela equipe e calcula a taxa de rótulo errado com intervalo de confiança.
+- **Não coberto:** o perfil `completo` inteiro (ver o resultado em [`15`](15-estado-atual-e-proximos-passos.md) quando terminar).
 
 ### Painel (fase 10)
 

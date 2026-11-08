@@ -191,7 +191,7 @@ Cada fase termina com algo demonstrável. As fases 7 a 10 podem começar em para
 - [x] **8. Integração** (2026-11-05): classificador na API, modelo vindo do MLflow, frases gravadas no banco, simulador de uso; ver [`12-api.md`](12-api.md) e [`24`](24-pipeline-de-dados-ponta-a-ponta.md).
 - [x] **9. Docker Compose completo** (2026-11-07, sem `web` e `dashboard`): healthchecks e ordem de subida, bootstrap da primeira subida e teste numa cópia limpa; ver [`14`](14-como-rodar-e-testar.md). O `web` voltou a compilar em 2026-11-08 (imports); o `dashboard` veio na fase 10.
 - [x] **10. Painel** (2026-11-07): `dashboard/` (Streamlit), serviço `dashboard` no compose; ver [`14`](14-como-rodar-e-testar.md).
-- [ ] **11. Apresentação:** demonstração ponta a ponta, decisões técnicas e limitações (ordem dos sinais, ausência de validação surda, ruído da rotulagem).
+- [x] **11. Apresentação** (2026-11-08): roteiro [`30`](30-roteiro-da-demonstracao.md), demonstração automática `python -m textgloss.demo`, deck de 14 slides; faltam os 3 números do slide 5 (conferência manual dos rótulos) e o ensaio com o grupo.
 - [ ] **Extensões, se houver tempo:** T2, T3 e o PTT5/ByT5 como quarto sistema.
 
 ## Estrutura de pastas (proposta)
