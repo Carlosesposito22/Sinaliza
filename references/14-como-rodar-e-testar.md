@@ -51,7 +51,7 @@ docker compose up -d --build
 - Só age se o banco **não** tem `corpus_bruto`, se `SINALIZA_AUTO_PIPELINE` não é `false` e se ainda não rodou naquele volume (marca em `/opt/sinaliza/data/.bootstrap-feito`). **Ambiente com dados (como o seu) não é tocado:** verificado, a mensagem foi "o banco já tem o corpus; nada a fazer", sem nenhuma execução criada. Se falhar no meio, ele não retoma sozinho: dispare os DAGs à mão no Airflow.
 - Ambiente já existente precisa de `--build` depois de atualizar o repositório (o healthcheck da API agora chama `/ready`; uma imagem antiga deixa a API `unhealthy` e o Airflow nunca sobe).
 - **Verificado em 2026-11-07 numa cópia limpa do repositório** (todos os arquivos versionados e novos, sem `data/`, sem venvs, projeto compose separado, volumes vazios, perfil `demo`): subida na ordem certa; ingestão, preparação (3.000 frases, parâmetro repassado pela cadeia) e treino com as 7 tarefas em `success`; `sinaliza-t1` v1 registrado; API passou a usar o modelo sozinha; simulador → API → DAG `monitoramento` consolidou 15 frases; `down` e `up` de novo: API carregou o modelo antes do Airflow e o bootstrap não repetiu nada. Pilha em regime: ~2,6 a 2,7 GB.
-- **Não coberto:** o serviço `web` (o build do front falha na `main` por causa do merge do PR #1 do time do web; ver [`15`](15-estado-atual-e-proximos-passos.md)), o `dashboard` (fase 10) e o perfil `completo` inteiro.
+- **Não coberto nesse teste:** o serviço `web` (na hora o build do front falhava por imports quebrados do PR #1 do time do web; **corrigido em 2026-11-08**, e o `web` subiu pelo compose com a API real, ver [`15`](15-estado-atual-e-proximos-passos.md)), o `dashboard` (fase 10) e o perfil `completo` inteiro.
 
 ### Painel (fase 10)
 
