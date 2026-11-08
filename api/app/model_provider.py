@@ -34,6 +34,7 @@ class ModelProvider:
         self._model: Any | None = None
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
+        self._first_attempt_done = threading.Event()
         self.last_error: str | None = None
 
     @property
@@ -49,6 +50,15 @@ class ModelProvider:
     def stop(self) -> None:
         self._stop.set()
 
+    @property
+    def settled(self) -> bool:
+        """True quando a primeira tentativa de carregar terminou (com ou sem sucesso) ou o modelo está desligado.
+
+        É o que o `/ready` e o healthcheck do compose usam: a API só "fica pronta" depois do pico de memória da
+        carga, e uma máquina sem modelo registrado também fica pronta (atende com a lista fixa).
+        """
+        return self._loader is None or self._first_attempt_done.is_set()
+
     def get(self) -> Any | None:
         """O classificador carregado, ou `None` se ainda não há (a API usa a lista fixa)."""
         return self._model
@@ -59,12 +69,14 @@ class ModelProvider:
                 self._model = self._loader()
             except Exception as error:  # qualquer falha (rede, MLflow, versão) cai no plano B
                 self.last_error = f"{type(error).__name__}: {error}"
+                self._first_attempt_done.set()
                 logger.warning("modelo indisponível (%s); usando a lista fixa e tentando de novo em %ss",
                                self.last_error, self._retry_seconds)
                 self._stop.wait(self._retry_seconds)
                 continue
             self.last_error = None
             release_memory()
+            self._first_attempt_done.set()
             logger.info("modelo carregado: %s", getattr(self._model, "version", "?"))
             return
 
