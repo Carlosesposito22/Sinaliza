@@ -41,7 +41,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 | 5 | Otimização de hiperparâmetros (Optuna) | 5 | **Feito** (2026-11-02): Random Forest 0,852 → 0,884 |
 | 6 | Validação cruzada e generalização | 6 | **Feito** (2026-11-02): teste final do Random Forest otimizado F1-macro 0,885, contra 0,823 da lista fixa |
 | 7 | Integração do modelo ao pipeline | 8 | **Quase feito** (2026-11-05: modelo na API, simulador, gravação e monitoramento; falta a demonstração com a pilha completa) |
-| 8 | Conteinerização com Docker Compose | 9 | **Quase feito** (2026-11-07: ordem de subida, bootstrap e teste em máquina limpa sem o `web`; faltam o `web` (build quebrado pelo PR do time do web) e o `dashboard`) |
+| 8 | Conteinerização com Docker Compose | 9 | **Quase feito** (todos os serviços existem e sobem: `web` voltou a compilar em 2026-11-08 e o `dashboard` veio na fase 10; falta repetir o teste em máquina limpa com tudo junto e o perfil `completo`) |
 | 9 | Dashboard integrado | 10 | **Feito** (2026-11-07: painel Streamlit com 4 abas, verificado com dados reais, 24 testes; usa o `monitoramento` para os indicadores) |
 | 10 | Apresentação da solução completa | 11 | Não iniciado |
 
@@ -137,8 +137,8 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] Ordem de subida com healthchecks (postgres → mlflow → api `/ready` → airflow e web; 2026-11-07)
 - [x] Primeira subida automática (ingestão → preparação → treino) em máquina limpa, perfis `demo` e `completo` (`airflow/bootstrap.sh`; só o `demo` foi executado)
 - [x] Testado numa cópia limpa do repositório, volumes vazios, perfil `demo` (2026-11-07): tudo de pé, modelo registrado e usado pela API, simulador e monitoramento funcionando; `down` e `up` repetidos
-- [ ] `web` compila e sobe no compose (o `tsc` do build do front falha na `main` após o merge do PR #1 do time do web: caminhos de import que não batem com os arquivos, e caixa de letras que o Linux do Docker distingue; detalhes em `15`; não é do ML)
-- [ ] Um único comando sobe tudo, **incluindo web e dashboard**, testado em máquina limpa (o `dashboard` foi adicionado depois do teste em máquina limpa e não foi reexecutado nela; o `web` segue quebrado)
+- [x] `web` compila e sobe no compose (2026-11-08: imports corrigidos em 2026-11-08 (sem mover nem renomear arquivos): `App.tsx` apontava `about`, `lesson` e `translator` para `src/features/...`, `Translatorpage.tsx` importava `../../api` e `Trail.test.ts`/`TrailPage.tsx` importavam `./Trail` (o arquivo é `trail.ts`); verificado: `tsc` + `vite build`, vitest 6/6 e `docker compose up --build web` com a API real; a aba Trilha depende de `/learn/*`, que só o `mock-api` tem)
+- [ ] Um único comando sobe tudo, **incluindo web e dashboard**, testado em máquina limpa (`web` e `dashboard` foram verificados em separado, depois do teste em máquina limpa; falta repetir o teste do zero com tudo junto)
 
 ## 9. Dashboard
 
