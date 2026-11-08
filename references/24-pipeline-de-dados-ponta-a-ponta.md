@@ -136,6 +136,7 @@ Esta é a parte do fluxo em que o ML **decide algo na saída final**. Detalhes d
 | Tabela, lema, aproximação | transforma palavra mantida em glosa do vocabulário | regra / externo (simplemma, embedding) | `api/app/text_to_gloss.py` | idem |
 | Gravação | uma linha em `inferencias` por frase | sem ML | `api/app/inference_log.py` | idem (`SINALIZA_LOG_DATABASE_URL`) |
 | Consolidação | indicadores por hora e versão em `indicadores_horarios`; apaga texto vencido | estatística | DAG `monitoramento` (`textgloss/monitor.py`) | `python -m textgloss.monitor` |
+| Painel | mostra indicadores, inferências, versão e métricas do modelo e o estado dos serviços | visualização (sem ML novo) | `dashboard/` (Streamlit), lê `inferencias`, `indicadores_horarios`, API, MLflow e Airflow | `docker compose up -d --build dashboard` |
 
 Verificado em 2026-11-05 (banco descartável, já removido): 25 frases do simulador passaram pelo `sinaliza-t1/1` real (latência média 186 ms), foram gravadas com texto (origem `simulador`) e consolidadas (138 palavras: 60,9% mantidas, 5,1% sem sinal, 7,2% de decisões incertas entre 0,4 e 0,6, p50 178 ms e p95 225 ms). Uma requisição sem `X-Origem` foi gravada **sem texto e sem palavras**. Sem o modelo, a API atende com a lista fixa e `model_version: "lista-fixa"`.
 
