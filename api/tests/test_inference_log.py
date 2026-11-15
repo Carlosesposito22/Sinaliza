@@ -58,6 +58,7 @@ def test_records_counts_probabilities_and_hides_text_by_default(tmp_path):
 def test_simulator_and_opt_in_keep_the_text(tmp_path):
     url = f"sqlite:///{tmp_path}/t.db"
     record(InferenceLog(url), origin="simulador")
+    record(InferenceLog(url), origin="totem")
     record(InferenceLog(url, log_text=True), origin="web")
     for row in rows(url):
         assert row["texto"] == "a mãe banco dor de cabeça"

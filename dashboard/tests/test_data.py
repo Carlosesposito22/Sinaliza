@@ -236,7 +236,7 @@ def test_check_services_runs_in_parallel_and_keeps_the_order(server, engine):
     ROUTES["/ready"] = (200, {"status": "ready"})
     config = data.Config("sqlite://", server, server, server, "", "t1")
     names = [s.name for s in data.check_services(config, engine)]
-    assert names == ["API (/health)", "API (/ready)", "Banco de dados (Postgres)", "MLflow", "Airflow"]
+    assert names == ["API (/health)", "API (/ready)", "Banco de dados (Postgres)", "MLflow", "Airflow", "Broker MQTT (Mosquitto)"]
 
 
 def test_config_reads_the_environment(monkeypatch):

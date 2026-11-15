@@ -63,12 +63,24 @@ docker compose up -d --build dashboard
 ```
 
 - Painel: http://localhost:8501 (Streamlit, atualiza sozinho a cada 10 s; desligável na barra lateral; tema claro e escuro). Só precisa de `postgres` e `mlflow` de pé; o que a API ou o Airflow não responderem aparece como "fora do ar" na aba **Serviços**, sem derrubar o resto.
-- Quatro abas: **Visão geral** (frases, % mantidas, % sem sinal, % incertas, latência p95; frases por hora; latência p50 e p95; sem sinal e incertas por hora), **Inferências** (últimas frases com a decisão de cada palavra e a sequência de sinais; histograma da probabilidade de MANTER; decisões de baixa confiança; palavras sem sinal no vocabulário), **Modelo** (versão na API e no MLflow, métricas do teste final, comparação dos modelos) e **Serviços** (API `/health` e `/ready`, Postgres, MLflow, Airflow; frescor dos dados).
+- Cinco abas: **Totens (MQTT)** (totens online, mensagens na janela, % inferidas, latência ponta a ponta p95, mensagens perdidas pela numeração; tabela por totem; mensagens por 10 minutos; últimas mensagens com a sequência de sinais), **Visão geral** (frases, % mantidas, % sem sinal, % incertas, latência p95; frases por hora; latência p50 e p95; sem sinal e incertas por hora), **Inferências** (últimas frases com a decisão de cada palavra e a sequência de sinais; histograma da probabilidade de MANTER; decisões de baixa confiança; palavras sem sinal no vocabulário), **Modelo** (versão na API e no MLflow, métricas do teste final, comparação dos modelos) e **Serviços** (API `/health` e `/ready`, Postgres, MLflow, Airflow, broker MQTT; frescor dos dados).
 - O painel lê só as tabelas `inferencias` e `indicadores_horarios`: os **indicadores dependem do DAG `monitoramento`** (a cada hora); frases ainda não consolidadas aparecem como "aguardando consolidação". O texto das frases só aparece onde a API o gravou (simulador ou opt-in).
 - Para ver o painel cheio: suba a API, rode `python -m textgloss.simulador --n 60` e dispare o DAG `monitoramento` no Airflow (ou `python -m textgloss.monitor`).
-- Variáveis (`dashboard/data.py`, `Config`): `SINALIZA_DATABASE_URL`, `SINALIZA_API_URL`, `MLFLOW_TRACKING_URI`, `SINALIZA_MLFLOW_PUBLIC_URL`, `SINALIZA_AIRFLOW_URL` (vazio = Airflow "não monitorado") e `SINALIZA_MLFLOW_EXPERIMENT`.
+- Variáveis (`dashboard/data.py`, `Config`): `SINALIZA_DATABASE_URL`, `SINALIZA_API_URL`, `MLFLOW_TRACKING_URI`, `SINALIZA_MLFLOW_PUBLIC_URL`, `SINALIZA_AIRFLOW_URL` (vazio = Airflow "não monitorado"), `SINALIZA_MLFLOW_EXPERIMENT` e `MQTT_HOST`/`MQTT_PORT` (vazio = broker "não monitorado").
 - Memória medida: ~0,16 GB. Com o painel, a pilha toda (postgres, mlflow, api com o modelo, airflow e painel) ficou em ~2,65 GB dos 3,8 GB do Docker.
 - Rodar fora do Docker e testar: `cd dashboard; py -3.12 -m venv .venv; .venv/Scripts/python -m pip install -r requirements.txt -r requirements-dev.txt`; `.venv/Scripts/python -m streamlit run app.py`; `.venv/Scripts/python -m pytest` (24 passam).
+
+### Aquisição pelos totens: embarcado simulado e MQTT
+
+Sobe junto com o resto (`docker compose up -d --build`): `mosquitto` (broker, porta 1883), `receptor` e dois totens simulados (`totem-ubs`, `totem-inss`). Os totens só começam a publicar depois que o receptor assinou os tópicos (healthcheck do receptor).
+
+- **Contrato:** `sinaliza/totens/<id>/frases` (QoS 1, JSON com `msg_id`, `dispositivo`, `local`, `seq`, `enviado_em`, `texto`) e `sinaliza/totens/<id>/status` (retido; `online`, ou `offline` publicado pelo broker como testamento se o totem cair). Detalhes em `embedded/totem.py`.
+- **Receptor:** grava cada mensagem em `mensagens_mqtt` antes de chamar a API (`X-Origem: totem`), ignora repetidas (`msg_id` único; o QoS 1 pode entregar duas vezes), tenta a API até 3 vezes e marca `inferida`, `rejeitada` (sem palavras com sinal), `erro` ou `invalida`. Sessão persistente no broker: o que os totens publicam com o receptor fora chega quando ele volta.
+- **Ritmo:** cada totem publica a cada ~`TOTEM_INTERVALO` segundos (padrão 20, varia ±50%). Para a demonstração: `$env:TOTEM_INTERVALO=5; docker compose up -d totem-ubs totem-inss`.
+- **Totem fora do Docker** (com o broker de pé): `textgloss/.venv/Scripts/python embedded/totem.py --host localhost --n 5 --intervalo 1 --dispositivo totem-teste`.
+- **Ver as mensagens no broker:** `docker compose exec mosquitto mosquitto_sub -t 'sinaliza/totens/#' -v`.
+- **Testes:** `cd embedded; ../textgloss/.venv/Scripts/python -m pytest` e `cd receptor; ../textgloss/.venv/Scripts/python -m pytest` (o venv do ML tem `paho-mqtt` e `sqlalchemy`).
+- **Privacidade:** os totens são simulados e só enviam frases públicas de `data/phrases.json`, por isso o texto é gravado (a API trata a origem `totem` como o `simulador`). Um totem real exigiria consentimento e retenção, como a origem `web`.
 
 ### API com o modelo e simulador de uso (fase 8)
 
