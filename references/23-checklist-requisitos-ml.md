@@ -86,7 +86,8 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] Regressão Logística treinada (e lista fixa como referência sem ML): `python -m textgloss.train baseline`
 - [x] Justificativa escrita da escolha (`references/25-baseline-t1.md`)
 - [x] Métricas em conjunto de validação (F1-macro 0,876; ROC-AUC 0,944)
-- [x] Parâmetros, métricas e artefatos registrados no MLflow (experimento `t1-manter-descartar`)
+- [x] Parâmetros, métricas e artefatos registrados no MLflow (experimento `sinaliza-t1-01-baseline`; até 2026-11-14 era o experimento único `t1-manter-descartar`)
+- [x] Múltiplos experimentos, como pede a cadeira de AM (2026-11-15): `sinaliza-t1-01-baseline`, `-02-comparacao-de-modelos`, `-03-otimizacao-de-hiperparametros` e `-04-validacao-e-teste-final`. As 39 runs foram movidas sem retreino (`textgloss/separar_experimentos.py`, backup do banco antes); o modelo registrado, os artefatos e a trava do teste final continuam funcionando; o código (`train`, `tune`, `validate`), os notebooks 03 a 05 e o painel usam os experimentos novos; 5 testes novos
 
 ## 4. Comparação de modelos
 

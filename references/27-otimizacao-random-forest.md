@@ -60,7 +60,7 @@ Melhores parâmetros (tentativa 13): `n_estimators=154`, `max_depth=56`, `min_sa
 
 ## No MLflow
 
-Experimento `t1-manter-descartar`: run pai `optuna-random-forest` (parâmetros do estudo, espaço de busca, histórico, importância dos hiperparâmetros, tabela de tentativas e melhores parâmetros), 25 runs filhas `trial-000` a `trial-024` (parâmetros, F1 por dobra, média, desvio e tempo) e a run `random-forest-otimizado` (modelo final, métricas, curvas, importância de atributos).
+Experimento `sinaliza-t1-03-otimizacao-de-hiperparametros`: run pai `optuna-random-forest` (parâmetros do estudo, espaço de busca, histórico, importância dos hiperparâmetros, tabela de tentativas e melhores parâmetros), 25 runs filhas `trial-000` a `trial-024` (parâmetros, F1 por dobra, média, desvio e tempo) e a run `random-forest-otimizado` (modelo final, métricas, curvas, importância de atributos).
 
 ## Como reproduzir
 

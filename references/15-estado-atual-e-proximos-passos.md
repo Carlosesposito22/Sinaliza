@@ -44,7 +44,7 @@ docker compose up -d postgres mlflow
 
 (Para o Airflow: `docker compose up -d airflow`, interface em http://localhost:8080; ver [`14`](14-como-rodar-e-testar.md).)
 
-- MLflow: http://localhost:5000 (experimento `t1-manter-descartar`). Postgres: `localhost:5432`, usuário/senha/banco `sinaliza`.
+- MLflow: http://localhost:5000 (4 experimentos, um por etapa: `sinaliza-t1-01-baseline`, `sinaliza-t1-02-comparacao-de-modelos`, `sinaliza-t1-03-otimizacao-de-hiperparametros` e `sinaliza-t1-04-validacao-e-teste-final`). Postgres: `localhost:5432`, usuário/senha/banco `sinaliza`.
 - Ambiente Python do ML: `textgloss/.venv` (Python 3.12). Testes: `cd textgloss && .venv/Scripts/python -m pytest` (25 passam).
 - Dados em `data/raw/vlibrasbd/` e `data/processed/vlibrasbd/` não são versionados. Se sumirem: `python -m textgloss.ingest`, depois `python -m textgloss.prepare --processos 4`.
 - Os modelos e as runs vivem no volume `mlartifacts` e no Postgres do compose. Se o volume for apagado, refazer: `train baseline`, `train modelos`, `tune` (~40 min), `validate cv|curva|dominio` (~1 h) e **não** repetir o teste final (o código se recusa; ver abaixo).
