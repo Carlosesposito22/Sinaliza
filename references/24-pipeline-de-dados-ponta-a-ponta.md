@@ -31,6 +31,9 @@ Baseline (Regressão Logística)  →  Árvore, Random Forest, KNN  →  Optuna 
 Model Registry do MLflow: sinaliza-t1              ML nosso (Random Forest otimizado)
    │  a API carrega em segundo plano; sem ele, volta à lista fixa
    ▼
+totem simulado (embedded/) ─MQTT─► mosquitto ─► receptor ─► Postgres: mensagens_mqtt     infra (aquisição, sem ML)
+   │  o receptor pede a inferência à API (X-Origem: totem)
+   ▼
 texto digitado ─► spaCy ─► CLASSIFICADOR T1 ─► decisão por palavra: MANTER ou DESCARTAR, com a probabilidade
                  extração   ML NOSSO            │
                                                 ├─ DESCARTAR: a palavra não vira sinal
@@ -78,9 +81,9 @@ Cada linha roda no Airflow (DAG), em notebook ou na API; o comando equivalente f
 | 10 | Inferência | **ML nosso** + extração | texto do usuário | probabilidade de `MANTER` por palavra | API (`textgloss/infer.py`) | `docker compose up -d api` e `POST /translate` |
 | 11 | Glosa final | regra / externo | palavras mantidas | sequência de sinais | API (`text_to_gloss.py`) | idem |
 | 12 | Gravação | infra | resposta da API | linha em `inferencias` | API (`inference_log.py`) | idem |
-| 13 | Dados novos | infra | `data/phrases.json` ou o conjunto de teste | frases enviadas à API | script | `python -m textgloss.simulador` |
+| 13 | Dados novos (aquisição) | infra | frases públicas de `data/phrases.json` | mensagens MQTT dos totens → `mensagens_mqtt` → API; e frases do simulador de uso direto na API | serviços `totem-*`, `mosquitto`, `receptor`; script | `docker compose up -d`; `python -m textgloss.simulador` |
 | 14 | Consolidação | estatística | `inferencias` | `indicadores_horarios` | DAG `monitoramento` | `python -m textgloss.monitor` |
-| 15 | Painel | visualização | Postgres, API, MLflow, Airflow | indicadores, inferências, modelo e serviços | serviço `dashboard` | `docker compose up -d --build dashboard` |
+| 15 | Painel | visualização | Postgres, API, MLflow, Airflow, broker MQTT | indicadores, inferências, totens, modelo e serviços | serviço `dashboard` | `docker compose up -d --build dashboard` |
 
 Tudo isso sobe com `docker compose up -d --build`; numa máquina limpa o Airflow roda sozinho as etapas 1 a 9 (perfil `demo` em minutos, `completo` em horas). A demonstração automática de ponta a ponta é `python -m textgloss.demo`.
 
@@ -170,7 +173,9 @@ Esta é a parte do fluxo em que o ML **decide algo na saída final**. Detalhes d
 
 | Etapa | O que faz | Tipo | Onde | Como reproduzir |
 | --- | --- | --- | --- | --- |
-| Simulador de uso | envia frases à API com `X-Origem: simulador` (faz o papel de fonte de dados novos no lugar do embarcado) | sem ML | `textgloss/simulador.py` | `python -m textgloss.simulador --n 30 --intervalo 1` |
+| Totens (embarcado simulado) | publicam frases públicas de atendimento no broker MQTT (`sinaliza/totens/<id>/frases`, QoS 1) e o estado online/offline | sem ML | `embedded/totem.py`, serviços `totem-ubs` e `totem-inss` | `docker compose up -d` |
+| Broker e receptor | o Mosquitto entrega as mensagens; o receptor grava cada uma em `mensagens_mqtt` e pede a inferência à API com `X-Origem: totem` | sem ML | `mosquitto/`, `receptor/receptor.py` | idem |
+| Simulador de uso | envia frases direto à API com `X-Origem: simulador`, para gerar volume | sem ML | `textgloss/simulador.py` | `python -m textgloss.simulador --n 30 --intervalo 1` |
 | spaCy | extrai os atributos de cada palavra (os mesmos do treino) | externo | `textgloss/features.py`, chamado por `infer.py` | automático na API |
 | **Classificador T1** | probabilidade de MANTER por palavra; `>= 0,5` mantém | **ML nosso** (`sinaliza-t1`, Random Forest otimizado) | `textgloss/infer.py`, carregado do MLflow em `api/app/model_provider.py` | `docker compose up -d api` |
 | Tabela, lema, aproximação | transforma palavra mantida em glosa do vocabulário | regra / externo (simplemma, embedding) | `api/app/text_to_gloss.py` | idem |
@@ -181,6 +186,8 @@ Esta é a parte do fluxo em que o ML **decide algo na saída final**. Detalhes d
 Verificado em 2026-11-05 (banco descartável, já removido): 25 frases do simulador passaram pelo `sinaliza-t1/1` real (latência média 186 ms), foram gravadas com texto (origem `simulador`) e consolidadas (138 palavras: 60,9% mantidas, 5,1% sem sinal, 7,2% de decisões incertas entre 0,4 e 0,6, p50 178 ms e p95 225 ms). Uma requisição sem `X-Origem` foi gravada **sem texto e sem palavras**. Sem o modelo, a API atende com a lista fixa e `model_version: "lista-fixa"`.
 
 Repetido com a pilha completa de pé (postgres, mlflow, api com o modelo e airflow, ~2,7 GB): 20 frases do simulador, DAG `monitoramento` do Airflow com sucesso, 109 palavras (63,3% mantidas, 5,5% sem sinal, p95 145 ms).
+
+Verificado em 2026-11-14 com a pilha real (`docker compose up -d --build`, 10 serviços, ~2,7 GB): os dois totens conectaram, o receptor gravou e o `sinaliza-t1/1` inferiu cada frase (ponta a ponta de 0,2 a 0,7 s); 3 mensagens publicadas com o receptor parado chegaram quando ele voltou (sessão persistente); um totem morto com `docker kill` apareceu `offline` em ~1 s (testamento); `python -m textgloss.demo` passou 8 de 8.
 
 Limites: o modelo foi treinado em frases isoladas e a API o aplica ao texto inteiro como uma única frase (textos com várias frases perdem a posição relativa); o modelo erra (ex.: "preciso" é descartado); o `sinaliza-t1` exige ~2,8 GB na carga (ver [`14`](14-como-rodar-e-testar.md)).
 

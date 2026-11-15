@@ -6,13 +6,13 @@ Legenda: ✅ cumprido e verificável · 🟡 parcial ou a conferir · ❌ falta.
 
 ## Resumo
 
-As duas listas técnicas são praticamente a mesma (o professor diz que a de AM "replica" a de Projetos 6). O que a de AM **acrescenta**: o **relatório no template SBC** (20% da nota, zero se fora do formato), **Leave-One-Out** e **Grid/Random Search** citados explicitamente, **mínimo de 5 visualizações**, **regras do README** e a **estrutura de repositório sugerida**. E ela torna mais difícil defender o corte do **embarcado + MQTT**, que aparece em 4 lugares: objetivos, critérios de avaliação, Docker Compose e apresentação final.
+As duas listas técnicas são praticamente a mesma (o professor diz que a de AM "replica" a de Projetos 6). O que a de AM **acrescenta**: o **relatório no template SBC** (20% da nota, zero se fora do formato), **Leave-One-Out** e **Grid/Random Search** citados explicitamente, **mínimo de 5 visualizações**, **regras do README** e a **estrutura de repositório sugerida**. Ela também cobra o **embarcado + MQTT** em 4 lugares (objetivos, critérios de avaliação, Docker Compose e apresentação final); por isso eles foram implementados em 2026-11-14.
 
 | Bloco (peso) | Situação | O que falta |
 | --- | --- | --- |
 | Análise de Dados (15%) | ✅ (2026-11-14) | Nada |
 | Modelagem e Validação (30%) | ✅ completo (2026-11-14) | Nada técnico. Falta só levar ao relatório SBC |
-| MLOps (25%) | 🟡 | **Embarcado simulado + MQTT** (broker no compose); conferir "múltiplos experimentos" no MLflow; perfil `completo` |
+| MLOps (25%) | 🟡 quase | Embarcado simulado + MQTT feitos em 2026-11-14. Falta conferir "múltiplos experimentos" no MLflow e registrar o perfil `completo` |
 | Comunicação (20%) | ❌ | **Relatório no template SBC não existe** |
 | (10% não declarados) | ? | Os pesos somam 90%; provavelmente a apresentação final. Perguntar ao professor |
 
@@ -67,29 +67,19 @@ As duas listas técnicas são praticamente a mesma (o professor diz que a de AM 
 | Requisito de AM | Situação | Evidência / o que falta |
 | --- | --- | --- |
 | Interface interativa integrada | ✅ | Streamlit, 4 abas, serviço `dashboard` no compose |
-| Consumo da infraestrutura de aquisição (MQTT e/ou API) | ✅ / 🟡 | Hoje via API e banco. Se o MQTT entrar, mostrar também as mensagens recebidas pelo broker |
+| Consumo da infraestrutura de aquisição (MQTT e/ou API) | ✅ | Aba **Totens (MQTT)**: lê `mensagens_mqtt` e `totens`; o broker aparece na aba Serviços |
 | Indicadores, métricas, inferências, monitoramento em tempo de execução | ✅ | Abas de indicadores, inferências, modelo e serviços |
 | Métricas da solução de Projetos 6 | 🟡 | Já mostra frases, palavras sem sinal e latência. Pode ganhar métricas da trilha gamificada do web, se ela gravar algo |
 
-### Aquisição de Dados e MQTT — **principal lacuna técnica**
+### Aquisição de Dados e MQTT
 
-| Requisito de AM | Situação |
-| --- | --- |
-| Sistema embarcado físico ou simulado | ❌ (temos um simulador de uso, `textgloss/simulador.py`, mas ele fala HTTP com a API, não é um "dispositivo") |
-| Publicação via MQTT (ou equivalente) | ❌ |
-| Recepção e persistência | ✅ (tabela `inferencias` no Postgres), mas a recepção é pela API, não por um assinante |
+| Requisito de AM | Situação | Evidência |
+| --- | --- | --- |
+| Sistema embarcado físico ou simulado | ✅ (2026-11-14) | Dois totens de atendimento simulados (`embedded/totem.py`, serviços `totem-ubs` e `totem-inss`) |
+| Publicação via MQTT | ✅ | Broker Mosquitto no compose; `sinaliza/totens/<id>/frases` (QoS 1) e `.../status` (retido, com testamento) |
+| Recepção e persistência | ✅ | `receptor/receptor.py` grava em `mensagens_mqtt` e `totens` (Postgres) e pede a inferência à API |
 
-Em Projetos 6 o grupo decidiu deixar isso fora (`23`, decisão de 2026-10-28, motivo: "o embarcado não é do grupo"). Na especificação de AM, porém, MQTT aparece nos objetivos, num **critério de avaliação** próprio ("Infraestrutura de aquisição, comunicação MQTT e pipeline de dados"), na lista de serviços do Docker Compose e no roteiro da apresentação final. Defender "HTTP é tecnologia equivalente" é fraco: o MQTT está ali como mensageria publicador/assinante.
-
-**Proposta [a decidir pelo grupo]:** o requisito aceita embarcado **simulado**, e quase tudo já existe. Custo estimado: pequeno.
-
-1. Serviço `mosquitto` (broker MQTT) no `docker-compose.yml`.
-2. `embedded/` (pasta sugerida pela especificação): simulador de um "totem de atendimento" que publica frases num tópico, por exemplo `sinaliza/frases`, reaproveitando as frases do `textgloss/simulador.py`.
-3. Assinante (serviço pequeno ou dentro da API) que recebe do tópico, chama a inferência do modelo e grava em `inferencias` com a origem `mqtt`.
-4. Painel mostra as mensagens recebidas pelo MQTT; `textgloss.demo` ganha uma etapa "publicou no MQTT → apareceu no banco".
-5. Atualizar `23` (tirar os riscados), `24`, `30` e o deck.
-
-Alternativa: perguntar ao professor de AM se aceita o corte. Arriscado, porque o critério tem peso dentro dos 25% de MLOps.
+Verificado em 2026-11-14 com a pilha real (`docker compose up -d --build`, 10 serviços, ~2,7 GB): os dois totens conectaram, o receptor gravou e o `sinaliza-t1/1` inferiu cada frase (ponta a ponta de 0,2 a 0,7 s); 3 mensagens publicadas com o receptor parado chegaram quando ele voltou (sessão persistente); um totem morto com `docker kill` apareceu `offline` em ~1 s (testamento); `python -m textgloss.demo` passou 8 de 8.
 
 ### Pipeline de Dados (Airflow)
 
@@ -109,14 +99,14 @@ Alternativa: perguntar ao professor de AM se aceita o corte. Arriscado, porque o
 
 | Requisito de AM | Situação | Evidência / o que falta |
 | --- | --- | --- |
-| Compose com broker MQTT, banco, Airflow, MLflow, API, dashboard | 🟡 | Tudo menos o **broker MQTT** |
+| Compose com broker MQTT, banco, Airflow, MLflow, API, dashboard | ✅ | 10 serviços com `docker compose up -d --build` (2026-11-14) |
 | Execução completa com um único comando | ✅ | `docker compose up -d --build`, testado em cópia limpa (perfil `demo`). Perfil `completo` ainda sem resultado registrado |
 
 ### Apresentação final
 
 | Situação | O que falta |
 | --- | --- |
-| 🟡 | Deck de 14 slides e roteiro `30` prontos. Faltam: etapa de embarcado/MQTT (se entrar), 3 números do slide 5, ensaio |
+| 🟡 | Roteiro `30` e demonstração automática (8 etapas) já com o embarcado e o MQTT. Faltam: a etapa nos slides, os 3 números do slide 5 e o ensaio |
 
 ### Relatório (template SBC) — **principal lacuna de nota**
 
@@ -137,7 +127,7 @@ Alternativa: perguntar ao professor de AM se aceita o corte. Arriscado, porque o
 ## Prioridades sugeridas
 
 1. **Relatório SBC** (20%, ❌, nada começado). Maior risco de nota.
-2. **Decidir o MQTT**: implementar o embarcado simulado (recomendado) ou obter o aceite do professor por escrito.
+2. ~~Embarcado simulado + MQTT~~ (feito em 2026-11-14).
 3. ~~EDA: ≥ 5 visualizações e estatísticas descritivas~~ (feito em 2026-11-14).
 4. ~~Justificativas de LOO e Optuna~~ (feito em 2026-11-14). Resta conferir os experimentos no MLflow (bloco MLOps).
 5. **README**: membros com @ do GitHub, link do Google Sites, como executar, mapa de pastas; criar `reports/`.

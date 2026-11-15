@@ -27,7 +27,7 @@ Roteiro da apresentação (entregável 10) e da demonstração automática (entr
 | 2 min | **3. Experimentos no MLflow** | Baseline (Regressão Logística) contra a lista fixa; depois Árvore, Random Forest e KNN; Optuna otimiza o Random Forest (25 tentativas); validação cruzada e teste final **uma única vez**. | MLflow, experimento `t1-manter-descartar`: comparar runs, matriz de confusão, importância de atributos | O treino e a escolha do modelo |
 | 1 min | **4. Airflow** | O fluxo é automático: quatro DAGs (ingestão, preparação, treino, monitoramento). Numa máquina limpa o Airflow roda tudo sozinho na primeira subida. | Airflow: grafo do `treino_t1` e o `monitoramento` | O DAG `treino_t1` orquestra o ML |
 | 2 min | **5. Inferência ao vivo** | A API usa o modelo `sinaliza-t1` do MLflow. Para cada palavra devolve a decisão e a probabilidade. Mostre uma palavra que o modelo descarta ("o", "está") e uma que mantém ("filho", "dor"). | Web (aba Tradutor) com "O filho está com dor de cabeça."; depois a API em `/docs` ou `python -m textgloss.demo` (passo 3), que mostra `MANTER`/`DESCARTAR` e a probabilidade | **O modelo decide aqui** |
-| 2 min | **6. Dados novos e monitoramento** | O simulador faz o papel da fonte de dados novos (no lugar do embarcado, que não é do nosso grupo): envia frases, a API classifica e grava, o DAG `monitoramento` consolida por hora. | `python -m textgloss.simulador --n 30` e o DAG no Airflow | O modelo classifica os dados novos |
+| 2 min | **6. Aquisição (embarcado + MQTT) e monitoramento** | Dois totens de atendimento simulados (o sistema embarcado) publicam frases no broker MQTT; o receptor grava cada mensagem no Postgres e pede a inferência ao modelo pela API; o DAG `monitoramento` consolida por hora. O simulador de uso só gera volume. | aba **Totens (MQTT)** do painel; `docker compose exec mosquitto mosquitto_sub -t 'sinaliza/totens/#' -v`; o DAG no Airflow | O modelo classifica, sozinho, os dados que chegam do embarcado |
 | 1 min | **7. Painel** | Monitoramento em tempo de execução: frases por hora, latência, palavras sem sinal, decisões incertas, últimas inferências, versão e métricas do modelo, estado dos serviços. | Painel, abas Visão geral, Inferências, Modelo e Serviços | Mostra a saída do modelo, sem ML novo |
 | 2 min | **8. Limitações e próximos passos** | Ver abaixo. | Slide de limitações | — |
 
@@ -38,8 +38,8 @@ Roteiro da apresentação (entregável 10) e da demonstração automática (entr
 - **Ruído nos rótulos:** o rótulo vem de um alinhamento automático; a equipe conferiu 200 palavras à mão: 8,1% de rótulos errados no geral, quase todos palavras marcadas `DESCARTAR` que o intérprete manteve com outra forma (16% nessa classe, contra 1% em `MANTER`). Detalhes na seção 8 do notebook 02.
 - **O modelo erra:** descarta "preciso" (o spaCy o trata como adjetivo) e oscila em "eu"; fora do domínio (outro tipo de texto) o desempenho cai de 2 a 4 pontos; o ganho sobre a lista fixa é de 6 pontos, não um salto.
 - **Texto com várias frases** é tratado como uma frase só.
-- **Escopo:** sem sistema embarcado nem MQTT (o embarcado não é do grupo); a fonte de dados novos é um simulador de uso.
-- **Privacidade:** a API só grava o texto de quem pede (simulador) ou com opt-in, e o texto é apagado depois de 30 dias; falta o aviso de privacidade na interface do web.
+- **Embarcado simulado:** os totens são programas que imitam o dispositivo; não há hardware. O broker roda sem senha nem TLS (uso local).
+- **Privacidade:** a API só grava o texto das origens simuladas (simulador e totens, que só mandam frases públicas) ou com opt-in, e o texto é apagado depois de 30 dias; falta o aviso de privacidade na interface do web.
 - **Trilha de aprendizado do web:** depende de endpoints `/learn/*` que só existem no mock.
 - **Infraestrutura:** o modelo (864 MB) pede ~2,8 GB na carga; o perfil `completo` do treino leva horas num Docker de 2 CPUs.
 
@@ -52,7 +52,7 @@ Roteiro da apresentação (entregável 10) e da demonstração automática (entr
 | O teste final foi usado para escolher o modelo? | Não: a escolha usou validação e validação cruzada; o teste (10% das frases) rodou **uma única vez**, e o código se recusa a repeti-lo. |
 | Como sabem que não houve vazamento? | A divisão treino/teste, a de validação e a validação cruzada são por frase (nenhuma frase está nos dois lados); há testes automáticos para as duas primeiras e a validação cruzada usa `StratifiedGroupKFold` agrupado por frase. |
 | E se o modelo não estiver disponível? | A API cai na lista fixa e avisa em `model_version: "lista-fixa"`; o painel mostra o alerta. |
-| Onde estão os dados dos usuários? | Só números ficam por padrão (decisão, probabilidade, latência); o texto só do simulador ou com opt-in, e some depois da retenção. |
+| Onde estão os dados dos usuários? | Só números ficam por padrão (decisão, probabilidade, latência); o texto só das origens simuladas (simulador e totens) ou com opt-in, e some depois da retenção. |
 | Por que o modelo é tão grande? | 154 árvores profundas (864 MB). Um modelo menor teria desempenho parecido, mas trocar o modelo exigiria um novo conjunto de teste, porque o atual já foi usado. |
 
 ## Demonstração automática
@@ -62,7 +62,7 @@ python -m textgloss.demo            # percorre os 7 passos e sai com código 0 s
 python -m textgloss.demo --n 40     # com mais frases do simulador
 ```
 
-O script confere os serviços, mostra o modelo registrado e a versão em uso, classifica três frases palavra por palavra, roda o simulador, aciona o DAG `monitoramento` (pela API do Airflow; se ele não responder, roda o mesmo módulo direto), lê os indicadores do banco e confere o painel. Para um stack em outras portas: `--api`, `--mlflow`, `--airflow`, `--painel` e `--banco`.
+O script confere os serviços, mostra o modelo registrado e a versão em uso, classifica três frases palavra por palavra, publica uma frase como totem no broker MQTT e confere que o receptor a gravou e o modelo a inferiu, roda o simulador, aciona o DAG `monitoramento` (pela API do Airflow; se ele não responder, roda o mesmo módulo direto), lê os indicadores do banco e confere o painel. Para um stack em outras portas: `--api`, `--mlflow`, `--airflow`, `--painel`, `--banco` e `--mqtt`.
 
 ## Se algo falhar
 

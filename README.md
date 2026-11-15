@@ -22,9 +22,12 @@ O contexto da fase 1 (problema, personas, similares, requisitos) está em `Docum
 ```
 VLibrasBD ─► Airflow (ingestão, preparação) ─► Postgres ─► Airflow (treino) ─► MLflow (experimentos e Model Registry)
                                                                                          │ sinaliza-t1
-texto ─► web ─► api (FastAPI) ─► spaCy ─► CLASSIFICADOR T1 (ML nosso) ─► tabela/lema ─► sequência de sinais ─► avatar do VLibras
-                                  │
-                                  └─► Postgres: inferencias ─► Airflow (monitoramento) ─► painel (Streamlit)
+totens simulados ─MQTT─► mosquitto ─► receptor ─► Postgres: mensagens_mqtt
+                                         │
+                                         ▼
+texto ─► web ─────────────────────► api (FastAPI) ─► spaCy ─► CLASSIFICADOR T1 (ML nosso) ─► tabela/lema ─► sequência de sinais ─► avatar do VLibras
+                                         │
+                                         └─► Postgres: inferencias ─► Airflow (monitoramento) ─► painel (Streamlit)
 ```
 
 | Pasta | Papel | Estado |
@@ -33,6 +36,9 @@ texto ─► web ─► api (FastAPI) ─► spaCy ─► CLASSIFICADOR T1 (ML n
 | `pipeline/dags/` e `airflow/` | Os quatro DAGs do Airflow (ingestão, preparação, treino, monitoramento) e a imagem; na primeira subida de uma máquina limpa rodam sozinhos | Pronto |
 | `api/` | Serviço HTTP. Texto → decisão do modelo por palavra → glosas. Grava as inferências | Funcional, com o modelo `sinaliza-t1` (ou a lista fixa, se ele não estiver disponível) |
 | `dashboard/` | Painel de monitoramento (Streamlit): indicadores, inferências, modelo e estado dos serviços | Pronto, com testes |
+| `embedded/` | **Sistema embarcado simulado**: totens de atendimento que publicam frases via MQTT (`totem.py`) | Pronto, com testes |
+| `receptor/` | Assina o broker MQTT, grava cada mensagem no Postgres e pede a inferência ao modelo pela API | Pronto, com testes |
+| `mosquitto/` | Configuração do broker MQTT (Eclipse Mosquitto) | Pronto |
 | `web/` | Front (React + Vite): tradutor e trilha de aprendizado. Toca os sinais no avatar do VLibras | Tradutor funcional; a trilha depende dos endpoints `/learn/*` (hoje só no `mock-api/`) |
 | `mock-api/` | Mock da API para o time do web trabalhar sem o ML | Pronto |
 | `notebooks/` | EDA, preparação, comparação de modelos, otimização e validação, com texto explicando cada decisão | Pronto |
@@ -48,7 +54,7 @@ texto ─► web ─► api (FastAPI) ─► spaCy ─► CLASSIFICADOR T1 (ML n
 docker compose up -d --build
 ```
 
-Sobe `postgres`, `mlflow`, `api`, `airflow`, `dashboard` e `web`, **na ordem certa** (a API passa pela carga do modelo antes do Airflow). Isso basta num clone novo: o build do front baixa sozinho os sinais do VLibras (precisa de internet no primeiro build) e, **numa máquina sem dados**, o Airflow roda sozinho a ingestão, a preparação e o treino. Para uma demonstração em minutos: `$env:SINALIZA_PERFIL="demo"; docker compose up -d --build` (o padrão, `completo`, leva horas). As opções estão em [`.env.example`](.env.example).
+Sobe `postgres`, `mlflow`, `api`, `airflow`, `dashboard`, `web`, o broker MQTT (`mosquitto`), o `receptor` e os dois totens simulados (`totem-ubs`, `totem-inss`), **na ordem certa** (a API passa pela carga do modelo antes do Airflow). Isso basta num clone novo: o build do front baixa sozinho os sinais do VLibras (precisa de internet no primeiro build) e, **numa máquina sem dados**, o Airflow roda sozinho a ingestão, a preparação e o treino. Para uma demonstração em minutos: `$env:SINALIZA_PERFIL="demo"; docker compose up -d --build` (o padrão, `completo`, leva horas). As opções estão em [`.env.example`](.env.example).
 
 | Serviço | Endereço |
 | --- | --- |

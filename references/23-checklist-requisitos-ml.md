@@ -4,15 +4,15 @@ Estes 10 entregáveis são os que **dão a nota** do projeto na parte de Machine
 
 **Como usar:** marque `[x]` só quando o item estiver feito **e verificável** (código no repositório, execução registrada, artefato existente). Ao marcar, anote a data e a evidência (arquivo, run do MLflow, commit). Mantenha o quadro-resumo em dia e reflita mudanças em [`15-estado-atual-e-proximos-passos.md`](15-estado-atual-e-proximos-passos.md).
 
-> **Atenção (2026-11-14):** a cadeira de **Aprendizado de Máquina** mandou a própria especificação ([`31-requisitos-cadeira-am.md`](31-requisitos-cadeira-am.md)). Ela repete estes requisitos e acrescenta o **relatório no template SBC** (20% da nota), LOO, mínimo de 5 visualizações e regras do README. Também cobra **embarcado simulado + MQTT** como critério de avaliação, o que reabre a decisão abaixo. O que falta está em [`33-cruzamento-requisitos-am.md`](33-cruzamento-requisitos-am.md).
+> **Atenção (2026-11-14):** a cadeira de **Aprendizado de Máquina** mandou a própria especificação ([`31-requisitos-cadeira-am.md`](31-requisitos-cadeira-am.md)). Ela repete estes requisitos e acrescenta o **relatório no template SBC** (20% da nota), LOO, mínimo de 5 visualizações e regras do README. Também cobra **embarcado simulado + MQTT** como critério de avaliação; por isso eles foram incluídos (seção abaixo). O que falta está em [`33-cruzamento-requisitos-am.md`](33-cruzamento-requisitos-am.md).
 
-## Fora do escopo: sistema embarcado e MQTT
+## Sistema embarcado e MQTT: incluídos em 2026-11-14
 
-**Decisão (Carlos, 2026-10-28; reconfirmada em 2026-11-02):** o requisito de **sistema embarcado** não faz parte do grupo, e por consequência o **broker MQTT** (que na rubrica serve só ao embarcado) também não entra. Motivo registrado: o embarcado não é do grupo; não foi dada outra justificativa técnica. A fonte de dados novos é a própria API (frases enviadas pela interface ou por um simulador de uso).
+**Histórico:** em 2026-10-28 (reconfirmado em 2026-11-02) o grupo deixou o embarcado e o MQTT fora do escopo. Em 2026-11-14 a especificação da cadeira de Aprendizado de Máquina ([`31`](31-requisitos-cadeira-am.md)) passou a cobrá-los como critério de avaliação e o grupo decidiu implementá-los com um **embarcado simulado**, que a especificação aceita.
 
-Nos textos dos entregáveis abaixo, os trechos ~~riscados~~ são os que ficam de fora. Não há subitens de embarcado/MQTT no checklist.
+**Como ficou:** dois **totens de atendimento simulados** (`embedded/totem.py`, serviços `totem-ubs` e `totem-inss`) publicam frases públicas de atendimento no broker **Mosquitto** (`sinaliza/totens/<id>/frases`, QoS 1, e o estado `online`/`offline` com testamento em `sinaliza/totens/<id>/status`). O **receptor** (`receptor/receptor.py`) assina os tópicos, grava cada mensagem no Postgres (`mensagens_mqtt`, `totens`) e pede a inferência ao modelo pela API (`X-Origem: totem`), que grava em `inferencias`. O painel tem a aba **Totens (MQTT)** e a demonstração automática ganhou a etapa "Totem via MQTT". O simulador de uso continua, para gerar volume.
 
-**Aprovado pelo orientador:** a abordagem por **glosa** (texto → glosa, com base no VLibras/VLibrasBD) é a forma mais adequada e é o caminho seguido, com base no nosso estudo.
+Os trechos que antes estavam riscados nos entregáveis abaixo voltaram a valer.
 
 ## Orientação do orientador (reunião mais recente, anotada em 2026-11-02)
 
@@ -51,13 +51,16 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
 ## 1. Infraestrutura inicial e bootstrap dataset
 
-> Implementação da infraestrutura inicial da solução. A equipe deverá disponibilizar um conjunto de dados inicial (bootstrap dataset) que permita o desenvolvimento e validação da solução desde as primeiras etapas do projeto, ~~além de implementar a infraestrutura de aquisição de dados utilizando um sistema embarcado físico ou simulado. A solução deverá demonstrar a publicação dos dados por meio de MQTT (ou tecnologia equivalente), bem como sua recepção~~ e persistência em um mecanismo de armazenamento adequado.
+> Implementação da infraestrutura inicial da solução. A equipe deverá disponibilizar um conjunto de dados inicial (bootstrap dataset) que permita o desenvolvimento e validação da solução desde as primeiras etapas do projeto, além de implementar a infraestrutura de aquisição de dados utilizando um sistema embarcado físico ou simulado. A solução deverá demonstrar a publicação dos dados por meio de MQTT (ou tecnologia equivalente), bem como sua recepção e persistência em um mecanismo de armazenamento adequado.
 
 - [x] Abordagem por glosa validada com o orientador (reunião, relatada em 2026-11-02)
 - [x] Baixar o VLibrasBD (bootstrap dataset) e registrar hash/licença (2026-11-02; SHA-256 conferido; créditos em `docs/creditos-e-licencas.md`)
 - [x] Banco (Postgres) e tabela do corpus criados (serviço `postgres` no compose; `corpus_bruto`, 127.349 linhas)
 - [x] Script de ingestão do corpus no banco (`textgloss/ingest.py`)
-- [x] Simulador de uso que envia frases novas à API (fonte de dados novos no lugar do embarcado) (2026-11-05; `textgloss/simulador.py`; 25 frases enviadas e gravadas)
+- [x] Simulador de uso que envia frases novas à API (2026-11-05; `textgloss/simulador.py`; hoje gera volume, a aquisição é pelos totens)
+- [x] Sistema embarcado simulado (2026-11-14): dois totens de atendimento (`embedded/totem.py`, serviços `totem-ubs` e `totem-inss`), 6 testes
+- [x] Publicação via MQTT (2026-11-14): broker Mosquitto no compose, tópicos `sinaliza/totens/<id>/frases` (QoS 1) e `.../status` (retido, com testamento)
+- [x] Recepção e persistência (2026-11-14): `receptor/receptor.py` grava em `mensagens_mqtt` e `totens` antes de chamar a API, sem duplicatas, com novas tentativas; 10 testes. Verificado em 2026-11-14 com a pilha real (`docker compose up -d --build`, 10 serviços, ~2,7 GB): os dois totens conectaram, o receptor gravou e o `sinaliza-t1/1` inferiu cada frase (ponta a ponta de 0,2 a 0,7 s); 3 mensagens publicadas com o receptor parado chegaram quando ele voltou (sessão persistente); um totem morto com `docker kill` apareceu `offline` em ~1 s (testamento); `python -m textgloss.demo` passou 8 de 8.
 - [x] Persistência das frases recebidas no banco (2026-11-05; `api/app/inference_log.py`, tabela `inferencias`; texto só do simulador ou com opt-in, retenção pelo DAG `monitoramento`)
 
 ## 2. Pipeline de dados (Airflow) e EDA
@@ -121,23 +124,25 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
 ## 7. Integração do modelo ao pipeline
 
-> Integração do modelo treinado à infraestrutura de aquisição de dados. A equipe deverá integrar o modelo treinado à infraestrutura de aquisição de dados, demonstrando que o pipeline é capaz de consumir automaticamente novos dados ~~provenientes do sistema embarcado (ou~~ simulador~~)~~, executar as etapas de processamento necessárias e produzir inferências utilizando o modelo validado.
+> Integração do modelo treinado à infraestrutura de aquisição de dados. A equipe deverá integrar o modelo treinado à infraestrutura de aquisição de dados, demonstrando que o pipeline é capaz de consumir automaticamente novos dados provenientes do sistema embarcado (ou simulador), executar as etapas de processamento necessárias e produzir inferências utilizando o modelo validado.
 
 - [x] Modelo carregado do MLflow pela API (2026-11-05; `sinaliza-t1/1`, 864 MB, em segundo plano, com plano B)
 - [x] Classificador em `textgloss/infer.py` usado no `/translate` (2026-11-05; campos `decision`, `probability`, `model_version`, `latency_ms` do contrato v1)
 - [x] Frases novas (do simulador) gravadas no banco (2026-11-05)
 - [x] DAG `monitoramento` consome novas frases, processa e grava inferências (2026-11-05; `monitor.py` consolidou as 25 frases reais do simulador; o DAG do Airflow também consolidou 20 frases reais do simulador na pilha completa, em 2026-11-05)
+- [x] Dados do embarcado consumidos automaticamente (2026-11-14): totem → MQTT → receptor → API (modelo T1) → `inferencias` → DAG `monitoramento`, sem intervenção.
 - [x] Demonstração automática ponta a ponta (2026-11-08): `python -m textgloss.demo` percorre 7 etapas (serviços de pé, modelo registrado e em uso, inferência palavra por palavra, simulador, consolidação pelo DAG `monitoramento` acionado pela API do Airflow, indicadores, painel) e sai com código 0; 10 testes. Rodou 7/7 numa cópia limpa do repositório com os 6 serviços de pé. Roteiro falado em [`30-roteiro-da-demonstracao.md`](30-roteiro-da-demonstracao.md).
 
 ## 8. Conteinerização (Docker Compose)
 
-> Conteinerização da solução utilizando Docker Compose. A equipe deverá disponibilizar um ambiente reproduzível contendo os principais serviços da arquitetura (~~broker MQTT,~~ banco de dados, Airflow, MLflow, API e demais componentes necessários), permitindo a execução completa da solução por meio de um único comando.
+> Conteinerização da solução utilizando Docker Compose. A equipe deverá disponibilizar um ambiente reproduzível contendo os principais serviços da arquitetura (broker MQTT, banco de dados, Airflow, MLflow, API e demais componentes necessários), permitindo a execução completa da solução por meio de um único comando.
 
 - [x] Serviços `api` e `web` (verificado em 2026-10-19; falta reverificar com a versão final)
 - [x] `postgres` (compose, healthcheck; 2026-11-02)
 - [x] `mlflow` (compose, backend no Postgres; 2026-11-02)
 - [x] `airflow` (compose + `airflow/Dockerfile`, Airflow 3.1.5 standalone, 2026-11-05; 4 DAGs carregam sem erro)
 - [x] `dashboard` (2026-11-07; porta 8501, depende de postgres e mlflow saudáveis)
+- [x] `mosquitto`, `receptor`, `totem-ubs` e `totem-inss` (2026-11-14; os totens só publicam depois que o receptor assinou os tópicos)
 - [x] Ordem de subida com healthchecks (postgres → mlflow → api `/ready` → airflow e web; 2026-11-07)
 - [x] Primeira subida automática (ingestão → preparação → treino) em máquina limpa, perfis `demo` e `completo` (`airflow/bootstrap.sh`; só o `demo` foi executado)
 - [x] Testado numa cópia limpa do repositório, volumes vazios, perfil `demo` (2026-11-07): tudo de pé, modelo registrado e usado pela API, simulador e monitoramento funcionando; `down` e `up` repetidos
@@ -147,20 +152,22 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
 ## 9. Dashboard
 
-> Desenvolvimento de um dashboard integrado à solução, capaz de consumir dados provenientes da infraestrutura de aquisição (~~via MQTT e/ou~~ API), apresentar indicadores relevantes da aplicação, visualizar as inferências realizadas pelo modelo e monitorar o funcionamento da solução em tempo de execução.
+> Desenvolvimento de um dashboard integrado à solução, capaz de consumir dados provenientes da infraestrutura de aquisição (via MQTT e/ou API), apresentar indicadores relevantes da aplicação, visualizar as inferências realizadas pelo modelo e monitorar o funcionamento da solução em tempo de execução.
 
 - [x] Painel (Streamlit) consumindo API e banco (2026-11-07; `dashboard/`, serviço `dashboard` no compose, http://localhost:8501; lê Postgres, API, MLflow e Airflow)
 - [x] Indicadores relevantes da aplicação (frases e latência por hora, % mantidas, % sem sinal, % incertas, latência p95, frases pendentes)
 - [x] Visualização das inferências do modelo (últimas frases com a decisão de cada palavra e a sequência de sinais, histograma da probabilidade, baixa confiança, palavras sem sinal)
 - [x] Versão do modelo e métricas do último treino (lidas do MLflow: teste final do `sinaliza-t1`, comparação dos modelos; conferido com os valores reais 0,885 e +0,062 sobre a lista fixa)
+- [x] Aba **Totens (MQTT)** (2026-11-14): totens online, mensagens, % inferidas, latência ponta a ponta, mensagens perdidas pela numeração, gráfico por totem e últimas mensagens; broker na aba Serviços; 5 testes novos
 - [x] Estado dos serviços (API, banco, MLflow, Airflow) em tempo de execução (aba Serviços, checagens em paralelo; verificado com tudo no ar e com o Airflow parado)
 
 ## 10. Apresentação da solução completa
 
-> Apresentação da solução completa, demonstrando o funcionamento integrado de toda a arquitetura: ~~aquisição dos dados pelo sistema embarcado, comunicação via MQTT,~~ armazenamento, orquestração do pipeline com Apache Airflow, treinamento e rastreamento de experimentos com MLflow, implantação da solução utilizando Docker Compose, disponibilização das inferências por meio da API e visualização dos resultados no dashboard. A equipe deverá justificar as principais decisões técnicas e discutir as limitações da solução.
+> Apresentação da solução completa, demonstrando o funcionamento integrado de toda a arquitetura: aquisição dos dados pelo sistema embarcado, comunicação via MQTT, armazenamento, orquestração do pipeline com Apache Airflow, treinamento e rastreamento de experimentos com MLflow, implantação da solução utilizando Docker Compose, disponibilização das inferências por meio da API e visualização dos resultados no dashboard. A equipe deverá justificar as principais decisões técnicas e discutir as limitações da solução.
 
+- [x] Demonstração com o embarcado e o MQTT (2026-11-14): etapa "Totem via MQTT" na demonstração automática (8 de 8) e no roteiro `30`. Falta pôr a etapa nos slides.
 - [x] Roteiro da demonstração ponta a ponta (2026-11-08): [`30-roteiro-da-demonstracao.md`](30-roteiro-da-demonstracao.md), com tempos, o que falar e mostrar, onde está o ML, limitações, perguntas prováveis e o que fazer se algo falhar.
 - [x] Ensaio com `docker compose up` do zero (2026-11-08): numa cópia limpa do repositório, ver o item 8 e a demonstração automática 7/7.
 - [x] Justificativa das decisões técnicas (slide 12 e tabela de perguntas prováveis do roteiro).
-- [x] Limitações discutidas (slide 11 e seção do roteiro): ordem dos sinais, ausência de validação por falantes de Libras, ruído dos rótulos, escopo sem embarcado/MQTT e o porquê, privacidade, infraestrutura.
+- [x] Limitações discutidas (slide 11 e seção do roteiro): ordem dos sinais, ausência de validação por falantes de Libras, ruído dos rótulos, privacidade, infraestrutura.
 - [x] Slides/apresentação pronta (2026-11-08): deck de 14 slides com notas de fala, publicado como artefato privado. **Pendente:** o slide 5 tem 3 números `[__ %]` a preencher com a conferência manual (valores em 2026-11-14: `MANTER` 1%, `DESCARTAR` 16%, geral 8,1%); o layout não foi conferido visualmente; ensaiar com o grupo.
