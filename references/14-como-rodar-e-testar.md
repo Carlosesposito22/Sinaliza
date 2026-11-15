@@ -29,7 +29,7 @@ docker compose up -d postgres mlflow airflow
 - A imagem `airflow` tem 4,6 GB (Airflow mais o ambiente de ML com spaCy, scikit-learn, MLflow e Optuna) e o primeiro build demora.
 - Para testar os DAGs sem sujar os dados reais, aponte `SINALIZA_DATABASE_URL` para outro banco e `SINALIZA_MLFLOW_PREFIXO` para outro prefixo de experimentos (padrão `sinaliza-t1`) (um `docker-compose.override` só com isso no serviço `airflow`) e passe `registrar_modelo=false` ao `treino_t1`.
 - O MLflow roda com `--allowed-hosts` (versão 3.17 rejeita `Host: mlflow:5000` por padrão, o que quebrava as tarefas do Airflow com 403).
-- Ambiente local do ML fora do Docker (notebooks, testes): `textgloss/.venv`; testes com `cd textgloss; .venv/Scripts/python -m pytest` (54 passam). Testes do painel: ver abaixo. Testes da API: `cd api; .venv/Scripts/python -m pytest` (63 passam; o venv é criado com `py -3.12 -m venv .venv` e `pip install -r requirements.txt`).
+- Ambiente local do ML fora do Docker (notebooks, testes): `src/textgloss/.venv`; testes com `cd textgloss; .venv/Scripts/python -m pytest` (54 passam). Testes do painel: ver abaixo. Testes da API: `cd api; .venv/Scripts/python -m pytest` (63 passam; o venv é criado com `py -3.12 -m venv .venv` e `pip install -r requirements.txt`).
 
 ### Subir tudo com um comando (fase 9)
 
@@ -66,7 +66,7 @@ docker compose up -d --build dashboard
 - Cinco abas: **Totens (MQTT)** (totens online, mensagens na janela, % inferidas, latência ponta a ponta p95, mensagens perdidas pela numeração; tabela por totem; mensagens por 10 minutos; últimas mensagens com a sequência de sinais), **Visão geral** (frases, % mantidas, % sem sinal, % incertas, latência p95; frases por hora; latência p50 e p95; sem sinal e incertas por hora), **Inferências** (últimas frases com a decisão de cada palavra e a sequência de sinais; histograma da probabilidade de MANTER; decisões de baixa confiança; palavras sem sinal no vocabulário), **Modelo** (versão na API e no MLflow, métricas do teste final, comparação dos modelos) e **Serviços** (API `/health` e `/ready`, Postgres, MLflow, Airflow, broker MQTT; frescor dos dados).
 - O painel lê só as tabelas `inferencias` e `indicadores_horarios`: os **indicadores dependem do DAG `monitoramento`** (a cada hora); frases ainda não consolidadas aparecem como "aguardando consolidação". O texto das frases só aparece onde a API o gravou (simulador ou opt-in).
 - Para ver o painel cheio: suba a API, rode `python -m textgloss.simulador --n 60` e dispare o DAG `monitoramento` no Airflow (ou `python -m textgloss.monitor`).
-- Variáveis (`dashboard/data.py`, `Config`): `SINALIZA_DATABASE_URL`, `SINALIZA_API_URL`, `MLFLOW_TRACKING_URI`, `SINALIZA_MLFLOW_PUBLIC_URL`, `SINALIZA_AIRFLOW_URL` (vazio = Airflow "não monitorado"), `SINALIZA_MLFLOW_PREFIXO` (prefixo dos experimentos, padrão `sinaliza-t1`) e `MQTT_HOST`/`MQTT_PORT` (vazio = broker "não monitorado").
+- Variáveis (`app/data.py`, `Config`): `SINALIZA_DATABASE_URL`, `SINALIZA_API_URL`, `MLFLOW_TRACKING_URI`, `SINALIZA_MLFLOW_PUBLIC_URL`, `SINALIZA_AIRFLOW_URL` (vazio = Airflow "não monitorado"), `SINALIZA_MLFLOW_PREFIXO` (prefixo dos experimentos, padrão `sinaliza-t1`) e `MQTT_HOST`/`MQTT_PORT` (vazio = broker "não monitorado").
 - Memória medida: ~0,16 GB. Com o painel, a pilha toda (postgres, mlflow, api com o modelo, airflow e painel) ficou em ~2,65 GB dos 3,8 GB do Docker.
 - Rodar fora do Docker e testar: `cd dashboard; py -3.12 -m venv .venv; .venv/Scripts/python -m pip install -r requirements.txt -r requirements-dev.txt`; `.venv/Scripts/python -m streamlit run app.py`; `.venv/Scripts/python -m pytest` (24 passam).
 
@@ -77,9 +77,9 @@ Sobe junto com o resto (`docker compose up -d --build`): `mosquitto` (broker, po
 - **Contrato:** `sinaliza/totens/<id>/frases` (QoS 1, JSON com `msg_id`, `dispositivo`, `local`, `seq`, `enviado_em`, `texto`) e `sinaliza/totens/<id>/status` (retido; `online`, ou `offline` publicado pelo broker como testamento se o totem cair). Detalhes em `embedded/totem.py`.
 - **Receptor:** grava cada mensagem em `mensagens_mqtt` antes de chamar a API (`X-Origem: totem`), ignora repetidas (`msg_id` único; o QoS 1 pode entregar duas vezes), tenta a API até 3 vezes e marca `inferida`, `rejeitada` (sem palavras com sinal), `erro` ou `invalida`. Sessão persistente no broker: o que os totens publicam com o receptor fora chega quando ele volta.
 - **Ritmo:** cada totem publica a cada ~`TOTEM_INTERVALO` segundos (padrão 20, varia ±50%). Para a demonstração: `$env:TOTEM_INTERVALO=5; docker compose up -d totem-ubs totem-inss`.
-- **Totem fora do Docker** (com o broker de pé): `textgloss/.venv/Scripts/python embedded/totem.py --host localhost --n 5 --intervalo 1 --dispositivo totem-teste`.
+- **Totem fora do Docker** (com o broker de pé): `.venv/Scripts/python embedded/totem.py --host localhost --n 5 --intervalo 1 --dispositivo totem-teste`.
 - **Ver as mensagens no broker:** `docker compose exec mosquitto mosquitto_sub -t 'sinaliza/totens/#' -v`.
-- **Testes:** `cd embedded; ../textgloss/.venv/Scripts/python -m pytest` e `cd receptor; ../textgloss/.venv/Scripts/python -m pytest` (o venv do ML tem `paho-mqtt` e `sqlalchemy`).
+- **Testes:** `cd embedded; ../.venv/Scripts/python -m pytest` e `cd receptor; ../.venv/Scripts/python -m pytest` (o venv do ML tem `paho-mqtt` e `sqlalchemy`).
 - **Privacidade:** os totens são simulados e só enviam frases públicas de `data/phrases.json`, por isso o texto é gravado (a API trata a origem `totem` como o `simulador`). Um totem real exigiria consentimento e retenção, como a origem `web`.
 
 ### API com o modelo e simulador de uso (fase 8)
@@ -92,7 +92,7 @@ docker compose up -d --build api
 - A API sobe na hora e atende com a lista fixa; o `sinaliza-t1` chega em 10 a 20 s (a primeira vez baixa 864 MB do MLflow para o volume `modelcache`). Acompanhe em `http://localhost:8000/health` (campo `model`).
 - A API precisa do modelo já registrado no MLflow (`sinaliza-t1`, criado pelo teste final do `treino_t1`). Sem ele, ou se o MLflow estiver fora, ela segue com `model_version: "lista-fixa"` e tenta de novo a cada 30 s.
 - **Memória:** pico de ~2,8 GB na carga e ~1,26 GB depois. Suba a API **antes** do Airflow (ver a ordem e as medidas acima). Sem memória para o pico, use `SINALIZA_USE_MODEL=false`.
-- Simulador (no host, com o venv do ML): `textgloss/.venv/Scripts/python -m textgloss.simulador --n 30 --intervalo 1` (opções: `--url`, `--fonte frases|corpus`). Depois `docker compose exec airflow airflow dags trigger monitoramento` (ou `python -m textgloss.monitor` com `SINALIZA_DATABASE_URL`) consolida em `indicadores_horarios`.
+- Simulador (no host, com o venv do ML): `.venv/Scripts/python -m textgloss.simulador --n 30 --intervalo 1` (opções: `--url`, `--fonte frases|corpus`). Depois `docker compose exec airflow airflow dags trigger monitoramento` (ou `python -m textgloss.monitor` com `SINALIZA_DATABASE_URL`) consolida em `indicadores_horarios`.
 - O texto das frases só é gravado para o simulador; para os demais, só números. Ver [`16`](16-riscos-e-questoes-abertas.md).
 
 ## API

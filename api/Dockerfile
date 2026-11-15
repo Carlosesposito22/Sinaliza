@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir -r requirements-ml.txt \
 
 COPY api/app ./app
 # Só o que a API usa do pacote de ML: config, atributos do spaCy, inferência e o esquema de `inferencias`.
-COPY textgloss/__init__.py textgloss/config.py textgloss/features.py textgloss/infer.py textgloss/monitor.py ./textgloss/
+COPY src/textgloss/__init__.py src/textgloss/config.py src/textgloss/features.py src/textgloss/infer.py src/textgloss/monitor.py ./textgloss/
 COPY data/vocabulary.json data/phrases.json ./data/
 
 EXPOSE 8000

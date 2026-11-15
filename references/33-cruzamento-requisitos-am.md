@@ -22,7 +22,7 @@ As duas listas técnicas são praticamente a mesma (o professor diz que a de AM 
 
 | Requisito de AM | Situação | Evidência / o que falta |
 | --- | --- | --- |
-| Leitura do bootstrap dataset | ✅ | VLibrasBD, 127.349 linhas no Postgres, hash conferido (`textgloss/ingest.py`, DAG `vlibrasbd_ingestao`) |
+| Leitura do bootstrap dataset | ✅ | VLibrasBD, 127.349 linhas no Postgres, hash conferido (`src/textgloss/ingest.py`, DAG `vlibrasbd_ingestao`) |
 | EDA em notebook | ✅ | `notebooks/01-eda-vlibrasbd.ipynb` |
 | Estatísticas descritivas | ✅ | Seção 1.1 do notebook 01 (2026-11-14): média, desvio, quartis, P95 e assimetria do tamanho das frases, das glosas e da compressão, por domínio; atributos numéricos e categóricos das palavras |
 | Tratamento (limpeza, normalização, encoding, ausentes) com justificativa | ✅ | `notebooks/02-preparacao.ipynb` |
@@ -122,7 +122,7 @@ Verificado em 2026-11-14 com a pilha real (`docker compose up -d --build`, 10 se
 | Nome da solução | ✅ | Sinaliza |
 | Instruções detalhadas para compilar e executar | ✅ | Seção "Como rodar" do README: um comando (`docker compose up -d --build`), serviços e endereços, perfil `demo`; detalhes em `14-como-rodar-e-testar.md` |
 | Descrição + link do Google Sites | ✅ (2026-11-15) | Link no topo do README |
-| Estrutura de pastas sugerida | ✅ (2026-11-15; ajustes permitidos) | README tem a tabela "Estrutura sugerida pela cadeira de AM e onde está aqui"; `reports/` existe (figuras) e `requirements.txt` na raiz junta os dos componentes (208 pacotes resolvem sem conflito). Não renomeamos pastas: `textgloss` aparece em 36 arquivos |
+| Estrutura de pastas sugerida | ✅ (2026-11-15, à risca) | O repositório segue a árvore da especificação: `data/`, `notebooks/`, `src/` (pacote `textgloss`), `embedded/`, `dags/`, `api/`, `app/` (painel), `mlruns/` (artefatos do MLflow, montados no serviço), `Dockerfile` na raiz (imagem do pipeline de treino), `docker-compose.yml`, `reports/`, `requirements.txt` e `README.md`. As pastas extras estão listadas no README |
 
 ## Prioridades sugeridas
 

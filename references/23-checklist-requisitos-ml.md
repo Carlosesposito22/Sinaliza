@@ -56,8 +56,8 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] Abordagem por glosa validada com o orientador (reunião, relatada em 2026-11-02)
 - [x] Baixar o VLibrasBD (bootstrap dataset) e registrar hash/licença (2026-11-02; SHA-256 conferido; créditos em `docs/creditos-e-licencas.md`)
 - [x] Banco (Postgres) e tabela do corpus criados (serviço `postgres` no compose; `corpus_bruto`, 127.349 linhas)
-- [x] Script de ingestão do corpus no banco (`textgloss/ingest.py`)
-- [x] Simulador de uso que envia frases novas à API (2026-11-05; `textgloss/simulador.py`; hoje gera volume, a aquisição é pelos totens)
+- [x] Script de ingestão do corpus no banco (`src/textgloss/ingest.py`)
+- [x] Simulador de uso que envia frases novas à API (2026-11-05; `src/textgloss/simulador.py`; hoje gera volume, a aquisição é pelos totens)
 - [x] Sistema embarcado simulado (2026-11-14): dois totens de atendimento (`embedded/totem.py`, serviços `totem-ubs` e `totem-inss`), 6 testes
 - [x] Publicação via MQTT (2026-11-14): broker Mosquitto no compose, tópicos `sinaliza/totens/<id>/frases` (QoS 1) e `.../status` (retido, com testamento)
 - [x] Recepção e persistência (2026-11-14): `receptor/receptor.py` grava em `mensagens_mqtt` e `totens` antes de chamar a API, sem duplicatas, com novas tentativas; 10 testes. Verificado em 2026-11-14 com a pilha real (`docker compose up -d --build`, 10 serviços, ~2,7 GB): os dois totens conectaram, o receptor gravou e o `sinaliza-t1/1` inferiu cada frase (ponta a ponta de 0,2 a 0,7 s); 3 mensagens publicadas com o receptor parado chegaram quando ele voltou (sessão persistente); um totem morto com `docker kill` apareceu `offline` em ~1 s (testamento); `python -m textgloss.demo` passou 8 de 8.
@@ -67,13 +67,13 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
 > Implementação do pipeline de dados. A equipe deverá desenvolver um fluxo automatizado utilizando Apache Airflow para orquestrar as etapas de ingestão, preparação e disponibilização dos dados para treinamento do modelo. A entrega deverá incluir um notebook contendo a análise exploratória (EDA) do bootstrap dataset, as etapas de preparação dos dados (limpeza, normalização, encoding, tratamento de valores ausentes etc.) e a justificativa das principais decisões adotadas.
 
-- [x] DAG de ingestão (`vlibrasbd_ingestao`, 2026-11-05; `pipeline/dags/vlibrasbd_ingestao.py`; rodou no Airflow: baixou, conferiu o hash e carregou 127.349 linhas, e disparou a preparação)
-- [x] DAG de preparação (`preparacao_t1`, 2026-11-05; `pipeline/dags/preparacao_t1.py`; rodou no Airflow com `limite` 3.000 e gerou os conjuntos e `palavras_t1`; a execução completa não foi refeita, pois os dados reais de 2026-11-02 já existem)
+- [x] DAG de ingestão (`vlibrasbd_ingestao`, 2026-11-05; `dags/vlibrasbd_ingestao.py`; rodou no Airflow: baixou, conferiu o hash e carregou 127.349 linhas, e disparou a preparação)
+- [x] DAG de preparação (`preparacao_t1`, 2026-11-05; `dags/preparacao_t1.py`; rodou no Airflow com `limite` 3.000 e gerou os conjuntos e `palavras_t1`; a execução completa não foi refeita, pois os dados reais de 2026-11-02 já existem)
 - [x] DAG de treino (`treino_t1`, 2026-11-05; baseline → comparação → Optuna → validação cruzada → teste final com `--se-pendente`; rodou até a validação cruzada numa amostra pequena e num experimento descartável; o teste final foi pulado de propósito)
 - [x] Notebook 01: EDA do VLibrasBD (`notebooks/01-eda-vlibrasbd.ipynb`, executado)
 - [x] EDA reforçada para a cadeira de AM (2026-11-14): estatísticas descritivas (seção 1.1) e 9 figuras numeradas com interpretação; figuras salvas em `reports/figuras/`
 - [x] Notebook 02: preparação (limpeza, normalização, encoding, ausentes) com justificativas (`notebooks/02-preparacao.ipynb`, executado)
-- [x] Rotulagem T1 por alinhamento de lemas (`textgloss/align.py`)
+- [x] Rotulagem T1 por alinhamento de lemas (`src/textgloss/align.py`)
 - [x] Conferência manual de 200 rótulos e taxa de ruído. **Feito pela equipe em 2026-11-14**: `data/conferencia/amostra_conferencia_200_revisada.csv`, com o motivo de cada correção. Ruído: rótulo `MANTER` 1% (IC 95% 0,2–5,4%), rótulo `DESCARTAR` 16% (10,1–24,4%), taxa geral ponderada **8,1%** (4,6–11,7%). Análise na seção 8 do notebook 02.
 - [x] Divisão treino/teste agrupada por frase (90/10, por domínio, semente fixa)
 - [x] Dados preparados disponibilizados para o treino (`palavras.parquet` e tabela `palavras_t1`)
@@ -87,7 +87,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] Justificativa escrita da escolha (`references/25-baseline-t1.md`)
 - [x] Métricas em conjunto de validação (F1-macro 0,876; ROC-AUC 0,944)
 - [x] Parâmetros, métricas e artefatos registrados no MLflow (experimento `sinaliza-t1-01-baseline`; até 2026-11-14 era o experimento único `t1-manter-descartar`)
-- [x] Múltiplos experimentos, como pede a cadeira de AM (2026-11-15): `sinaliza-t1-01-baseline`, `-02-comparacao-de-modelos`, `-03-otimizacao-de-hiperparametros` e `-04-validacao-e-teste-final`. As 39 runs foram movidas sem retreino (`textgloss/separar_experimentos.py`, backup do banco antes); o modelo registrado, os artefatos e a trava do teste final continuam funcionando; o código (`train`, `tune`, `validate`), os notebooks 03 a 05 e o painel usam os experimentos novos; 5 testes novos
+- [x] Múltiplos experimentos, como pede a cadeira de AM (2026-11-15): `sinaliza-t1-01-baseline`, `-02-comparacao-de-modelos`, `-03-otimizacao-de-hiperparametros` e `-04-validacao-e-teste-final`. As 39 runs foram movidas sem retreino (`src/textgloss/separar_experimentos.py`, backup do banco antes); o modelo registrado, os artefatos e a trava do teste final continuam funcionando; o código (`train`, `tune`, `validate`), os notebooks 03 a 05 e o painel usam os experimentos novos; 5 testes novos
 
 ## 4. Comparação de modelos
 
@@ -128,7 +128,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 > Integração do modelo treinado à infraestrutura de aquisição de dados. A equipe deverá integrar o modelo treinado à infraestrutura de aquisição de dados, demonstrando que o pipeline é capaz de consumir automaticamente novos dados provenientes do sistema embarcado (ou simulador), executar as etapas de processamento necessárias e produzir inferências utilizando o modelo validado.
 
 - [x] Modelo carregado do MLflow pela API (2026-11-05; `sinaliza-t1/1`, 864 MB, em segundo plano, com plano B)
-- [x] Classificador em `textgloss/infer.py` usado no `/translate` (2026-11-05; campos `decision`, `probability`, `model_version`, `latency_ms` do contrato v1)
+- [x] Classificador em `src/textgloss/infer.py` usado no `/translate` (2026-11-05; campos `decision`, `probability`, `model_version`, `latency_ms` do contrato v1)
 - [x] Frases novas (do simulador) gravadas no banco (2026-11-05)
 - [x] DAG `monitoramento` consome novas frases, processa e grava inferências (2026-11-05; `monitor.py` consolidou as 25 frases reais do simulador; o DAG do Airflow também consolidou 20 frases reais do simulador na pilha completa, em 2026-11-05)
 - [x] Dados do embarcado consumidos automaticamente (2026-11-14): totem → MQTT → receptor → API (modelo T1) → `inferencias` → DAG `monitoramento`, sem intervenção.
@@ -141,7 +141,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] Serviços `api` e `web` (verificado em 2026-10-19; falta reverificar com a versão final)
 - [x] `postgres` (compose, healthcheck; 2026-11-02)
 - [x] `mlflow` (compose, backend no Postgres; 2026-11-02)
-- [x] `airflow` (compose + `airflow/Dockerfile`, Airflow 3.1.5 standalone, 2026-11-05; 4 DAGs carregam sem erro)
+- [x] `airflow` (compose + `Dockerfile`, Airflow 3.1.5 standalone, 2026-11-05; 4 DAGs carregam sem erro)
 - [x] `dashboard` (2026-11-07; porta 8501, depende de postgres e mlflow saudáveis)
 - [x] `mosquitto`, `receptor`, `totem-ubs` e `totem-inss` (2026-11-14; os totens só publicam depois que o receptor assinou os tópicos)
 - [x] Ordem de subida com healthchecks (postgres → mlflow → api `/ready` → airflow e web; 2026-11-07)
@@ -155,7 +155,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 
 > Desenvolvimento de um dashboard integrado à solução, capaz de consumir dados provenientes da infraestrutura de aquisição (via MQTT e/ou API), apresentar indicadores relevantes da aplicação, visualizar as inferências realizadas pelo modelo e monitorar o funcionamento da solução em tempo de execução.
 
-- [x] Painel (Streamlit) consumindo API e banco (2026-11-07; `dashboard/`, serviço `dashboard` no compose, http://localhost:8501; lê Postgres, API, MLflow e Airflow)
+- [x] Painel (Streamlit) consumindo API e banco (2026-11-07; `app/`, serviço `dashboard` no compose, http://localhost:8501; lê Postgres, API, MLflow e Airflow)
 - [x] Indicadores relevantes da aplicação (frases e latência por hora, % mantidas, % sem sinal, % incertas, latência p95, frases pendentes)
 - [x] Visualização das inferências do modelo (últimas frases com a decisão de cada palavra e a sequência de sinais, histograma da probabilidade, baixa confiança, palavras sem sinal)
 - [x] Versão do modelo e métricas do último treino (lidas do MLflow: teste final do `sinaliza-t1`, comparação dos modelos; conferido com os valores reais 0,885 e +0,062 sobre a lista fixa)

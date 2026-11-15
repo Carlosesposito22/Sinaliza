@@ -1,10 +1,12 @@
-# Airflow (orquestrador) + um ambiente Python separado com o pacote `textgloss` (o ML do projeto).
+# Imagem do pipeline de dados e de treino: Airflow (orquestrador) + um ambiente Python separado com o pacote
+# `textgloss` (src/, o código de treinamento). É o `Dockerfile` da raiz da estrutura sugerida pela cadeira de AM;
+# os demais serviços têm o próprio Dockerfile na pasta de cada um (api/, app/, embedded/, receptor/, web/, mlflow/).
 # O ambiente do ML fica num venv à parte para as dependências dele (scikit-learn, spaCy, MLflow,
 # Optuna) não brigarem com as do Airflow. As tarefas dos DAGs chamam /opt/airflow/venv-ml/bin/python.
 # Contexto de build: a raiz do repositório.
 FROM apache/airflow:3.1.5-python3.12
 
-COPY textgloss/requirements.txt /tmp/requirements-ml.txt
+COPY src/textgloss/requirements.txt /tmp/requirements-ml.txt
 # jupyter, nbconvert e pytest são só do notebook e dos testes locais.
 RUN python -m venv /opt/airflow/venv-ml \
     && grep -viE '^(jupyter|nbconvert|pytest)' /tmp/requirements-ml.txt > /tmp/requirements-pipeline.txt \

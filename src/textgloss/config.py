@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 
-ROOT = Path(os.environ.get("SINALIZA_ROOT", Path(__file__).resolve().parents[1]))
+ROOT = Path(os.environ.get("SINALIZA_ROOT", Path(__file__).resolve().parents[2]))
 RAW_DIR = ROOT / "data" / "raw" / "vlibrasbd"
 PROCESSED_DIR = ROOT / "data" / "processed" / "vlibrasbd"
 

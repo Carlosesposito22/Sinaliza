@@ -67,5 +67,5 @@ Experimento `sinaliza-t1-03-otimizacao-de-hiperparametros`: run pai `optuna-rand
 Com `docker compose up -d postgres mlflow` e a preparação feita (demora cerca de 40 minutos, quase todo no reajuste final):
 
 ```bash
-textgloss/.venv/Scripts/python -m textgloss.tune
+.venv/Scripts/python -m textgloss.tune
 ```

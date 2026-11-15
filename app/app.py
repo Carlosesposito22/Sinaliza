@@ -5,7 +5,7 @@ a API, o MLflow, o Airflow e o broker MQTT.
 O que o modelo faz: decide, palavra por palavra, se ela vira sinal (MANTER) ou não (DESCARTAR). A saída da API é uma
 sequência de sinais, não uma tradução de Libras.
 
-Rodar: streamlit run app.py (ou o serviço `dashboard` do compose, http://localhost:8501).
+Rodar: streamlit run app.py (pasta app/, serviço `dashboard` do compose, http://localhost:8501).
 """
 from __future__ import annotations
 

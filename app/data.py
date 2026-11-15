@@ -2,7 +2,7 @@
 
 ETAPA: visualização (sem ML novo). Só lê. As tabelas `mensagens_mqtt` e `totens` (aquisição pelos totens via
 MQTT) vêm de `receptor/receptor.py`. As tabelas `inferencias` (uma linha por frase atendida pela API) e
-`indicadores_horarios` (consolidação do DAG `monitoramento`) vêm de `textgloss/monitor.py`; o modelo e as métricas
+`indicadores_horarios` (consolidação do DAG `monitoramento`) vêm de `src/textgloss/monitor.py`; o modelo e as métricas
 vêm do MLflow; o estado dos serviços vem de chamadas a cada um.
 
 PRIVACIDADE: o texto e as palavras só existem nas linhas em que a API os gravou (simulador ou opt-in) e somem
