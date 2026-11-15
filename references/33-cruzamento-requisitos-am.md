@@ -118,11 +118,11 @@ Verificado em 2026-11-14 com a pilha real (`docker compose up -d --build`, 10 se
 
 | Requisito de AM | Situação | O que falta |
 | --- | --- | --- |
-| Nomes e sobrenomes dos membros + usuários do GitHub | ❌ | O README não lista a equipe (ela está em `00-visao-geral.md`, sem os @ do GitHub) |
+| Nomes e sobrenomes dos membros + usuários do GitHub | ✅ (2026-11-15) | Seção "Equipe" do README, com foto, nome e @ do GitHub dos 6 |
 | Nome da solução | ✅ | Sinaliza |
-| Instruções detalhadas para compilar e executar | 🟡 | Estão em `14-como-rodar-e-testar.md`; trazer o essencial (um comando + pré-requisitos) para o README |
-| Descrição + link do Google Sites | 🟡 | Descrição existe; **falta o link do Google Sites** |
-| Estrutura de pastas sugerida | 🟡 (é sugestão, ajustes permitidos) | Temos `textgloss/` (≈ `src/`), `pipeline/dags/` (≈ `dags/`), `dashboard/` (≈ `app/`). Faltam `reports/` e, com o MQTT, `embedded/`. Basta uma tabela no README mapeando nossa estrutura para a sugerida. Não há `requirements.txt` na raiz (cada componente tem o seu); explicar no README |
+| Instruções detalhadas para compilar e executar | ✅ | Seção "Como rodar" do README: um comando (`docker compose up -d --build`), serviços e endereços, perfil `demo`; detalhes em `14-como-rodar-e-testar.md` |
+| Descrição + link do Google Sites | ✅ (2026-11-15) | Link no topo do README |
+| Estrutura de pastas sugerida | ✅ (2026-11-15; ajustes permitidos) | README tem a tabela "Estrutura sugerida pela cadeira de AM e onde está aqui"; `reports/` existe (figuras) e `requirements.txt` na raiz junta os dos componentes (208 pacotes resolvem sem conflito). Não renomeamos pastas: `textgloss` aparece em 36 arquivos |
 
 ## Prioridades sugeridas
 
@@ -130,6 +130,6 @@ Verificado em 2026-11-14 com a pilha real (`docker compose up -d --build`, 10 se
 2. ~~Embarcado simulado + MQTT~~ (feito em 2026-11-14).
 3. ~~EDA: ≥ 5 visualizações e estatísticas descritivas~~ (feito em 2026-11-14).
 4. ~~Justificativas de LOO e Optuna~~ (feito em 2026-11-14). Resta conferir os experimentos no MLflow (bloco MLOps).
-5. **README**: membros com @ do GitHub, link do Google Sites, como executar, mapa de pastas; criar `reports/`.
+5. ~~README: membros, Google Sites, mapa de pastas, `reports/`~~ (feito em 2026-11-15). Falta só o PDF do relatório em `reports/`.
 6. Pendências antigas que seguem valendo: perfil `completo`, ensaio, 3 números do slide 5 (1%, 16% e 8,1%).
 7. Perguntar ao professor: os 10% que faltam nos pesos; se o template no Google Docs exportado em PDF é aceito.
