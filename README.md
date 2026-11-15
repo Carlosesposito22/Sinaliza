@@ -4,6 +4,21 @@ Projeto de Projetos 6 (Grupo 10). Recebe **texto em português** e mostra a **se
 
 > **O machine learning** do projeto é um classificador, treinado por nós, que decide **palavra por palavra** se ela vira sinal (`MANTER` ou `DESCARTAR`). Ele supera a lista fixa que a API usava antes: F1-macro **0,885** contra **0,823** no teste final. O restante (tabela do vocabulário, lema, aproximação, player do VLibras) é regra ou externo.
 
+**Site do projeto (Google Sites):** https://sites.google.com/cesar.school/sinaliza/in%C3%ADcio
+
+## Equipe (Grupo 10, CESAR School)
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/equipe/amanda-montarroyos.jpg" width="110" alt="Amanda Montarroyos"><br><b>Amanda Montarroyos</b><br><a href="https://github.com/amanda-montarroios">@amanda-montarroios</a></td>
+    <td align="center"><img src="docs/equipe/bruno-assuncao.jpg" width="110" alt="Bruno Assunção"><br><b>Bruno Assunção</b><br><a href="https://github.com/brunooassuncao">@brunooassuncao</a></td>
+    <td align="center"><img src="docs/equipe/caio-ferreira.jpg" width="110" alt="Caio Ferreira"><br><b>Caio Ferreira</b><br><a href="https://github.com/CaioLira18">@CaioLira18</a></td>
+    <td align="center"><img src="docs/equipe/carlos-eduardo.jpg" width="110" alt="Carlos Eduardo"><br><b>Carlos Eduardo</b><br><a href="https://github.com/Carlosesposito22">@Carlosesposito22</a></td>
+    <td align="center"><img src="docs/equipe/fabiana-coelho.jpg" width="110" alt="Fabiana Coelho"><br><b>Fabiana Coelho</b><br><a href="https://github.com/fabianacoelhoo">@fabianacoelhoo</a></td>
+    <td align="center"><img src="docs/equipe/felipe-marques.jpg" width="110" alt="Felipe Marques"><br><b>Felipe Marques</b><br><a href="https://github.com/Felipemmdo">@Felipemmdo</a></td>
+  </tr>
+</table>
+
 ## Leia primeiro (documentação do ML)
 
 | Para quê | Documento |
