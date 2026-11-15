@@ -4,6 +4,31 @@ Entregável 6 do [checklist](23-checklist-requisitos-ml.md). Análise completa, 
 
 **Onde está o ML:** avaliamos os dois melhores modelos treinados por nós, a **Regressão Logística** (0,876 na validação) e o **Random Forest otimizado** (0,884), quanto a estabilidade, sobreajuste e generalização. O teste final foi usado **uma única vez**, para o Random Forest otimizado (escolha do grupo, 2026-11-02).
 
+## Estratégia de validação e por que ela foi escolhida
+
+A especificação de AM pede holdout, validação cruzada (k-fold ou estratificada) e Leave-One-Out "quando aplicável", com a estratégia justificada. O que usamos em cada camada:
+
+| Camada | O que é | Para quê |
+| --- | --- | --- |
+| **Holdout de teste** | 10% das **frases**, sorteadas dentro de cada domínio (geral e governo), semente 42 (`prepare.split_by_sentence`). 12.732 frases, 160.897 palavras | Estimativa final, usada **uma única vez** (o código recusa uma segunda execução) |
+| **Holdout de validação** | 10% das frases do treino (`GroupShuffleSplit` por `frase_id`, semente 42). 1.309.032 palavras de ajuste, 145.336 de validação | Comparar modelos (fases 3 e 4) sem tocar no teste |
+| **Validação cruzada** | `StratifiedGroupKFold`, k=5 (k=3 dentro do Optuna), agrupada por frase e estratificada pelo rótulo | Medir a estabilidade e escolher hiperparâmetros |
+| **Fora do domínio** | Treina num domínio e avalia no outro (é um *leave-one-group-out* com os dois domínios como grupos) | Medir a generalização para texto de outro assunto |
+
+**Por que agrupar por frase.** As palavras de uma mesma frase são muito parecidas entre si (mesma estrutura, mesmos vizinhos, mesmo `tam_frase`). Se a divisão fosse por palavra, o modelo veria no treino as vizinhas de cada palavra da validação e o resultado sairia otimista. Por isso **toda** divisão (teste, validação, dobras) é feita por frase.
+
+**Por que estratificar.** As classes estão quase equilibradas (52,5% `MANTER`, notebook 01), mas a estratificação garante a mesma proporção em todas as dobras e reduz a variância da comparação entre elas sem custo extra.
+
+**Por que k=5.** Com ~25 mil frases por amostra, cada dobra de validação tem ~5 mil frases (~64 mil palavras), o bastante para estimar o F1-macro com pouca variância, e 5 treinos do Random Forest otimizado cabem no tempo disponível. No Optuna usamos k=3 porque são 25 tentativas × k treinos.
+
+**Por que não usamos Leave-One-Out (não se aplica).** O LOO treina um modelo por exemplo e testa só nele. Ele faz sentido em bases pequenas, onde cada exemplo deixado de fora pesa no treino. Aqui não se aplica por três motivos:
+
+1. **Custo inviável.** São 1,3 milhão de palavras de ajuste, ou seja, 1,3 milhão de treinos. Só com a Regressão Logística (41 s por treino) seriam cerca de 1,7 ano de processamento; com o Random Forest otimizado (~25 min por treino), mais de 60 anos. Mesmo a versão por frase (*leave-one-sentence-out*, ~115 mil grupos) é inviável.
+2. **Vazamento.** O LOO por palavra deixaria as outras palavras da mesma frase no treino, justamente o vazamento que o agrupamento evita.
+3. **Sem ganho estatístico.** O LOO serve para reduzir o viés da estimativa quando há poucos dados. Com centenas de milhares de exemplos, o k-fold já tem viés e variância desprezíveis: o desvio entre dobras foi de **0,0013** (cerca de 0,15% da média) e o teste final (0,885) bateu com a validação (0,884).
+
+O que a ideia do LOO traria (avaliar em algo que o modelo nunca viu, um grupo de cada vez) já está coberto, na escala certa, pelo agrupamento por frase e pelo teste **fora do domínio**, que é um *leave-one-group-out* com os domínios como grupos.
+
 ## Resultados
 
 ### Validação cruzada (k=5, `StratifiedGroupKFold` agrupada por frase)
