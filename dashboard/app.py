@@ -250,7 +250,7 @@ def model_tab(config: data.Config, tokens: dict) -> None:
     st.subheader("Comparação dos modelos treinados (validação)")
     comparison = data.training_comparison(config.mlflow_url, config.experiment)
     if comparison.empty:
-        st.info("Sem runs de treino no MLflow para o experimento configurado.")
+        st.info("Sem runs de treino nos experimentos do MLflow (baseline, comparação e otimização).")
     else:
         show(charts.comparacao_modelos(comparison, tokens))
         st.caption("A lista fixa é a referência sem ML (o que a API fazia antes do modelo). O modelo escolhido está em azul.")

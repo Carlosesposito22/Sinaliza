@@ -214,7 +214,9 @@ def test_registered_model_reads_the_latest_version_and_its_run(server):
 
 
 def test_training_comparison_keeps_the_latest_run_of_each_model_and_marks_the_fixed_list(server):
-    ROUTES["/api/2.0/mlflow/experiments/get-by-name?experiment_name=t1"] = (200, {"experiment": {"experiment_id": "7"}})
+    # Um experimento por etapa; o de otimização ainda não existe aqui (404) e não atrapalha.
+    ROUTES["/api/2.0/mlflow/experiments/get-by-name?experiment_name=t1-01-baseline"] = (200, {"experiment": {"experiment_id": "7"}})
+    ROUTES["/api/2.0/mlflow/experiments/get-by-name?experiment_name=t1-02-comparacao-de-modelos"] = (200, {"experiment": {"experiment_id": "8"}})
     ROUTES["/api/2.0/mlflow/runs/search"] = (200, {"runs": [
         mlflow_run("random-forest-otimizado", "otimizacao", {"f1_macro_val": 0.884}),
         mlflow_run("random-forest-otimizado", "otimizacao", {"f1_macro_val": 0.1}),  # mais antiga: ignorada
@@ -244,4 +246,4 @@ def test_config_reads_the_environment(monkeypatch):
     monkeypatch.setenv("MLFLOW_TRACKING_URI", "http://mlflow:5000")
     config = data.Config.from_env()
     assert config.api_url == "http://api:8000" and config.mlflow_url == "http://mlflow:5000"
-    assert config.airflow_url == "" and config.experiment == "t1-manter-descartar"
+    assert config.airflow_url == "" and config.experiment == "sinaliza-t1"
