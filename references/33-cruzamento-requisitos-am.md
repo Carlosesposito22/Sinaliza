@@ -12,7 +12,7 @@ As duas listas técnicas são praticamente a mesma (o professor diz que a de AM 
 | --- | --- | --- |
 | Análise de Dados (15%) | ✅ (2026-11-14) | Nada |
 | Modelagem e Validação (30%) | ✅ completo (2026-11-14) | Nada técnico. Falta só levar ao relatório SBC |
-| MLOps (25%) | 🟡 quase | Embarcado simulado + MQTT feitos em 2026-11-14. Falta conferir "múltiplos experimentos" no MLflow e registrar o perfil `completo` |
+| MLOps (25%) | ✅ (2026-11-15) | Embarcado + MQTT e os 4 experimentos feitos. Opcional: registrar o perfil `completo` |
 | Comunicação (20%) | ❌ | **Relatório no template SBC não existe** |
 | (10% não declarados) | ? | Os pesos somam 90%; provavelmente a apresentação final. Perguntar ao professor |
 
@@ -58,8 +58,8 @@ As duas listas técnicas são praticamente a mesma (o professor diz que a de AM 
 
 | Requisito de AM | Situação | Evidência / o que falta |
 | --- | --- | --- |
-| Parâmetros, métricas, artefatos | ✅ | Experimento `t1-manter-descartar` |
-| Múltiplos experimentos (baseline, comparação, otimização) | 🟡 | Os três existem como **runs** (inclusive o pai `optuna-random-forest` com 25 filhas). **A conferir** se estão num único experimento do MLflow. Se estiverem, ou separar em três experimentos, ou deixar claro no relatório com captura da tela do MLflow mostrando os três grupos |
+| Parâmetros, métricas, artefatos | ✅ | Em todas as runs dos 4 experimentos |
+| Múltiplos experimentos (baseline, comparação, otimização) | ✅ (2026-11-15) | Um experimento por etapa: `sinaliza-t1-01-baseline`, `sinaliza-t1-02-comparacao-de-modelos`, `sinaliza-t1-03-otimizacao-de-hiperparametros` e `sinaliza-t1-04-validacao-e-teste-final` (2, 4, 27 e 6 runs). As runs foram movidas do antigo experimento único sem retreino (`python -m textgloss.separar_experimentos`, com backup do banco); o código novo já grava em cada um |
 | Salvamento do modelo | ✅ | Model Registry `sinaliza-t1` v1, usado pela API |
 
 ### Dashboard
@@ -129,7 +129,7 @@ Verificado em 2026-11-14 com a pilha real (`docker compose up -d --build`, 10 se
 1. **Relatório SBC** (20%, ❌, nada começado). Maior risco de nota.
 2. ~~Embarcado simulado + MQTT~~ (feito em 2026-11-14).
 3. ~~EDA: ≥ 5 visualizações e estatísticas descritivas~~ (feito em 2026-11-14).
-4. ~~Justificativas de LOO e Optuna~~ (feito em 2026-11-14). Resta conferir os experimentos no MLflow (bloco MLOps).
+4. ~~Justificativas de LOO e Optuna~~ e ~~experimentos separados no MLflow~~ (feitos em 2026-11-14 e 2026-11-15).
 5. ~~README: membros, Google Sites, mapa de pastas, `reports/`~~ (feito em 2026-11-15). Falta só o PDF do relatório em `reports/`.
 6. Pendências antigas que seguem valendo: perfil `completo`, ensaio, 3 números do slide 5 (1%, 16% e 8,1%).
 7. Perguntar ao professor: os 10% que faltam nos pesos; se o template no Google Docs exportado em PDF é aceito.

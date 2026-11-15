@@ -28,9 +28,8 @@ MODELS = ("regressao-logistica", "random-forest-otimizado")
 def best_forest_params() -> dict:
     """Melhores parâmetros achados pelo Optuna, lidos da run do estudo no MLflow."""
     client = mlflow.MlflowClient()
-    experiment = client.get_experiment_by_name(train.EXPERIMENT).experiment_id
     study = client.search_runs(
-        [experiment], filter_string="tags.modelo = 'optuna-estudo' and attributes.status = 'FINISHED'",
+        train.experiment_ids("otimizacao"), filter_string="tags.modelo = 'optuna-estudo' and attributes.status = 'FINISHED'",
         order_by=["attributes.start_time DESC"],
     )[0]
     path = mlflow.artifacts.download_artifacts(
@@ -64,7 +63,7 @@ def fit_score(name: str, fit: pd.DataFrame, evals: dict) -> tuple[dict, float]:
 def cv(sentences: int = CV_SENTENCES, models: tuple = MODELS) -> pd.DataFrame:
     """Validação cruzada k=5 agrupada por frase, sobre uma amostra de frases do conjunto de treino."""
     mlflow.set_tracking_uri(train.TRACKING_URI)
-    mlflow.set_experiment(train.EXPERIMENT)
+    train.use_experiment("validacao")
     words = modeling.load_words()
     pool = words[words["split"] == "treino"]
     unique = pool["frase_id"].drop_duplicates()
@@ -110,7 +109,7 @@ def cv(sentences: int = CV_SENTENCES, models: tuple = MODELS) -> pd.DataFrame:
 def curva(models: tuple = MODELS) -> pd.DataFrame:
     """Curva de aprendizado: treino em frações crescentes das frases de ajuste, avaliação na validação fixa."""
     mlflow.set_tracking_uri(train.TRACKING_URI)
-    mlflow.set_experiment(train.EXPERIMENT)
+    train.use_experiment("validacao")
     fit, val = modeling.train_validation(modeling.load_words())
     sentences = fit["frase_id"].drop_duplicates().sample(frac=1.0, random_state=config.SEED).to_numpy()
     runs = train.latest_runs()
@@ -146,7 +145,7 @@ def curva(models: tuple = MODELS) -> pd.DataFrame:
 def dominio(models: tuple = MODELS) -> pd.DataFrame:
     """Treina num domínio (geral ou governo) e avalia nos dois: mede a queda fora do domínio."""
     mlflow.set_tracking_uri(train.TRACKING_URI)
-    mlflow.set_experiment(train.EXPERIMENT)
+    train.use_experiment("validacao")
     fit, val = modeling.train_validation(modeling.load_words())
     names = {False: "geral", True: "governo"}
     rows = []
@@ -174,14 +173,21 @@ def dominio(models: tuple = MODELS) -> pd.DataFrame:
     return table
 
 
+def all_t1_experiment_ids() -> list[str]:
+    """Os experimentos das 4 etapas e o antigo experimento único (se ainda existir), para a trava do teste final."""
+    ids = train.experiment_ids()
+    legacy = mlflow.MlflowClient().get_experiment_by_name(train.LEGACY_EXPERIMENT)
+    return ids + ([legacy.experiment_id] if legacy is not None else [])
+
+
 def teste_final_executado() -> bool:
-    """True se já existe uma run do teste final no experimento (ele só pode rodar uma vez)."""
+    """True se já existe uma run do teste final (ele só pode rodar uma vez). Procura em TODOS os experimentos do T1,
+    não só no de validação, para que mover runs entre experimentos nunca libere um segundo teste final."""
     mlflow.set_tracking_uri(train.TRACKING_URI)
-    client = mlflow.MlflowClient()
-    experiment = client.get_experiment_by_name(train.EXPERIMENT)
-    if experiment is None:
+    ids = all_t1_experiment_ids()
+    if not ids:
         return False
-    return bool(client.search_runs([experiment.experiment_id], filter_string="tags.etapa = 'teste-final'", max_results=1))
+    return bool(mlflow.MlflowClient().search_runs(ids, filter_string="tags.etapa = 'teste-final'", max_results=1))
 
 
 def teste_final(name: str) -> dict:
@@ -190,10 +196,8 @@ def teste_final(name: str) -> dict:
     A lista fixa roda no mesmo conjunto. O modelo é registrado no Model Registry do MLflow.
     """
     mlflow.set_tracking_uri(train.TRACKING_URI)
-    mlflow.set_experiment(train.EXPERIMENT)
-    client = mlflow.MlflowClient()
-    experiment = client.get_experiment_by_name(train.EXPERIMENT).experiment_id
-    done = client.search_runs([experiment], filter_string="tags.etapa = 'teste-final'")
+    train.use_experiment("validacao")
+    done = mlflow.MlflowClient().search_runs(all_t1_experiment_ids(), filter_string="tags.etapa = 'teste-final'")
     if done:
         raise SystemExit("O teste final já foi executado; ele só pode rodar uma vez (run " + done[0].info.run_id + ").")
 

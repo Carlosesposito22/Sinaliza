@@ -26,7 +26,46 @@ from sklearn.tree import DecisionTreeClassifier
 
 from . import config, modeling
 
-EXPERIMENT = os.environ.get("SINALIZA_MLFLOW_EXPERIMENT", "t1-manter-descartar")
+# Um experimento do MLflow por etapa, como pede a especificação de AM ("múltiplos experimentos: baseline, comparação de
+# modelos e otimização de hiperparâmetros"). O prefixo pode mudar para testes descartáveis (SINALIZA_MLFLOW_PREFIXO).
+PREFIX = os.environ.get("SINALIZA_MLFLOW_PREFIXO", "sinaliza-t1")
+STAGES = {
+    "baseline": "01-baseline",
+    "comparacao": "02-comparacao-de-modelos",
+    "otimizacao": "03-otimizacao-de-hiperparametros",
+    "validacao": "04-validacao-e-teste-final",
+}
+# Descrição que aparece no MLflow (nota do experimento).
+DESCRIPTIONS = {
+    "baseline": "Baseline do T1: Regressão Logística e a lista fixa (referência sem ML). Ver references/25.",
+    "comparacao": "Comparação de modelos: Árvore de Decisão, Random Forest e KNN, e a run-resumo com as curvas. Ver references/26.",
+    "otimizacao": "Otimização de hiperparâmetros do Random Forest com Optuna (run pai, 25 tentativas filhas) e o modelo otimizado. Ver references/27.",
+    "validacao": "Validação cruzada, curva de aprendizado, teste fora do domínio e o teste final (uma única vez), que registra o sinaliza-t1. Ver references/28.",
+}
+
+
+def experiment_name(stage: str) -> str:
+    return f"{PREFIX}-{STAGES[stage]}"
+
+
+def use_experiment(stage: str) -> None:
+    """Ativa o experimento da etapa (cria se não existir, com a descrição)."""
+    experiment = mlflow.set_experiment(experiment_name(stage))
+    if "mlflow.note.content" not in (experiment.tags or {}):
+        mlflow.MlflowClient().set_experiment_tag(experiment.experiment_id, "mlflow.note.content", DESCRIPTIONS[stage])
+
+
+# Experimento único usado até 2026-11-14, antes da separação por etapa. Só é consultado pela trava do teste final.
+LEGACY_EXPERIMENT = "t1-manter-descartar"
+
+
+def experiment_ids(*stages: str) -> list[str]:
+    """Ids dos experimentos das etapas pedidas (todas, se nenhuma) que já existem."""
+    client = mlflow.MlflowClient()
+    found = [client.get_experiment_by_name(experiment_name(stage)) for stage in (stages or STAGES)]
+    return [e.experiment_id for e in found if e is not None]
+
+
 TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:5000")
 KNN_SAMPLE = 200_000
 MODEL_NAMES = ["regressao-logistica", "arvore-de-decisao", "random-forest", "knn"]
@@ -166,7 +205,7 @@ def knn_model():
 
 def baseline() -> None:
     mlflow.set_tracking_uri(TRACKING_URI)
-    mlflow.set_experiment(EXPERIMENT)
+    use_experiment("baseline")
     fit, val = modeling.train_validation(modeling.load_words())
     params = dataset_params(fit, val)
     lista = run_fixed_list(val, params)
@@ -178,7 +217,7 @@ def baseline() -> None:
 def modelos() -> None:
     """Fase 4: Árvore de Decisão, Random Forest e KNN, avaliados na mesma validação do baseline."""
     mlflow.set_tracking_uri(TRACKING_URI)
-    mlflow.set_experiment(EXPERIMENT)
+    use_experiment("comparacao")
     fit, val = modeling.train_validation(modeling.load_words())
     params = dataset_params(fit, val)
     knn_fit = fit.sample(min(KNN_SAMPLE, len(fit)), random_state=config.SEED)
@@ -193,10 +232,11 @@ def modelos() -> None:
         print(name, json.dumps({k: round(v, 4) for k, v in out[name].items() if k in ("f1_macro", "roc_auc")}))
 
 
-def latest_runs() -> dict:
+def latest_runs(*stages: str) -> dict:
+    """A run mais recente de cada modelo (tag `modelo`) nos experimentos das etapas pedidas (padrão: baseline e
+    comparação, que ficam em experimentos diferentes)."""
     client = mlflow.MlflowClient()
-    experiment = client.get_experiment_by_name(EXPERIMENT)
-    runs = client.search_runs([experiment.experiment_id], filter_string="attributes.status = 'FINISHED'",
+    runs = client.search_runs(experiment_ids(*(stages or ("baseline", "comparacao"))), filter_string="attributes.status = 'FINISHED'",
                               order_by=["attributes.start_time DESC"])
     found = {}
     for run in runs:
@@ -207,7 +247,7 @@ def latest_runs() -> dict:
 def comparar() -> None:
     """Junta os modelos em uma run só: tabela de métricas e curvas ROC e PR sobrepostas."""
     mlflow.set_tracking_uri(TRACKING_URI)
-    mlflow.set_experiment(EXPERIMENT)
+    use_experiment("comparacao")
     fit, val = modeling.train_validation(modeling.load_words())
     y = val[modeling.TARGET].to_numpy()
     runs = latest_runs()

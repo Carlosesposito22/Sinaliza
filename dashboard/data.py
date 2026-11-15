@@ -59,7 +59,8 @@ class Config:
             mlflow_url=mlflow_url,
             mlflow_public_url=os.environ.get("SINALIZA_MLFLOW_PUBLIC_URL", "http://localhost:5000"),
             airflow_url=os.environ.get("SINALIZA_AIRFLOW_URL", ""),
-            experiment=os.environ.get("SINALIZA_MLFLOW_EXPERIMENT", "t1-manter-descartar"),
+            # Prefixo dos experimentos do T1 (um por etapa: <prefixo>-01-baseline, -02-comparacao-de-modelos, ...).
+            experiment=os.environ.get("SINALIZA_MLFLOW_PREFIXO", "sinaliza-t1"),
             mqtt_host=os.environ.get("MQTT_HOST", ""),
             mqtt_port=int(os.environ.get("MQTT_PORT", "1883")),
         )
@@ -518,16 +519,31 @@ def registered_model(mlflow_url: str, name: str = MODEL_NAME) -> dict | None:
     }
 
 
-def training_comparison(mlflow_url: str, experiment: str) -> pd.DataFrame:
-    """F1-macro de validação de cada modelo treinado (baseline, comparação e Random Forest otimizado).
+# Experimentos do MLflow que têm modelos comparáveis na validação (o de validação e teste final fica de fora).
+COMPARISON_EXPERIMENTS = ("01-baseline", "02-comparacao-de-modelos", "03-otimizacao-de-hiperparametros")
+
+
+def training_comparison(mlflow_url: str, prefix: str) -> pd.DataFrame:
+    """F1-macro de validação de cada modelo treinado (baseline, comparação e Random Forest otimizado), lido dos
+    experimentos `<prefixo>-01-baseline`, `-02-comparacao-de-modelos` e `-03-otimizacao-de-hiperparametros`.
 
     Linhas: modelo, etapa, f1_macro, ml (False para a lista fixa, que é a referência sem ML).
     """
     columns = ["modelo", "etapa", "f1_macro", "ml"]
+    ids = []
+    for suffix in COMPARISON_EXPERIMENTS:
+        name = urllib.parse.urlencode({"experiment_name": f"{prefix}-{suffix}"})
+        try:
+            ids.append(_mlflow(mlflow_url, f"experiments/get-by-name?{name}")["experiment"]["experiment_id"])
+        except urllib.error.HTTPError:
+            continue  # experimento ainda não criado (etapa não rodou)
+        except (urllib.error.URLError, TimeoutError, OSError, ValueError, KeyError):
+            return pd.DataFrame(columns=columns)
+    if not ids:
+        return pd.DataFrame(columns=columns)
     try:
-        found = _mlflow(mlflow_url, f"experiments/get-by-name?{urllib.parse.urlencode({'experiment_name': experiment})}")
         runs = _mlflow(mlflow_url, "runs/search", {
-            "experiment_ids": [found["experiment"]["experiment_id"]], "max_results": 500,
+            "experiment_ids": ids, "max_results": 500,
             "filter": "attributes.status = 'FINISHED'", "order_by": ["attributes.start_time DESC"],
         }).get("runs", [])
     except (urllib.error.URLError, TimeoutError, OSError, ValueError, KeyError):

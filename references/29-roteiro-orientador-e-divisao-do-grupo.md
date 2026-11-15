@@ -52,7 +52,7 @@ Cada passo tem **o que dizer** e **o que mostrar**. Tenha o MLflow aberto em htt
 ### 3. Baseline e comparação (3 min)
 
 - **Dizer:** a lista fixa tem F1-macro 0,822. A Regressão Logística (baseline) chegou a 0,876. Comparamos também Árvore de Decisão, Random Forest e KNN, todos no MLflow, com matriz de confusão, curvas ROC e análise crítica.
-- **Mostrar:** no MLflow, o experimento `t1-manter-descartar` e a run `comparacao-modelos` (curvas sobrepostas). No notebook 03, a tabela e o F1 por classe gramatical.
+- **Mostrar:** no MLflow, o experimento `sinaliza-t1-02-comparacao-de-modelos` e a run `comparacao-modelos` (curvas sobrepostas). No notebook 03, a tabela e o F1 por classe gramatical.
 
 | Modelo | F1-macro (validação) | Comentário |
 | --- | --- | --- |

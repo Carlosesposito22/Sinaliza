@@ -1,7 +1,7 @@
 """Fluxo 3: treino do T1 e registro do modelo no MLflow.
 
 ETAPA: ML nosso. Os classificadores aprendem, com os rótulos dos intérpretes do corpus, quais palavras
-viram sinal. Tudo é registrado no MLflow (experimento `t1-manter-descartar`).
+viram sinal. Tudo é registrado no MLflow, um experimento por etapa (`sinaliza-t1-01-baseline` a `-04-validacao-e-teste-final`).
 
 Ordem: baseline (Regressão Logística + lista fixa) → comparação (Árvore, Random Forest, KNN) → Optuna sobre
 o Random Forest → validação cruzada agrupada por frase → teste final e registro de `sinaliza-t1`.

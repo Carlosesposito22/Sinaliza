@@ -65,7 +65,7 @@ O que o usuário vê (a sequência de sinais) **depende do ML em um ponto**: o c
 
 ## Mapa das etapas: entrada, saída, onde roda e como reproduzir
 
-Cada linha roda no Airflow (DAG), em notebook ou na API; o comando equivalente fora do Airflow está na última coluna (na raiz do repositório, com `textgloss/.venv`). Etapas de treino registram tudo no MLflow, experimento `t1-manter-descartar`.
+Cada linha roda no Airflow (DAG), em notebook ou na API; o comando equivalente fora do Airflow está na última coluna (na raiz do repositório, com `textgloss/.venv`). Etapas de treino registram tudo no MLflow, um experimento por etapa: `sinaliza-t1-01-baseline`, `sinaliza-t1-02-comparacao-de-modelos`, `sinaliza-t1-03-otimizacao-de-hiperparametros` e `sinaliza-t1-04-validacao-e-teste-final`.
 
 | # | Etapa | Tipo | Entrada | Saída | Onde roda | Como reproduzir |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -164,7 +164,7 @@ Os quatro fluxos ficam em `pipeline/dags/` e **só chamam os módulos do `textgl
 Cuidados:
 
 - **O teste final roda uma única vez por MLflow.** A tarefa dele usa `--se-pendente`: se a run `teste-final` já existe, não treina nem registra nada e termina com sucesso. Num MLflow vazio (máquina limpa), o primeiro `treino_t1` completo cria o `sinaliza-t1` v1.
-- `SINALIZA_MLFLOW_EXPERIMENT` troca o experimento (útil para testar os DAGs sem sujar `t1-manter-descartar`).
+- `SINALIZA_MLFLOW_PREFIXO` troca o prefixo dos 4 experimentos (útil para testar os DAGs sem sujar os `sinaliza-t1-*`).
 - A tabela `inferencias` é o **contrato com a API da fase 8**: uma linha por frase recebida (colunas em `textgloss/monitor.py`), com `processada = false`. Só o `monitoramento` a marca como processada. Texto de usuário só pode ser gravado depois de definidos finalidade, retenção e aviso de privacidade.
 
 ## Do modelo à resposta: integração na API e dados novos (fase 8)

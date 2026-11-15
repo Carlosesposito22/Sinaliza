@@ -37,7 +37,7 @@ Validação = 10% das frases do treino, sorteadas por frase (semente 42). **O co
 | Modelo | `LogisticRegression(C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000)` |
 | Atributos | 13 categóricos (one-hot), 4 numéricos (padronizados), lema (one-hot dos 2.000 mais frequentes + `infrequente`) |
 | Pré-processamento | `ColumnTransformer` dentro de um `Pipeline`, ajustado só no treino |
-| Experimento no MLflow | `t1-manter-descartar` (runs `lista-fixa` e `regressao-logistica`) |
+| Experimento no MLflow | `sinaliza-t1-01-baseline` (runs `lista-fixa` e `regressao-logistica`) |
 | Registrado | parâmetros, hash do corpus, tamanhos, métricas de treino e validação, matriz de confusão, curvas ROC e PR, coeficientes (imagem e CSV), modelo |
 
 Um primeiro treino com `max_iter=300` não convergiu; subimos para 1.000 e a run foi refeita (as runs antigas foram apagadas).

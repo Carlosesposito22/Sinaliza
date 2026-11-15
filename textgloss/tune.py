@@ -104,7 +104,7 @@ def main() -> None:
     args = parser.parse_args()
 
     mlflow.set_tracking_uri(train.TRACKING_URI)
-    mlflow.set_experiment(train.EXPERIMENT)
+    train.use_experiment("otimizacao")
     optuna.logging.set_verbosity(optuna.logging.WARNING)
 
     fit, val = modeling.train_validation(modeling.load_words())
