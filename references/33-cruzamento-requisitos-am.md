@@ -13,7 +13,7 @@ As duas listas técnicas são praticamente a mesma (o professor diz que a de AM 
 | Análise de Dados (15%) | ✅ (2026-11-14) | Nada |
 | Modelagem e Validação (30%) | ✅ completo (2026-11-14) | Nada técnico. Falta só levar ao relatório SBC |
 | MLOps (25%) | ✅ (2026-11-15) | Embarcado + MQTT e os 4 experimentos feitos. Opcional: registrar o perfil `completo` |
-| Comunicação (20%) | ❌ | **Relatório no template SBC não existe** |
+| Comunicação (20%) | ✅ (2026-11-15) | Relatório no template oficial da SBC: `reports/relatorio-sinaliza-sbc.pdf` (11 páginas), fonte em `reports/relatorio/` e projeto no Overleaf `sinaliza-relatorio-sbc` |
 | (10% não declarados) | ? | Os pesos somam 90%; provavelmente a apresentação final. Perguntar ao professor |
 
 ## Item a item
@@ -108,11 +108,11 @@ Verificado em 2026-11-14 com a pilha real (`docker compose up -d --build`, 10 se
 | --- | --- |
 | 🟡 | Roteiro `30` e demonstração automática (8 etapas) já com o embarcado e o MQTT. Faltam: a etapa nos slides, os 3 números do slide 5 e o ensaio |
 
-### Relatório (template SBC) — **principal lacuna de nota**
+### Relatório (template SBC)
 
-| Situação | O que falta |
+| Situação | Evidência |
 | --- | --- |
-| ❌ | Não existe. Vale 20% e zera se sair do formato. Regras e esqueleto em [`32-template-sbc.md`](32-template-sbc.md). Quase todo o conteúdo já está escrito em `22` a `30` e nos notebooks; o trabalho é condensar, pôr figuras e respeitar o template. Abstract + Resumo (≤ 10 linhas cada) na 1ª página. PDF final em `reports/` |
+| ✅ (2026-11-15) | `reports/relatorio-sinaliza-sbc.pdf`, 11 páginas, compilado no Overleaf sem erros nem avisos, com os arquivos de estilo oficiais da SBC (`sbc-template.sty` e `sbc.bst`, do pacote `modelosparapublicaodeartigos.zip` de sbc.org.br) sem alterações. Abstract e Resumo na 1ª página; seções na ordem dos blocos de nota; 9 figuras, 2 tabelas, diagrama da arquitetura e 12 referências. Fonte em `reports/relatorio/` (as figuras vêm de `reports/figuras/`) |
 
 ### README e estrutura do repositório
 
@@ -126,7 +126,7 @@ Verificado em 2026-11-14 com a pilha real (`docker compose up -d --build`, 10 se
 
 ## Prioridades sugeridas
 
-1. **Relatório SBC** (20%, ❌, nada começado). Maior risco de nota.
+1. ~~Relatório SBC~~ (feito em 2026-11-15: `reports/relatorio-sinaliza-sbc.pdf`).
 2. ~~Embarcado simulado + MQTT~~ (feito em 2026-11-14).
 3. ~~EDA: ≥ 5 visualizações e estatísticas descritivas~~ (feito em 2026-11-14).
 4. ~~Justificativas de LOO e Optuna~~ e ~~experimentos separados no MLflow~~ (feitos em 2026-11-14 e 2026-11-15).
