@@ -61,6 +61,28 @@ texto ─► web ─────────────────────
 | `data/` | Vocabulário curado (210 sinais do V-LIBRASIL) e extração de keypoints (experimento anterior) | O V-LIBRASIL fica só local, fora do repositório (ver `references/21-datasets-de-treino.md`) |
 | `docs/` | Contrato da API com o web, créditos e licenças | — |
 
+### Estrutura sugerida pela cadeira de AM e onde está aqui
+
+A especificação de Aprendizado de Máquina sugere uma estrutura de pastas e permite ajustes. Mantivemos os nomes que o código já usa (o pacote `textgloss` aparece em imports, Dockerfiles, montagens do Airflow e testes); a tabela mostra onde está cada item.
+
+| Sugerido | Aqui | Observação |
+| --- | --- | --- |
+| `data/` | `data/` | Dados brutos e processados ficam fora do Git (`data/raw/`, `data/processed/`); a conferência dos rótulos está em `data/conferencia/` |
+| `notebooks/` | `notebooks/` | 01 EDA, 02 preparação, 03 comparação de modelos, 04 otimização, 05 validação |
+| `src/` | `textgloss/` | Código de treinamento e do pipeline (`python -m textgloss.<módulo>`) |
+| `embedded/` | `embedded/` | Totens de atendimento simulados que publicam via MQTT |
+| `dags/` | `pipeline/dags/` | Os 4 DAGs do Airflow; a imagem do Airflow está em `airflow/` |
+| `api/` | `api/` | API de inferência (FastAPI) |
+| `app/` | `dashboard/` | Painel (Streamlit) |
+| `mlruns/` | serviço `mlflow` | O MLflow roda como servidor: registro no Postgres e artefatos no volume `mlartifacts` (http://localhost:5000), em vez de uma pasta local |
+| `Dockerfile` | um por serviço | `api/`, `dashboard/`, `embedded/`, `receptor/`, `airflow/`, `mlflow/`, `web/` (10 serviços no compose) |
+| `docker-compose.yml` | `docker-compose.yml` | Sobe tudo com um comando |
+| `reports/` | `reports/` | Figuras do relatório em `reports/figuras/`; o PDF no formato SBC entra aqui |
+| `requirements.txt` | `requirements.txt` | Junta os de cada componente da solução para um ambiente único; cada serviço usa o seu no Docker |
+| `README.md` | `README.md` | Este arquivo |
+
+Pastas a mais: `receptor/` (recebe o MQTT), `mosquitto/` (broker), `postgres/`, `web/` (front com o avatar), `mock-api/`, `references/` e `docs/` (documentação), `model/` e `historico/` (experimentos anteriores, fora da solução).
+
 ## Como rodar
 
 ### Tudo de uma vez (Docker)

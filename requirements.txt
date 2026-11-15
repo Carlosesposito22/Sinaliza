@@ -1,0 +1,15 @@
+# Dependências Python da solução inteira, num ambiente só (estrutura sugerida pela cadeira de AM).
+#
+# Cada componente tem o próprio arquivo e, no Docker, a própria imagem; este arquivo só junta os da solução
+# para quem quiser rodar tudo fora do Docker, num único venv (Python 3.12):
+#     py -3.12 -m venv .venv; .venv/Scripts/python -m pip install -r requirements.txt
+# O caminho recomendado continua sendo `docker compose up -d --build` (ver README).
+#
+# Ficam de fora os experimentos anteriores, que não fazem parte da solução e conflitam com ela:
+# data/requirements.txt (MediaPipe e YOLOv8, exige numpy<2) e model/requirements.txt (PyTorch).
+
+-r textgloss/requirements.txt   # ML: ingestão, preparação, treino, Optuna, validação, MLflow, notebooks, simulador, demonstração
+-r api/requirements-ml.txt      # API de inferência com o modelo T1
+-r dashboard/requirements.txt   # painel (Streamlit)
+-r embedded/requirements.txt    # totens simulados (MQTT)
+-r receptor/requirements.txt    # receptor MQTT
