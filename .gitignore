@@ -32,4 +32,6 @@ web/public/vlibras/signs/
 
 # Banco local do MLflow (o servidor do compose usa o Postgres)
 mlflow.db
-mlruns/
+# Artefatos do MLflow (2 GB: modelos, figuras): a pasta existe no repositório, o conteúdo não.
+mlruns/*
+!mlruns/README.md

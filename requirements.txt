@@ -8,8 +8,9 @@
 # Ficam de fora os experimentos anteriores, que não fazem parte da solução e conflitam com ela:
 # data/requirements.txt (MediaPipe e YOLOv8, exige numpy<2) e model/requirements.txt (PyTorch).
 
--r textgloss/requirements.txt   # ML: ingestão, preparação, treino, Optuna, validação, MLflow, notebooks, simulador, demonstração
+-r src/textgloss/requirements.txt   # ML: ingestão, preparação, treino, Optuna, validação, MLflow, notebooks, simulador, demonstração
 -r api/requirements-ml.txt      # API de inferência com o modelo T1
--r dashboard/requirements.txt   # painel (Streamlit)
+-r app/requirements.txt         # painel (Streamlit)
 -r embedded/requirements.txt    # totens simulados (MQTT)
 -r receptor/requirements.txt    # receptor MQTT
+-e .                            # o pacote textgloss (src/) instalado em modo editável: `python -m textgloss.<módulo>`

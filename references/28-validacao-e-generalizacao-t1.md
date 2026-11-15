@@ -77,15 +77,15 @@ Runs `validacao-cruzada` (com `cv-<modelo>` filhas, F1 por dobra e `cv_por_dobra
 ## Como reproduzir
 
 ```bash
-textgloss/.venv/Scripts/python -m textgloss.validate cv --frases 25000
+.venv/Scripts/python -m textgloss.validate cv --frases 25000
 ```
 
 ```bash
-textgloss/.venv/Scripts/python -m textgloss.validate curva
+.venv/Scripts/python -m textgloss.validate curva
 ```
 
 ```bash
-textgloss/.venv/Scripts/python -m textgloss.validate dominio
+.venv/Scripts/python -m textgloss.validate dominio
 ```
 
 Levam cerca de 1 hora no total (a curva e o domínio são lentos por causa do Random Forest).

@@ -16,7 +16,7 @@ nesta ordem:
 Isto não é tradução para Libras: a saída é a sequência de sinais na ordem do texto.
 
 Quem decide se a palavra vira sinal (MANTER ou DESCARTAR) é o **classificador T1** (ML nosso, ver
-`textgloss/infer.py`), quando a API o recebe em `decisions`. Sem ele, vale a lista fixa `FUNCTION_WORDS`
+`src/textgloss/infer.py`), quando a API o recebe em `decisions`. Sem ele, vale a lista fixa `FUNCTION_WORDS`
 (plano B, `model_version: "lista-fixa"`). Com o modelo, as etapas ficam assim:
 
 0. frases da tabela com mais de uma palavra ("dor de cabeça") vencem o modelo (regra, não ML);

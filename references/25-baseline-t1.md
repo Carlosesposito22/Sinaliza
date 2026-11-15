@@ -51,7 +51,7 @@ Os maiores coeficientes negativos (empurram para `DESCARTAR`) incluem `para`, `a
 Com o Postgres e o MLflow no ar (`docker compose up -d postgres mlflow`) e a preparação feita:
 
 ```bash
-textgloss/.venv/Scripts/python -m textgloss.train baseline
+.venv/Scripts/python -m textgloss.train baseline
 ```
 
 A interface do MLflow fica em http://localhost:5000. A URL do servidor vem de `MLFLOW_TRACKING_URI` (padrão `http://localhost:5000`).

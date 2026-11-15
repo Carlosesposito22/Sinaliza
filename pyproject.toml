@@ -1,0 +1,16 @@
+# Só para instalar o código de treinamento (src/textgloss) em modo editável, como faz a linha `-e .` do
+# requirements.txt: assim `python -m textgloss.<módulo>` funciona a partir da raiz. As dependências ficam nos
+# requirements.txt de cada componente.
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sinaliza-textgloss"
+version = "1.0.0"
+description = "Sinaliza: código de treinamento do classificador T1 (texto em português → sequência de sinais de Libras)"
+requires-python = ">=3.12"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["textgloss*"]

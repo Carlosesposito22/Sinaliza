@@ -47,10 +47,10 @@ texto ─► web ─────────────────────
 
 | Pasta | Papel | Estado |
 | --- | --- | --- |
-| `textgloss/` | **ML**: ingestão, preparação, treino, Optuna, validação, inferência do modelo, simulador de uso, consolidação e demonstração (`python -m textgloss.<módulo>`) | Pronto, com testes |
-| `pipeline/dags/` e `airflow/` | Os quatro DAGs do Airflow (ingestão, preparação, treino, monitoramento) e a imagem; na primeira subida de uma máquina limpa rodam sozinhos | Pronto |
+| `src/textgloss/` | **ML**: ingestão, preparação, treino, Optuna, validação, inferência do modelo, simulador de uso, consolidação e demonstração (`python -m textgloss.<módulo>`) | Pronto, com testes |
+| `dags/`, `Dockerfile` e `airflow/` | Os quatro DAGs do Airflow (ingestão, preparação, treino, monitoramento), a imagem (Dockerfile da raiz) e os scripts de partida; na primeira subida de uma máquina limpa rodam sozinhos | Pronto |
 | `api/` | Serviço HTTP. Texto → decisão do modelo por palavra → glosas. Grava as inferências | Funcional, com o modelo `sinaliza-t1` (ou a lista fixa, se ele não estiver disponível) |
-| `dashboard/` | Painel de monitoramento (Streamlit): indicadores, inferências, modelo e estado dos serviços | Pronto, com testes |
+| `app/` | Painel de monitoramento (Streamlit): indicadores, inferências, modelo e estado dos serviços | Pronto, com testes |
 | `embedded/` | **Sistema embarcado simulado**: totens de atendimento que publicam frases via MQTT (`totem.py`) | Pronto, com testes |
 | `receptor/` | Assina o broker MQTT, grava cada mensagem no Postgres e pede a inferência ao modelo pela API | Pronto, com testes |
 | `mosquitto/` | Configuração do broker MQTT (Eclipse Mosquitto) | Pronto |
@@ -61,27 +61,33 @@ texto ─► web ─────────────────────
 | `data/` | Vocabulário curado (210 sinais do V-LIBRASIL) e extração de keypoints (experimento anterior) | O V-LIBRASIL fica só local, fora do repositório (ver `references/21-datasets-de-treino.md`) |
 | `docs/` | Contrato da API com o web, créditos e licenças | — |
 
-### Estrutura sugerida pela cadeira de AM e onde está aqui
+### Estrutura do repositório (a sugerida pela cadeira de AM)
 
-A especificação de Aprendizado de Máquina sugere uma estrutura de pastas e permite ajustes. Mantivemos os nomes que o código já usa (o pacote `textgloss` aparece em imports, Dockerfiles, montagens do Airflow e testes); a tabela mostra onde está cada item.
+O repositório segue a estrutura da especificação de Aprendizado de Máquina:
 
-| Sugerido | Aqui | Observação |
-| --- | --- | --- |
-| `data/` | `data/` | Dados brutos e processados ficam fora do Git (`data/raw/`, `data/processed/`); a conferência dos rótulos está em `data/conferencia/` |
-| `notebooks/` | `notebooks/` | 01 EDA, 02 preparação, 03 comparação de modelos, 04 otimização, 05 validação |
-| `src/` | `textgloss/` | Código de treinamento e do pipeline (`python -m textgloss.<módulo>`) |
-| `embedded/` | `embedded/` | Totens de atendimento simulados que publicam via MQTT |
-| `dags/` | `pipeline/dags/` | Os 4 DAGs do Airflow; a imagem do Airflow está em `airflow/` |
-| `api/` | `api/` | API de inferência (FastAPI) |
-| `app/` | `dashboard/` | Painel (Streamlit) |
-| `mlruns/` | serviço `mlflow` | O MLflow roda como servidor: registro no Postgres e artefatos no volume `mlartifacts` (http://localhost:5000), em vez de uma pasta local |
-| `Dockerfile` | um por serviço | `api/`, `dashboard/`, `embedded/`, `receptor/`, `airflow/`, `mlflow/`, `web/` (10 serviços no compose) |
-| `docker-compose.yml` | `docker-compose.yml` | Sobe tudo com um comando |
-| `reports/` | `reports/` | Figuras do relatório em `reports/figuras/`; o PDF no formato SBC entra aqui |
-| `requirements.txt` | `requirements.txt` | Junta os de cada componente da solução para um ambiente único; cada serviço usa o seu no Docker |
-| `README.md` | `README.md` | Este arquivo |
+```
+/
+├── data/                # Dados (brutos e processados fora do Git; conferência dos rótulos em data/conferencia/)
+├── notebooks/           # EDA e experimentos (01 EDA, 02 preparação, 03 comparação, 04 otimização, 05 validação)
+├── src/                 # Código de treinamento: o pacote textgloss (python -m textgloss.<módulo>)
+├── embedded/            # Simulador do sistema embarcado: totens que publicam frases via MQTT
+├── dags/                # DAGs do Apache Airflow (ingestão, preparação, treino, monitoramento)
+├── api/                 # API de inferência (FastAPI, modelo sinaliza-t1)
+├── app/                 # Dashboard (Streamlit)
+├── mlruns/              # MLflow: artefatos das runs (conteúdo fora do Git; ver mlruns/README.md)
+├── Dockerfile           # Imagem do pipeline de treino (Airflow + src/)
+├── docker-compose.yml   # Execução completa da solução (um único comando)
+├── reports/             # Relatório em PDF (formato SBC), fonte LaTeX e figuras
+├── requirements.txt     # Dependências da solução num ambiente único (inclui `-e .` para o src/)
+└── README.md
+```
 
-Pastas a mais: `receptor/` (recebe o MQTT), `mosquitto/` (broker), `postgres/`, `web/` (front com o avatar), `mock-api/`, `references/` e `docs/` (documentação), `model/` e `historico/` (experimentos anteriores, fora da solução).
+Pastas e arquivos a mais, que a solução também usa: `receptor/` (recebe o MQTT e grava no banco), `mosquitto/`
+(configuração do broker), `airflow/` (scripts de partida da imagem do `Dockerfile`), `mlflow/` e `postgres/`
+(imagem e inicialização dos serviços), `web/` (front com o avatar, entrega de Projetos 6), `mock-api/`,
+`pyproject.toml` (só para o `pip install -e .` achar o `src/`), `references/` e `docs/` (documentação) e
+`model/` e `historico/` (experimentos anteriores, fora da solução). Os serviços além do pipeline de treino têm o
+próprio `Dockerfile` na pasta de cada um.
 
 ## Como rodar
 

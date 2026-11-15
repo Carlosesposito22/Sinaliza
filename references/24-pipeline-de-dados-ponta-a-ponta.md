@@ -10,23 +10,23 @@ Legenda do tipo de cada etapa: **ML nosso** (treinado no nosso pipeline), **regr
 VLibrasBD (CSV, Mendeley)                          infra/externo
    │  download + conferência do SHA-256
    ▼
-Postgres: corpus_bruto (127.349 pares)             infra            DAG vlibrasbd_ingestao · textgloss/ingest.py
+Postgres: corpus_bruto (127.349 pares)             infra            DAG vlibrasbd_ingestao · src/textgloss/ingest.py
    │  limpeza (vazias, duplicadas, glosa sem sinal)
    ▼
-frases limpas                                      regra            DAG preparacao_t1 · textgloss/prepare.py
+frases limpas                                      regra            DAG preparacao_t1 · src/textgloss/prepare.py
    │  spaCy: lema, classe gramatical, morfologia
    ▼
-atributos por palavra                              extração         textgloss/features.py
+atributos por palavra                              extração         src/textgloss/features.py
    │  a palavra (ou o lema) aparece na glosa do intérprete?
    ▼
-rótulo MANTER / DESCARTAR                          regra (gera o alvo do ML)     textgloss/align.py
+rótulo MANTER / DESCARTAR                          regra (gera o alvo do ML)     src/textgloss/align.py
    │  divisão 90% treino / 10% teste, por frase
    ▼
 palavras_t1 (1,6 milhão de palavras)               infra
    │
    ▼  DAG treino_t1 (o MLflow registra parâmetros, métricas e artefatos de tudo)
 Baseline (Regressão Logística)  →  Árvore, Random Forest, KNN  →  Optuna sobre o Random Forest  →  validação cruzada
-   │                                                                                    ML nosso   textgloss/train.py, tune.py, validate.py
+   │                                                                                    ML nosso   src/textgloss/train.py, tune.py, validate.py
    ▼  teste final: 10% das frases, usado uma única vez
 Model Registry do MLflow: sinaliza-t1              ML nosso (Random Forest otimizado)
    │  a API carrega em segundo plano; sem ele, volta à lista fixa
@@ -53,7 +53,7 @@ O que o usuário vê (a sequência de sinais) **depende do ML em um ponto**: o c
 | Pergunta | Resposta |
 | --- | --- |
 | Qual é a tarefa de ML? | **T1**: classificação binária por palavra, "essa palavra vira sinal na glosa do intérprete?" (`MANTER`/`DESCARTAR`) |
-| Quais atributos o modelo usa? | Lema (2.000 mais frequentes), classe gramatical e dependência (spaCy), morfologia (gênero, número, tempo, modo, pessoa...), classes vizinhas, posição e tamanho da frase, tipo de frase, se é stopword (lista completa em `textgloss/modeling.py`) |
+| Quais atributos o modelo usa? | Lema (2.000 mais frequentes), classe gramatical e dependência (spaCy), morfologia (gênero, número, tempo, modo, pessoa...), classes vizinhas, posição e tamanho da frase, tipo de frase, se é stopword (lista completa em `src/textgloss/modeling.py`) |
 | De onde vêm os rótulos? | Da glosa feita à mão por intérpretes certificados no VLibrasBD, alinhada por lema. A **regra de alinhamento** só transforma essa anotação humana em exemplos; o que ela não consegue generalizar é o que o modelo aprende |
 | Quais modelos foram treinados? | Regressão Logística (baseline), Árvore de Decisão, Random Forest e KNN; o Random Forest foi otimizado com Optuna e é o escolhido (`sinaliza-t1`) |
 | Quão bom é? | **F1-macro 0,885** no teste final (10% das frases, uma única vez), contra **0,823** da lista fixa que a API usava antes; validação cruzada 0,879 ± 0,001; cai de 2 a 4 pontos fora do domínio. Ver [`28`](28-validacao-e-generalizacao-t1.md) |
@@ -65,7 +65,7 @@ O que o usuário vê (a sequência de sinais) **depende do ML em um ponto**: o c
 
 ## Mapa das etapas: entrada, saída, onde roda e como reproduzir
 
-Cada linha roda no Airflow (DAG), em notebook ou na API; o comando equivalente fora do Airflow está na última coluna (na raiz do repositório, com `textgloss/.venv`). Etapas de treino registram tudo no MLflow, um experimento por etapa: `sinaliza-t1-01-baseline`, `sinaliza-t1-02-comparacao-de-modelos`, `sinaliza-t1-03-otimizacao-de-hiperparametros` e `sinaliza-t1-04-validacao-e-teste-final`.
+Cada linha roda no Airflow (DAG), em notebook ou na API; o comando equivalente fora do Airflow está na última coluna (na raiz do repositório, com `src/textgloss/.venv`). Etapas de treino registram tudo no MLflow, um experimento por etapa: `sinaliza-t1-01-baseline`, `sinaliza-t1-02-comparacao-de-modelos`, `sinaliza-t1-03-otimizacao-de-hiperparametros` e `sinaliza-t1-04-validacao-e-teste-final`.
 
 | # | Etapa | Tipo | Entrada | Saída | Onde roda | Como reproduzir |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -78,7 +78,7 @@ Cada linha roda no Airflow (DAG), em notebook ou na API; o comando equivalente f
 | 7 | Otimização | **ML nosso** | idem | 25 tentativas do Optuna e o melhor Random Forest | DAG `treino_t1`; notebook `04`; [`27`](27-otimizacao-random-forest.md) | `python -m textgloss.tune` |
 | 8 | Validação | **ML nosso** | idem | validação cruzada agrupada por frase, curva de aprendizado, teste fora do domínio | DAG `treino_t1`; notebook `05`; [`28`](28-validacao-e-generalizacao-t1.md) | `python -m textgloss.validate cv`, `curva`, `dominio` |
 | 9 | Teste final e registro | **ML nosso** | `palavras_t1` (teste, uma única vez) | `sinaliza-t1` no Model Registry | DAG `treino_t1` (`--se-pendente`) | `python -m textgloss.validate teste --modelo random-forest-otimizado` |
-| 10 | Inferência | **ML nosso** + extração | texto do usuário | probabilidade de `MANTER` por palavra | API (`textgloss/infer.py`) | `docker compose up -d api` e `POST /translate` |
+| 10 | Inferência | **ML nosso** + extração | texto do usuário | probabilidade de `MANTER` por palavra | API (`src/textgloss/infer.py`) | `docker compose up -d api` e `POST /translate` |
 | 11 | Glosa final | regra / externo | palavras mantidas | sequência de sinais | API (`text_to_gloss.py`) | idem |
 | 12 | Gravação | infra | resposta da API | linha em `inferencias` | API (`inference_log.py`) | idem |
 | 13 | Dados novos (aquisição) | infra | frases públicas de `data/phrases.json` | mensagens MQTT dos totens → `mensagens_mqtt` → API; e frases do simulador de uso direto na API | serviços `totem-*`, `mosquitto`, `receptor`; script | `docker compose up -d`; `python -m textgloss.simulador` |
@@ -89,14 +89,14 @@ Tudo isso sobe com `docker compose up -d --build`; numa máquina limpa o Airflow
 
 ## Etapas implementadas
 
-### 1. Ingestão (`textgloss/ingest.py`) — infra
+### 1. Ingestão (`src/textgloss/ingest.py`) — infra
 
 - **Entrada:** CSV do VLibrasBD (31 MB, DOI 10.17632/ryj88ckjww.2).
 - **O que faz:** baixa se não existir, **confere o SHA-256** publicado pelo Mendeley (falha se divergir), carrega na tabela `corpus_bruto` do Postgres (127.349 linhas, chave `frase_id`) e registra a execução em `ingestoes`.
 - **Saída:** tabela `corpus_bruto(frase_id, texto, glosa, governo, ingles)`.
 - O CSV fica em `data/raw/vlibrasbd/` e **não é versionado**.
 
-### 2. Preparação (`textgloss/prepare.py`) — regra + extração
+### 2. Preparação (`src/textgloss/prepare.py`) — regra + extração
 
 | Passo | Tipo | O que faz |
 | --- | --- | --- |
@@ -109,7 +109,7 @@ Tudo isso sobe com `docker compose up -d --build`; numa máquina limpa o Airflow
 - **Saídas:** `data/processed/vlibrasbd/palavras.parquet` e tabela `palavras_t1` (1.615.265 palavras, 52,5% `MANTER`), `frases.parquet`, `relatorio_preparacao.json` e `amostra_conferencia_200.csv`.
 - **Justificativas** de cada decisão (limpeza, encoding, ausentes, desbalanceamento, divisão) estão em [`notebooks/02-preparacao.ipynb`](../notebooks/02-preparacao.ipynb); a análise exploratória em [`notebooks/01-eda-vlibrasbd.ipynb`](../notebooks/01-eda-vlibrasbd.ipynb).
 
-### 3. Cobertura do dicionário (`textgloss/coverage.py`) — externo
+### 3. Cobertura do dicionário (`src/textgloss/coverage.py`) — externo
 
 Consulta (HEAD, sem baixar) quais dos 1.500 sinais mais frequentes do corpus existem no dicionário do VLibras: **95,3%** (96,0% das ocorrências). O vocabulário do Sinaliza pode crescer bem além dos 210 sinais de hoje.
 
@@ -127,21 +127,21 @@ Pré-requisitos: Docker e Python 3.12. Na raiz do repositório:
 
 ```bash
 docker compose up -d postgres
-py -3.12 -m venv textgloss/.venv
-textgloss/.venv/Scripts/python -m pip install -r textgloss/requirements.txt
-textgloss/.venv/Scripts/python -m pip install https://github.com/explosion/spacy-models/releases/download/pt_core_news_md-3.8.0/pt_core_news_md-3.8.0-py3-none-any.whl
+py -3.12 -m venv src/textgloss/.venv
+.venv/Scripts/python -m pip install -r src/textgloss/requirements.txt
+.venv/Scripts/python -m pip install https://github.com/explosion/spacy-models/releases/download/pt_core_news_md-3.8.0/pt_core_news_md-3.8.0-py3-none-any.whl
 ```
 
 ```bash
-textgloss/.venv/Scripts/python -m textgloss.ingest
+.venv/Scripts/python -m textgloss.ingest
 ```
 
 ```bash
-textgloss/.venv/Scripts/python -m textgloss.prepare --processos 4
+.venv/Scripts/python -m textgloss.prepare --processos 4
 ```
 
 ```bash
-textgloss/.venv/Scripts/python -m textgloss.coverage --top 1500
+.venv/Scripts/python -m textgloss.coverage --top 1500
 ```
 
 Testes: `cd textgloss && .venv/Scripts/python -m pytest`. Notebooks: `jupyter nbconvert --to notebook --execute --inplace notebooks/*.ipynb` (ou abrir no Jupyter).
@@ -150,7 +150,7 @@ A conexão usa `SINALIZA_DATABASE_URL` (padrão `postgresql+psycopg://sinaliza:s
 
 ## Orquestração no Airflow (fase 7)
 
-Os quatro fluxos ficam em `pipeline/dags/` e **só chamam os módulos do `textgloss` por linha de comando**: o que roda no Airflow é exatamente o que se reproduz à mão. O serviço `airflow` do compose (`airflow/Dockerfile`, Airflow 3.1.5 em modo `standalone`, interface em http://localhost:8080, sem login, só local) monta os DAGs e o `textgloss` e usa um ambiente Python à parte (`/opt/airflow/venv-ml`) para as dependências do ML não conflitarem com as do Airflow. Os arquivos gerados ficam no volume `dados` (dentro do container, `/opt/sinaliza/data`), separado de `data/` do host.
+Os quatro fluxos ficam em `dags/` e **só chamam os módulos do `textgloss` por linha de comando**: o que roda no Airflow é exatamente o que se reproduz à mão. O serviço `airflow` do compose (`Dockerfile`, Airflow 3.1.5 em modo `standalone`, interface em http://localhost:8080, sem login, só local) monta os DAGs e o `textgloss` e usa um ambiente Python à parte (`/opt/airflow/venv-ml`) para as dependências do ML não conflitarem com as do Airflow. Os arquivos gerados ficam no volume `dados` (dentro do container, `/opt/sinaliza/data`), separado de `data/` do host.
 
 | DAG | O que faz | Etapa | Comando equivalente | Quando roda |
 | --- | --- | --- | --- | --- |
@@ -165,7 +165,7 @@ Cuidados:
 
 - **O teste final roda uma única vez por MLflow.** A tarefa dele usa `--se-pendente`: se a run `teste-final` já existe, não treina nem registra nada e termina com sucesso. Num MLflow vazio (máquina limpa), o primeiro `treino_t1` completo cria o `sinaliza-t1` v1.
 - `SINALIZA_MLFLOW_PREFIXO` troca o prefixo dos 4 experimentos (útil para testar os DAGs sem sujar os `sinaliza-t1-*`).
-- A tabela `inferencias` é o **contrato com a API da fase 8**: uma linha por frase recebida (colunas em `textgloss/monitor.py`), com `processada = false`. Só o `monitoramento` a marca como processada. Texto de usuário só pode ser gravado depois de definidos finalidade, retenção e aviso de privacidade.
+- A tabela `inferencias` é o **contrato com a API da fase 8**: uma linha por frase recebida (colunas em `src/textgloss/monitor.py`), com `processada = false`. Só o `monitoramento` a marca como processada. Texto de usuário só pode ser gravado depois de definidos finalidade, retenção e aviso de privacidade.
 
 ## Do modelo à resposta: integração na API e dados novos (fase 8)
 
@@ -175,13 +175,13 @@ Esta é a parte do fluxo em que o ML **decide algo na saída final**. Detalhes d
 | --- | --- | --- | --- | --- |
 | Totens (embarcado simulado) | publicam frases públicas de atendimento no broker MQTT (`sinaliza/totens/<id>/frases`, QoS 1) e o estado online/offline | sem ML | `embedded/totem.py`, serviços `totem-ubs` e `totem-inss` | `docker compose up -d` |
 | Broker e receptor | o Mosquitto entrega as mensagens; o receptor grava cada uma em `mensagens_mqtt` e pede a inferência à API com `X-Origem: totem` | sem ML | `mosquitto/`, `receptor/receptor.py` | idem |
-| Simulador de uso | envia frases direto à API com `X-Origem: simulador`, para gerar volume | sem ML | `textgloss/simulador.py` | `python -m textgloss.simulador --n 30 --intervalo 1` |
-| spaCy | extrai os atributos de cada palavra (os mesmos do treino) | externo | `textgloss/features.py`, chamado por `infer.py` | automático na API |
-| **Classificador T1** | probabilidade de MANTER por palavra; `>= 0,5` mantém | **ML nosso** (`sinaliza-t1`, Random Forest otimizado) | `textgloss/infer.py`, carregado do MLflow em `api/app/model_provider.py` | `docker compose up -d api` |
+| Simulador de uso | envia frases direto à API com `X-Origem: simulador`, para gerar volume | sem ML | `src/textgloss/simulador.py` | `python -m textgloss.simulador --n 30 --intervalo 1` |
+| spaCy | extrai os atributos de cada palavra (os mesmos do treino) | externo | `src/textgloss/features.py`, chamado por `infer.py` | automático na API |
+| **Classificador T1** | probabilidade de MANTER por palavra; `>= 0,5` mantém | **ML nosso** (`sinaliza-t1`, Random Forest otimizado) | `src/textgloss/infer.py`, carregado do MLflow em `api/app/model_provider.py` | `docker compose up -d api` |
 | Tabela, lema, aproximação | transforma palavra mantida em glosa do vocabulário | regra / externo (simplemma, embedding) | `api/app/text_to_gloss.py` | idem |
 | Gravação | uma linha em `inferencias` por frase | sem ML | `api/app/inference_log.py` | idem (`SINALIZA_LOG_DATABASE_URL`) |
-| Consolidação | indicadores por hora e versão em `indicadores_horarios`; apaga texto vencido | estatística | DAG `monitoramento` (`textgloss/monitor.py`) | `python -m textgloss.monitor` |
-| Painel | mostra indicadores, inferências, versão e métricas do modelo e o estado dos serviços | visualização (sem ML novo) | `dashboard/` (Streamlit), lê `inferencias`, `indicadores_horarios`, API, MLflow e Airflow | `docker compose up -d --build dashboard` |
+| Consolidação | indicadores por hora e versão em `indicadores_horarios`; apaga texto vencido | estatística | DAG `monitoramento` (`src/textgloss/monitor.py`) | `python -m textgloss.monitor` |
+| Painel | mostra indicadores, inferências, versão e métricas do modelo e o estado dos serviços | visualização (sem ML novo) | `app/` (Streamlit), lê `inferencias`, `indicadores_horarios`, API, MLflow e Airflow | `docker compose up -d --build dashboard` |
 
 Verificado em 2026-11-05 (banco descartável, já removido): 25 frases do simulador passaram pelo `sinaliza-t1/1` real (latência média 186 ms), foram gravadas com texto (origem `simulador`) e consolidadas (138 palavras: 60,9% mantidas, 5,1% sem sinal, 7,2% de decisões incertas entre 0,4 e 0,6, p50 178 ms e p95 225 ms). Uma requisição sem `X-Origem` foi gravada **sem texto e sem palavras**. Sem o modelo, a API atende com a lista fixa e `model_version: "lista-fixa"`.
 

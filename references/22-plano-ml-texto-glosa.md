@@ -187,10 +187,10 @@ Cada fase termina com algo demonstrável. As fases 7 a 10 podem começar em para
 - [x] **4. Comparação** (2026-11-02): Árvore de Decisão, Random Forest e KNN no MLflow; gráficos; análise crítica. Ver [`26-comparacao-de-modelos-t1.md`](26-comparacao-de-modelos-t1.md).
 - [x] **5. Otimização** (2026-11-02): Optuna sobre o Random Forest (escolhido pelo grupo), todos os trials no MLflow. Ver [`27-otimizacao-random-forest.md`](27-otimizacao-random-forest.md).
 - [x] **6. Validação** (2026-11-02): k-fold agrupado, estabilidade, sobreajuste, fora do domínio e teste final (Random Forest otimizado, F1-macro 0,885, registrado como `sinaliza-t1`) em [`28-validacao-e-generalizacao-t1.md`](28-validacao-e-generalizacao-t1.md). **Falta a avaliação ponta a ponta** contra a lista fixa e o `vlibras-translate` (BLEU/chrF/WER), que não é exigida pela rubrica.
-- [x] **7. Airflow** (2026-11-05): os quatro DAGs em `pipeline/dags/` e o serviço `airflow` no compose; ver [`24`](24-pipeline-de-dados-ponta-a-ponta.md) e [`14`](14-como-rodar-e-testar.md).
+- [x] **7. Airflow** (2026-11-05): os quatro DAGs em `dags/` e o serviço `airflow` no compose; ver [`24`](24-pipeline-de-dados-ponta-a-ponta.md) e [`14`](14-como-rodar-e-testar.md).
 - [x] **8. Integração** (2026-11-05): classificador na API, modelo vindo do MLflow, frases gravadas no banco, simulador de uso; ver [`12-api.md`](12-api.md) e [`24`](24-pipeline-de-dados-ponta-a-ponta.md).
 - [x] **9. Docker Compose completo** (2026-11-07, sem `web` e `dashboard`): healthchecks e ordem de subida, bootstrap da primeira subida e teste numa cópia limpa; ver [`14`](14-como-rodar-e-testar.md). O `web` voltou a compilar em 2026-11-08 (imports); o `dashboard` veio na fase 10.
-- [x] **10. Painel** (2026-11-07): `dashboard/` (Streamlit), serviço `dashboard` no compose; ver [`14`](14-como-rodar-e-testar.md).
+- [x] **10. Painel** (2026-11-07): `app/` (Streamlit), serviço `dashboard` no compose; ver [`14`](14-como-rodar-e-testar.md).
 - [x] **11. Apresentação** (2026-11-08): roteiro [`30`](30-roteiro-da-demonstracao.md), demonstração automática `python -m textgloss.demo`, deck de 14 slides; faltam os 3 números do slide 5 (conferência manual dos rótulos) e o ensaio com o grupo.
 - [ ] **Extensões, se houver tempo:** T2, T3 e o PTT5/ByT5 como quarto sistema.
 
@@ -198,16 +198,16 @@ Cada fase termina com algo demonstrável. As fases 7 a 10 podem começar em para
 
 ```
 Sinaliza/
-  textgloss/            pacote Python do ML texto → glosa
+  src/textgloss/            pacote Python do ML texto → glosa
     corpus.py           leitura e normalização do VLibrasBD
     align.py            rotulagem T1 (e T2/T3) a partir das glosas
     features.py         atributos do spaCy
     train.py            treino, MLflow, Optuna, validação cruzada
     infer.py            carregamento do modelo e decisão por palavra (usado pela API)
     tests/
-  pipeline/dags/        DAGs do Airflow
+  dags/        DAGs do Airflow
   notebooks/            01-eda-vlibrasbd.ipynb, 02-preparacao.ipynb, 03-analise-modelos.ipynb
-  dashboard/            painel
+  app/            painel
   model/                gerador de movimento (experimento anterior, mantido)
 ```
 

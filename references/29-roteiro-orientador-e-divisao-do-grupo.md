@@ -218,10 +218,10 @@ Tamanhos são estimativas relativas (P, M, G), não horas.
 
 ### Pacote 1 · Airflow e DAGs (Fase 7, entregável 2) · tamanho M
 
-- **O que fazer:** criar `pipeline/dags/` com `vlibrasbd_ingestao`, `preparacao_t1`, `treino_t1` e `monitoramento`, chamando `textgloss.ingest`, `textgloss.prepare`, `textgloss.train` e `textgloss.tune`.
-- **Entrega:** DAGs que rodam de ponta a ponta no Airflow; imagem do Airflow com as dependências de `textgloss/` (inclui o modelo spaCy).
+- **O que fazer:** criar `dags/` com `vlibrasbd_ingestao`, `preparacao_t1`, `treino_t1` e `monitoramento`, chamando `textgloss.ingest`, `textgloss.prepare`, `textgloss.train` e `textgloss.tune`.
+- **Entrega:** DAGs que rodam de ponta a ponta no Airflow; imagem do Airflow com as dependências de `src/textgloss/` (inclui o modelo spaCy).
 - **Depende de:** nada (os módulos já existem). Só combina com o Pacote 5 o serviço `airflow` do compose.
-- **Arquivos que mexe:** `pipeline/`, uma `Dockerfile` do Airflow. **Não mexe** em `textgloss/` além de pequenos ajustes de parâmetros.
+- **Arquivos que mexe:** `pipeline/`, uma `Dockerfile` do Airflow. **Não mexe** em `src/textgloss/` além de pequenos ajustes de parâmetros.
 - **Pronto quando:** `docker compose up` sobe o Airflow, o DAG de ingestão e preparação roda sozinho e o de treino registra uma nova versão no MLflow.
 
 ### Pacote 2 · API usa o modelo (Fase 8, parte ML, entregável 7) · tamanho G
@@ -230,7 +230,7 @@ Tamanhos são estimativas relativas (P, M, G), não horas.
 - **Entrega:** `/translate` com decisões e probabilidades; testes; Dockerfile da API com spaCy e dependências do modelo (a API hoje não tem sklearn nem spaCy).
 - **Depende de:** contrato A (já pronto). Para gravar no banco usa a função `save_inference(...)` do Pacote 3; até lá, deixe-a como no-op.
 - **Cuidados:** latência (o modelo tem 154 árvores profundas); tamanho da imagem; manter o modo atual funcionando.
-- **Arquivos que mexe:** `api/` (dono de `api/app/main.py`). Reaproveitar `textgloss/features.py` copiando-o ou instalando `textgloss` como pacote.
+- **Arquivos que mexe:** `api/` (dono de `api/app/main.py`). Reaproveitar `src/textgloss/features.py` copiando-o ou instalando `textgloss` como pacote.
 - **Pronto quando:** frase nova → resposta com decisão por palavra e versão do modelo, sem quebrar o front.
 
 ### Pacote 3 · Banco de inferências, simulador e privacidade (Fase 8, parte dados, entregáveis 1 e 7) · tamanho M
@@ -244,9 +244,9 @@ Tamanhos são estimativas relativas (P, M, G), não horas.
 ### Pacote 4 · Painel (Fase 10, entregável 9) · tamanho M
 
 - **O que fazer:** painel em Streamlit com: frases por hora e latência; palavras sem sinal e taxa de descarte; distribuição das probabilidades e casos de baixa confiança; últimas inferências (frase, decisão por palavra, glosa); versão do modelo e métricas do último treino (lidas do MLflow); estado dos serviços (API, banco, MLflow).
-- **Entrega:** `dashboard/` com Dockerfile.
+- **Entrega:** `app/` com Dockerfile.
 - **Depende de:** contrato B. **Começa com dados falsos** no mesmo formato e troca pelo banco quando o Pacote 3 entregar.
-- **Arquivos que mexe:** `dashboard/` (novo).
+- **Arquivos que mexe:** `app/` (novo).
 - **Pronto quando:** abre em http://localhost:8501 e mostra os indicadores com o simulador rodando.
 
 ### Pacote 5 · Docker Compose e infraestrutura (Fase 9, entregável 8) · tamanho M
@@ -282,6 +282,6 @@ Os pontos de ligação são só três: **2 ↔ 3** (função `save_inference`), 
 - Um branch por pacote; juntar no compose só quando a imagem estiver pronta.
 - Não commitar dados (`data/raw`, `data/processed`), nem `*.npy`, nem vídeos. Ver `.gitignore`.
 - **O teste final já foi usado.** Quem for retreinar (Pacote 1) não deve avaliar nele nem ajustar nada olhando para ele.
-- Antes de mexer em `textgloss/`, rodar os testes: `cd textgloss && .venv/Scripts/python -m pytest`.
+- Antes de mexer em `src/textgloss/`, rodar os testes: `cd textgloss && .venv/Scripts/python -m pytest`.
 - Todo documento ou código novo diz se a etapa é **ML nosso**, regra ou externo (pedido do orientador).
 - Chamar a saída de "sequência de sinais", nunca "tradução de Libras".

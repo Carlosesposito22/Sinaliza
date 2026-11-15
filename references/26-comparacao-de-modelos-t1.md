@@ -42,11 +42,11 @@ No MLflow (run `comparacao-modelos` e uma run por modelo): matriz de confusão, 
 Com `docker compose up -d postgres mlflow` e a preparação feita:
 
 ```bash
-textgloss/.venv/Scripts/python -m textgloss.train modelos
+.venv/Scripts/python -m textgloss.train modelos
 ```
 
 ```bash
-textgloss/.venv/Scripts/python -m textgloss.train comparar
+.venv/Scripts/python -m textgloss.train comparar
 ```
 
 ## Decisão em aberto para a fase 5

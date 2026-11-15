@@ -2,7 +2,7 @@
 
 FastAPI 0.115+, pydantic v2, Python 3.12 (no Docker). Título "Sinaliza API", versão `0.3.0`.
 
-**Onde está o ML na API (fase 8):** o classificador T1, treinado por nós e registrado no MLflow como `sinaliza-t1`, decide para cada palavra do texto se ela vira sinal (MANTER) ou não (DESCARTAR). Ele substitui a lista fixa `FUNCTION_WORDS`, que sobrou só como plano B (`model_version: "lista-fixa"`). O restante (tabela do vocabulário, lema, aproximação por embedding, gerador) é regra ou externo. Código do modelo: `textgloss/infer.py`.
+**Onde está o ML na API (fase 8):** o classificador T1, treinado por nós e registrado no MLflow como `sinaliza-t1`, decide para cada palavra do texto se ela vira sinal (MANTER) ou não (DESCARTAR). Ele substitui a lista fixa `FUNCTION_WORDS`, que sobrou só como plano B (`model_version: "lista-fixa"`). O restante (tabela do vocabulário, lema, aproximação por embedding, gerador) é regra ou externo. Código do modelo: `src/textgloss/infer.py`.
 
 ## Arquivos (`api/app/`)
 
