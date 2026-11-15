@@ -21,6 +21,16 @@ Foi escolha do grupo (2026-11-02). Na comparação ele ficou em 0,852, atrás da
 
 Espaço de busca: `n_estimators` 50–200; `max_depth` 10–60; `min_samples_leaf` 1–30 (log); `max_features` `sqrt` ou fração 0,02–0,5 (log); `class_weight` `balanced`, `balanced_subsample` ou nenhum; `criterion` `gini` ou `entropy`.
 
+## Por que Optuna (e não Grid Search ou Random Search)
+
+A especificação aceita Grid Search, Random Search e/ou Optuna, desde que a escolha seja justificada.
+
+- **Grid Search é inviável neste espaço.** São 6 hiperparâmetros, 2 deles contínuos (`max_features` em fração, `min_samples_leaf` em escala log). Uma grade modesta (5 valores para cada numérico, 3 de `class_weight`, 2 de `criterion`, mais `sqrt`) já passa de 3.700 combinações. Cada tentativa (3 dobras na amostra) levou de 8 a 30 segundos, cerca de 20 s em média; a grade levaria mais de **20 horas**, contra **menos de 10 minutos** das 25 tentativas do Optuna. A grade também desperdiça treinos nas regiões ruins (como `max_features="sqrt"`) e só testa os valores que alguém fixou de antemão.
+- **Random Search seria viável**, mas ignora o que já aprendeu: cada tentativa é sorteada sem olhar as anteriores.
+- **Optuna (TPE)** usa as tentativas anteriores para sortear as próximas nas regiões que deram melhor resultado. Com um orçamento pequeno e fixo (25 tentativas), concentra as tentativas onde importa. De fato, 18 das 25 tentativas usaram `max_features` em fração, a região que ganhou. Além disso, o Optuna registra o histórico e a importância de cada hiperparâmetro, que usamos na análise.
+
+**Ressalva honesta:** o topo da busca é plano. As dez melhores tentativas empatam (0,867 a 0,871) e a primeira, sorteada ao acaso, já deu 0,869. Um Random Search com o mesmo orçamento provavelmente teria chegado perto. A vantagem do TPE aqui foi gastar menos tentativas na região ruim e explicar o porquê (importância dos hiperparâmetros), não um ganho grande de F1.
+
 ## Resultado
 
 Melhores parâmetros (tentativa 13): `n_estimators=154`, `max_depth=56`, `min_samples_leaf=3`, `max_features=0,151`, `class_weight="balanced"`, `criterion="gini"`. F1-macro na CV da amostra: **0,8712**.

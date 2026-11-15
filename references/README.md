@@ -48,6 +48,9 @@ Esta pasta existe para que uma sessão nova do Claude (ou uma pessoa nova na equ
 | [`28-validacao-e-generalizacao-t1.md`](28-validacao-e-generalizacao-t1.md) | Validação cruzada, curva de aprendizado e teste fora do domínio da Regressão e do Random Forest |
 | [`29-roteiro-orientador-e-divisao-do-grupo.md`](29-roteiro-orientador-e-divisao-do-grupo.md) | Roteiro da reunião com o orientador e divisão do que falta em 6 pacotes independentes |
 | [`30-roteiro-da-demonstracao.md`](30-roteiro-da-demonstracao.md) | **Roteiro da apresentação e da demonstração ponta a ponta** (`python -m textgloss.demo`), limitações, perguntas prováveis e o que fazer se algo falhar |
+| [`31-requisitos-cadeira-am.md`](31-requisitos-cadeira-am.md) | **Requisitos da cadeira de Aprendizado de Máquina** (transcrição fiel da especificação e da mensagem do professor; PDFs em `Documentos/Aprendizado de Maquina/`) |
+| [`32-template-sbc.md`](32-template-sbc.md) | **Template SBC do relatório de AM**: regras de formatação, primeira página e esqueleto sugerido |
+| [`33-cruzamento-requisitos-am.md`](33-cruzamento-requisitos-am.md) | **Cruzamento AM × Projetos 6 × estado atual**: o que cumprimos e o que falta, com prioridades |
 | [`../docs/guia-web-trilha.md`](../docs/guia-web-trilha.md) | **Guia de partida para as duas pessoas do web**: missão, inspiração no Duolingo, telas, exercícios, cuidados com o avatar, divisão e marcos |
 | [`../docs/contrato-api-web.md`](../docs/contrato-api-web.md) | **Contrato da API para o web** (tradutor e trilha gamificada), regras de gamificação e como usar o mock |
 | [`12-api.md`](12-api.md) | `api/`: endpoints, gerador stub, como plugar o modelo |

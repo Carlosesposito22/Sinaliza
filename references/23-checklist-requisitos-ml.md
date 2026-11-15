@@ -4,6 +4,8 @@ Estes 10 entregáveis são os que **dão a nota** do projeto na parte de Machine
 
 **Como usar:** marque `[x]` só quando o item estiver feito **e verificável** (código no repositório, execução registrada, artefato existente). Ao marcar, anote a data e a evidência (arquivo, run do MLflow, commit). Mantenha o quadro-resumo em dia e reflita mudanças em [`15-estado-atual-e-proximos-passos.md`](15-estado-atual-e-proximos-passos.md).
 
+> **Atenção (2026-11-14):** a cadeira de **Aprendizado de Máquina** mandou a própria especificação ([`31-requisitos-cadeira-am.md`](31-requisitos-cadeira-am.md)). Ela repete estes requisitos e acrescenta o **relatório no template SBC** (20% da nota), LOO, mínimo de 5 visualizações e regras do README. Também cobra **embarcado simulado + MQTT** como critério de avaliação, o que reabre a decisão abaixo. O que falta está em [`33-cruzamento-requisitos-am.md`](33-cruzamento-requisitos-am.md).
+
 ## Fora do escopo: sistema embarcado e MQTT
 
 **Decisão (Carlos, 2026-10-28; reconfirmada em 2026-11-02):** o requisito de **sistema embarcado** não faz parte do grupo, e por consequência o **broker MQTT** (que na rubrica serve só ao embarcado) também não entra. Motivo registrado: o embarcado não é do grupo; não foi dada outra justificativa técnica. A fonte de dados novos é a própria API (frases enviadas pela interface ou por um simulador de uso).
@@ -35,7 +37,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 | # | Entregável | Fase do plano | Situação |
 | --- | --- | --- | --- |
 | 1 | Infraestrutura inicial + bootstrap dataset + persistência | 0, 1 | **Feito** (2026-11-05: corpus no Postgres, simulador de uso e persistência das frases) |
-| 2 | Pipeline de dados no Airflow + notebook de EDA e preparação | 1, 2, 7 | Quase feito (DAGs e notebooks prontos; ferramenta do ruído pronta; falta só a planilha preenchida pela equipe, que não está no repositório) |
+| 2 | Pipeline de dados no Airflow + notebook de EDA e preparação | 1, 2, 7 | **Feito** (2026-11-14: conferência dos 200 rótulos feita pela equipe, ruído geral 8,1%) |
 | 3 | Modelo baseline + MLflow | 3 | **Feito** (2026-11-02): F1-macro 0,876 contra 0,822 da lista fixa |
 | 4 | Três modelos comparados + gráficos + análise crítica | 4 | **Feito** (2026-11-02): Regressão Logística 0,876 > Árvore 0,870 > Random Forest 0,852 > KNN 0,846 |
 | 5 | Otimização de hiperparâmetros (Optuna) | 5 | **Feito** (2026-11-02): Random Forest 0,852 → 0,884 |
@@ -66,9 +68,10 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] DAG de preparação (`preparacao_t1`, 2026-11-05; `pipeline/dags/preparacao_t1.py`; rodou no Airflow com `limite` 3.000 e gerou os conjuntos e `palavras_t1`; a execução completa não foi refeita, pois os dados reais de 2026-11-02 já existem)
 - [x] DAG de treino (`treino_t1`, 2026-11-05; baseline → comparação → Optuna → validação cruzada → teste final com `--se-pendente`; rodou até a validação cruzada numa amostra pequena e num experimento descartável; o teste final foi pulado de propósito)
 - [x] Notebook 01: EDA do VLibrasBD (`notebooks/01-eda-vlibrasbd.ipynb`, executado)
+- [x] EDA reforçada para a cadeira de AM (2026-11-14): estatísticas descritivas (seção 1.1) e 9 figuras numeradas com interpretação; figuras salvas em `reports/figuras/`
 - [x] Notebook 02: preparação (limpeza, normalização, encoding, ausentes) com justificativas (`notebooks/02-preparacao.ipynb`, executado)
 - [x] Rotulagem T1 por alinhamento de lemas (`textgloss/align.py`)
-- [ ] Conferência manual de 200 rótulos e taxa de ruído: **ferramenta pronta** (`python -m textgloss.ruido`, última célula do notebook 02, 6 testes: taxa por classe com IC de 95% e taxa geral ponderada pela proporção real das classes). A equipe informou que já conferiu, mas **a planilha preenchida não está no repositório** (`data/processed/vlibrasbd/amostra_conferencia_200.csv` segue com `rotulo_correto` vazio nas 200 linhas). Falta só o arquivo; os 3 números do slide 5 dependem dele.
+- [x] Conferência manual de 200 rótulos e taxa de ruído. **Feito pela equipe em 2026-11-14**: `data/conferencia/amostra_conferencia_200_revisada.csv`, com o motivo de cada correção. Ruído: rótulo `MANTER` 1% (IC 95% 0,2–5,4%), rótulo `DESCARTAR` 16% (10,1–24,4%), taxa geral ponderada **8,1%** (4,6–11,7%). Análise na seção 8 do notebook 02.
 - [x] Divisão treino/teste agrupada por frase (90/10, por domínio, semente fixa)
 - [x] Dados preparados disponibilizados para o treino (`palavras.parquet` e tabela `palavras_t1`)
 
@@ -114,6 +117,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] Teste fora do domínio (geral ↔ governo): queda de 2 a 4 pontos
 - [x] Teste final no conjunto separado (Random Forest otimizado, usado uma única vez: F1-macro 0,8849; modelo registrado como `sinaliza-t1` v1)
 - [x] Discussão escrita de generalização (`28-validacao-e-generalizacao-t1.md` e `notebooks/05-validacao-e-generalizacao.ipynb`)
+- [x] Estratégia de validação justificada, incluindo por que Leave-One-Out não se aplica (2026-11-14; exigência da cadeira de AM; seção "Estratégia de validação" em `28` e célula 0 do notebook 05). Escolha do Optuna frente a Grid/Random justificada em `27` e na célula 0 do notebook 04
 
 ## 7. Integração do modelo ao pipeline
 
@@ -159,4 +163,4 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] Ensaio com `docker compose up` do zero (2026-11-08): numa cópia limpa do repositório, ver o item 8 e a demonstração automática 7/7.
 - [x] Justificativa das decisões técnicas (slide 12 e tabela de perguntas prováveis do roteiro).
 - [x] Limitações discutidas (slide 11 e seção do roteiro): ordem dos sinais, ausência de validação por falantes de Libras, ruído dos rótulos, escopo sem embarcado/MQTT e o porquê, privacidade, infraestrutura.
-- [x] Slides/apresentação pronta (2026-11-08): deck de 14 slides com notas de fala, publicado como artefato privado. **Pendente:** o slide 5 tem 3 números `[__ %]` a preencher com a conferência manual; o layout não foi conferido visualmente; ensaiar com o grupo.
+- [x] Slides/apresentação pronta (2026-11-08): deck de 14 slides com notas de fala, publicado como artefato privado. **Pendente:** o slide 5 tem 3 números `[__ %]` a preencher com a conferência manual (valores em 2026-11-14: `MANTER` 1%, `DESCARTAR` 16%, geral 8,1%); o layout não foi conferido visualmente; ensaiar com o grupo.

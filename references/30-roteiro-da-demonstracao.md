@@ -35,7 +35,7 @@ Roteiro da apresentação (entregável 10) e da demonstração automática (entr
 
 - **O modelo decide quais sinais entram, não a ordem.** A saída segue a ordem do português ("português sinalizado"); a ordem da Libras exigiria outro modelo (ex.: seq2seq).
 - **Nenhuma validação por pessoas surdas** ou falantes de Libras. Sinais, aproximações e frases são propostas não validadas.
-- **Ruído nos rótulos:** o rótulo vem de um alinhamento automático; a equipe conferiu 200 palavras para medir isso (resultado em [`24`](24-pipeline-de-dados-ponta-a-ponta.md), quando a planilha preenchida entrar no repositório).
+- **Ruído nos rótulos:** o rótulo vem de um alinhamento automático; a equipe conferiu 200 palavras à mão: 8,1% de rótulos errados no geral, quase todos palavras marcadas `DESCARTAR` que o intérprete manteve com outra forma (16% nessa classe, contra 1% em `MANTER`). Detalhes na seção 8 do notebook 02.
 - **O modelo erra:** descarta "preciso" (o spaCy o trata como adjetivo) e oscila em "eu"; fora do domínio (outro tipo de texto) o desempenho cai de 2 a 4 pontos; o ganho sobre a lista fixa é de 6 pontos, não um salto.
 - **Texto com várias frases** é tratado como uma frase só.
 - **Escopo:** sem sistema embarcado nem MQTT (o embarcado não é do grupo); a fonte de dados novos é um simulador de uso.
