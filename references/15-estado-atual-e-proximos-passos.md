@@ -4,7 +4,7 @@
 
 **Resumo.** Os 10 entregáveis do [checklist](23-checklist-requisitos-ml.md) têm entrega, com três pontas soltas (abaixo). O modelo do T1 (manter ou descartar cada palavra) é o **Random Forest otimizado**, F1-macro 0,885 no teste final contra 0,823 da lista fixa, registrado no MLflow como `sinaliza-t1` v1. O Airflow orquestra o pipeline (4 DAGs), a **API usa o `sinaliza-t1`** no `/translate` (com plano B), grava as frases, há um simulador de uso, um painel e uma **demonstração automática** (`python -m textgloss.demo`). **Testado em 2026-11-08 numa cópia limpa do repositório com a pilha inteira** (6 serviços, perfil `demo`): o Airflow rodou ingestão, preparação e treino sozinho e a demonstração passou 7 de 7. A documentação do R0 está em [`24`](24-pipeline-de-dados-ponta-a-ponta.md) e o roteiro da apresentação em [`30`](30-roteiro-da-demonstracao.md); o deck de 14 slides foi publicado como artefato privado.
 
-**Três pontas soltas:** (1) **a planilha dos 200 rótulos conferidos pela equipe não está no repositório** (a coluna `rotulo_correto` está vazia); com ela, `python -m textgloss.ruido` calcula o ruído e preenche os 3 números do slide 5; (2) o **perfil `completo` inteiro no Docker** está rodando (começou em 2026-11-07 às 23:51) e o resultado ainda não foi registrado; (3) a apresentação não foi ensaiada com o grupo e o layout dos slides não foi conferido visualmente.
+**Três pontas soltas:** (1) ~~planilha dos 200 rótulos~~ **conferida pela equipe em 2026-11-14** (`data/conferencia/amostra_conferencia_200_revisada.csv`; ruído geral 8,1%); falta pôr 1%, 16% e 8,1% no slide 5; (2) o **perfil `completo` inteiro no Docker** está rodando (começou em 2026-11-07 às 23:51) e o resultado ainda não foi registrado; (3) a apresentação não foi ensaiada com o grupo e o layout dos slides não foi conferido visualmente.
 
 ### O que está feito (e onde)
 
@@ -29,7 +29,7 @@ Decisões fechadas: abordagem por **glosa** aprovada pelo orientador; **embarcad
 
 ### Pendências menores
 
-- **Conferência manual das 200 palavras:** a equipe informou que já conferiu, mas a planilha preenchida **não está neste repositório** (`data/processed/vlibrasbd/amostra_conferencia_200.csv` segue com `rotulo_correto` vazio). Com o arquivo no lugar, rode `python -m textgloss.ruido` (taxa por classe com intervalo de 95% e taxa geral ponderada pela proporção real das classes; também na última célula do notebook 02).
+- **Conferência manual das 200 palavras:** feita pela equipe em 2026-11-14. Resultado em `data/conferencia/amostra_conferencia_200_revisada.csv` e na seção 8 do notebook 02 (`MANTER` 1%, `DESCARTAR` 16%, geral 8,1%). Para recalcular: `python -m textgloss.ruido data/conferencia/amostra_conferencia_200_revisada.csv`.
 - **R0 (orientador):** feito em 2026-11-08: [`24`](24-pipeline-de-dados-ponta-a-ponta.md) cobre o fluxo inteiro (diagrama, onde está o ML, mapa de etapas) e o README da raiz aponta para ele.
 - Avaliação ponta a ponta contra o `vlibras-translate` (BLEU/chrF/WER): opcional, não é da rubrica.
 - Os valores de CV e fora do domínio usaram amostras; ver os limites em [`28`](28-validacao-e-generalizacao-t1.md).
