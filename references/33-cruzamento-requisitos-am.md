@@ -12,7 +12,7 @@ As duas listas técnicas são praticamente a mesma (o professor diz que a de AM 
 | --- | --- | --- |
 | Análise de Dados (15%) | ✅ (2026-11-14) | Nada |
 | Modelagem e Validação (30%) | ✅ completo (2026-11-14) | Nada técnico. Falta só levar ao relatório SBC |
-| MLOps (25%) | ✅ (2026-11-15) | Embarcado + MQTT e os 4 experimentos feitos. Opcional: registrar o perfil `completo` |
+| MLOps (25%) | ✅ (2026-11-15) | Embarcado + MQTT e os 4 experimentos feitos; perfil `completo` executado em 2026-11-15 |
 | Comunicação (20%) | ✅ (2026-11-15) | Relatório no template oficial da SBC: `reports/relatorio-sinaliza-sbc.pdf` (11 páginas), fonte em `reports/relatorio/` e projeto no Overleaf `sinaliza-relatorio-sbc` |
 | (10% não declarados) | ? | Os pesos somam 90%; provavelmente a apresentação final. Perguntar ao professor |
 
@@ -100,7 +100,7 @@ Verificado em 2026-11-14 com a pilha real (`docker compose up -d --build`, 10 se
 | Requisito de AM | Situação | Evidência / o que falta |
 | --- | --- | --- |
 | Compose com broker MQTT, banco, Airflow, MLflow, API, dashboard | ✅ | 10 serviços com `docker compose up -d --build` (2026-11-14) |
-| Execução completa com um único comando | ✅ | `docker compose up -d --build`, testado em cópia limpa (perfil `demo`). Perfil `completo` ainda sem resultado registrado |
+| Execução completa com um único comando | ✅ | `docker compose up -d --build`, testado em cópia limpa com os dois perfis: `demo` (minutos) e `completo` (2026-11-15: 1 h 28 min com 8 CPUs e 8 GB, F1-macro 0,885 no teste, o mesmo do treino local) |
 
 ### Apresentação final
 
@@ -131,5 +131,5 @@ Verificado em 2026-11-14 com a pilha real (`docker compose up -d --build`, 10 se
 3. ~~EDA: ≥ 5 visualizações e estatísticas descritivas~~ (feito em 2026-11-14).
 4. ~~Justificativas de LOO e Optuna~~ e ~~experimentos separados no MLflow~~ (feitos em 2026-11-14 e 2026-11-15).
 5. ~~README: membros, Google Sites, mapa de pastas, `reports/`~~ (feito em 2026-11-15). Falta só o PDF do relatório em `reports/`.
-6. Pendências antigas que seguem valendo: perfil `completo`, ensaio, 3 números do slide 5 (1%, 16% e 8,1%).
+6. Pendências antigas que seguem valendo: ~~perfil `completo`~~ (feito em 2026-11-15), ensaio, 3 números do slide 5 (1%, 16% e 8,1%).
 7. Perguntar ao professor: os 10% que faltam nos pesos; se o template no Google Docs exportado em PDF é aceito.

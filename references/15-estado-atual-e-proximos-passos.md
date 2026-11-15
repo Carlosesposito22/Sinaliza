@@ -8,7 +8,7 @@
 
 **Novo em 2026-11-14 (cadeira de AM, ver [`33`](33-cruzamento-requisitos-am.md)):** sistema embarcado **simulado** e **MQTT** implementados: dois totens (`embedded/`) publicam no broker Mosquitto, o `receptor/` grava em `mensagens_mqtt` e pede a inferência à API; aba **Totens (MQTT)** no painel; demonstração automática com 8 etapas (8 de 8). Em 2026-11-15: README com equipe e Google Sites, MLflow com um experimento por etapa e o **relatório SBC** pronto (`reports/relatorio-sinaliza-sbc.pdf`, fonte em `reports/relatorio/`). Falta para AM: a etapa do MQTT e os números da conferência nos slides, e o ensaio.
 
-**Três pontas soltas:** (1) ~~planilha dos 200 rótulos~~ **conferida pela equipe em 2026-11-14** (`data/conferencia/amostra_conferencia_200_revisada.csv`; ruído geral 8,1%); falta pôr 1%, 16% e 8,1% no slide 5; (2) o **perfil `completo` inteiro no Docker** ainda não tem resultado registrado (a pilha de teste `limpo` foi interrompida quando o Docker reiniciou; os contêineres estão parados); (3) a apresentação não foi ensaiada com o grupo e o layout dos slides não foi conferido visualmente.
+**Três pontas soltas:** (1) ~~planilha dos 200 rótulos~~ **conferida pela equipe em 2026-11-14** (`data/conferencia/amostra_conferencia_200_revisada.csv`; ruído geral 8,1%); falta pôr 1%, 16% e 8,1% no slide 5; (2) ~~perfil `completo` inteiro no Docker~~ **executado em 2026-11-15: 1 h 28 min com 8 CPUs e 8 GB, F1-macro 0,885 no teste, igual ao treino local** (detalhes em [`14`](14-como-rodar-e-testar.md)); (3) a apresentação não foi ensaiada com o grupo e o layout dos slides não foi conferido visualmente.
 
 ### O que está feito (e onde)
 

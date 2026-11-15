@@ -43,7 +43,7 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 | 5 | Otimização de hiperparâmetros (Optuna) | 5 | **Feito** (2026-11-02): Random Forest 0,852 → 0,884 |
 | 6 | Validação cruzada e generalização | 6 | **Feito** (2026-11-02): teste final do Random Forest otimizado F1-macro 0,885, contra 0,823 da lista fixa |
 | 7 | Integração do modelo ao pipeline | 8 | **Feito** (2026-11-08: modelo na API, simulador, gravação, monitoramento e demonstração automática 7/7) |
-| 8 | Conteinerização com Docker Compose | 9 | **Quase feito** (2026-11-08: pilha completa testada numa cópia limpa (perfil `demo`, demonstração automática 7/7); falta registrar o perfil `completo` inteiro, em andamento) |
+| 8 | Conteinerização com Docker Compose | 9 | **Quase feito** (2026-11-08: pilha completa testada numa cópia limpa (perfil `demo`, demonstração automática 7/7); perfil `completo` inteiro executado em 2026-11-15: 1 h 28 min, F1-macro 0,885 no teste) |
 | 9 | Dashboard integrado | 10 | **Feito** (2026-11-07: painel Streamlit com 4 abas, verificado com dados reais, 24 testes; usa o `monitoramento` para os indicadores) |
 | 10 | Apresentação da solução completa | 11 | **Quase feito** (2026-11-08: deck de 14 slides e roteiro prontos; faltam 3 números do slide 5 e ensaiar) |
 
@@ -145,11 +145,11 @@ Isso vira um requisito transversal, o **R0**, que vale para todos os outros:
 - [x] `dashboard` (2026-11-07; porta 8501, depende de postgres e mlflow saudáveis)
 - [x] `mosquitto`, `receptor`, `totem-ubs` e `totem-inss` (2026-11-14; os totens só publicam depois que o receptor assinou os tópicos)
 - [x] Ordem de subida com healthchecks (postgres → mlflow → api `/ready` → airflow e web; 2026-11-07)
-- [x] Primeira subida automática (ingestão → preparação → treino) em máquina limpa, perfis `demo` e `completo` (`airflow/bootstrap.sh`; só o `demo` foi executado)
+- [x] Primeira subida automática (ingestão → preparação → treino) em máquina limpa, perfis `demo` e `completo` (`airflow/bootstrap.sh`; os dois executados)
 - [x] Testado numa cópia limpa do repositório, volumes vazios, perfil `demo` (2026-11-07): tudo de pé, modelo registrado e usado pela API, simulador e monitoramento funcionando; `down` e `up` repetidos
 - [x] `web` compila e sobe no compose (2026-11-08: imports corrigidos em 2026-11-08 (sem mover nem renomear arquivos): `App.tsx` apontava `about`, `lesson` e `translator` para `src/features/...`, `Translatorpage.tsx` importava `../../api` e `Trail.test.ts`/`TrailPage.tsx` importavam `./Trail` (o arquivo é `trail.ts`); verificado: `tsc` + `vite build`, vitest 6/6 e `docker compose up --build web` com a API real; a aba Trilha depende de `/learn/*`, que só o `mock-api` tem)
 - [x] Um único comando sobe tudo, **incluindo web e dashboard**, testado em máquina limpa (2026-11-08: cópia limpa do repositório, volumes vazios, perfil `demo`, `docker compose up -d --build`: 6 serviços; o Airflow rodou ingestão, preparação e treino sozinho, a API pegou o `sinaliza-t1` sem reiniciar, `python -m textgloss.demo` 7/7; web e painel respondendo; pilha em ~2,2 GB). O teste achou e corrigiu duas falhas: o `ingest` gravava a resposta ruim do Mendeley (um erro em JSON de 395 bytes com status 200) como se fosse o CSV e nunca baixava de novo, e o `--allowed-hosts` do MLflow bloqueava quem remapeasse a porta.
-- [ ] Perfil `completo` executado inteiro no Docker (em andamento: começou em 2026-11-07 às 23:51 numa pilha limpa; resultado e duração a registrar)
+- [x] Perfil `completo` executado inteiro no Docker (2026-11-15, cópia limpa, 8 CPUs e 8 GB: 1 h 28 min, todas as tarefas em `success`, F1-macro 0,885 no teste, igual ao treino local; detalhes em `14`)
 
 ## 9. Dashboard
 
