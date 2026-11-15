@@ -97,7 +97,7 @@ próprio `Dockerfile` na pasta de cada um.
 docker compose up -d --build
 ```
 
-Sobe `postgres`, `mlflow`, `api`, `airflow`, `dashboard`, `web`, o broker MQTT (`mosquitto`), o `receptor` e os dois totens simulados (`totem-ubs`, `totem-inss`), **na ordem certa** (a API passa pela carga do modelo antes do Airflow). Isso basta num clone novo: o build do front baixa sozinho os sinais do VLibras (precisa de internet no primeiro build) e, **numa máquina sem dados**, o Airflow roda sozinho a ingestão, a preparação e o treino. Para uma demonstração em minutos: `$env:SINALIZA_PERFIL="demo"; docker compose up -d --build` (o padrão, `completo`, leva horas). As opções estão em [`.env.example`](.env.example).
+Sobe `postgres`, `mlflow`, `api`, `airflow`, `dashboard`, `web`, o broker MQTT (`mosquitto`), o `receptor` e os dois totens simulados (`totem-ubs`, `totem-inss`), **na ordem certa** (a API passa pela carga do modelo antes do Airflow). Isso basta num clone novo: o build do front baixa sozinho os sinais do VLibras (precisa de internet no primeiro build) e, **numa máquina sem dados**, o Airflow roda sozinho a ingestão, a preparação e o treino. Para uma demonstração em minutos: `$env:SINALIZA_PERFIL="demo"; docker compose up -d --build` (o padrão, `completo`, treina no corpus inteiro: 1 h 28 min medidos com 8 CPUs e 8 GB reservados ao Docker; com menos recursos, use o `demo`). As opções estão em [`.env.example`](.env.example).
 
 | Serviço | Endereço |
 | --- | --- |
