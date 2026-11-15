@@ -233,6 +233,8 @@ hiperparâmetros fixos (Tabela~\ref{tab:comparacao}).
 \caption{Desempenho no conjunto de validação. ROC-AUC e PR-AUC da lista fixa são calculados sobre a
 decisão binária e não são comparáveis às dos modelos.}
 \label{tab:comparacao}
+\small
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lccccc}
 \hline
 Modelo & F1-macro & ROC-AUC & PR-AUC & Rev. \texttt{DESCARTAR} & F1 treino \\
@@ -400,6 +402,10 @@ mensagens perdidas pela numeração), a versão e as métricas do modelo e o est
 \textbf{Docker.} Um único \texttt{docker compose up -d -{}-build} sobe os dez serviços (PostgreSQL,
 MLflow, API, Airflow, painel, front web, broker MQTT, receptor e dois totens) na ordem certa, em cerca de
 2,7~GB de memória. Uma demonstração automática percorre as oito etapas do fluxo e passou em todas.
+Para conferir a reprodutibilidade, o mesmo comando foi executado numa cópia limpa do repositório, com
+volumes vazios: o Airflow rodou sozinho ingestão, preparação do corpus inteiro e treino em 1~h 28~min
+(Docker com 8 CPUs e 8~GB), registrou o modelo e a API passou a usá-lo; o F1-macro no teste foi o
+mesmo do treino original (0,885).
 
 \section{Limitações}\label{sec:limitacoes}
 
@@ -410,7 +416,8 @@ MLflow, API, Airflow, painel, front web, broker MQTT, receptor e dois totens) na
   medido é proximidade às glosas, não correção linguística.
 \item A generalização para outros assuntos é fraca (queda de 2 a 4 pontos fora do domínio), e o
   modelo foi treinado em frases isoladas, enquanto a API recebe textos que podem ter várias frases.
-\item O modelo escolhido exige cerca de 2,8~GB na carga e 25 minutos de treino; a Regressão Logística
+\item O modelo escolhido exige cerca de 2,8~GB na carga, e o pipeline completo precisa de cerca de
+  8 CPUs e 8~GB (com 2 CPUs e 4~GB a preparação passou de 9 horas sem terminar); a Regressão Logística
   seria uma alternativa mais leve com só 0,4 ponto a menos.
 \item O sistema embarcado é simulado e o broker roda sem autenticação nem TLS, adequado só ao uso
   local.
