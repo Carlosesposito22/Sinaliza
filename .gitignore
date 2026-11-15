@@ -35,3 +35,6 @@ mlflow.db
 # Artefatos do MLflow (2 GB: modelos, figuras): a pasta existe no repositório, o conteúdo não.
 mlruns/*
 !mlruns/README.md
+
+# Gerado pelo `pip install -e .`
+*.egg-info/
