@@ -12,3 +12,4 @@ nbconvert>=7.16
 pytest>=8
 mlflow==3.17.2
 optuna==5.0.0
+paho-mqtt>=2.1,<3

@@ -140,3 +140,22 @@ def comparacao_modelos(frame: pd.DataFrame, t: dict, destaque: str = "random-for
     )
     labels = base.mark_text(align="left", dx=12, fontSize=12, color=t["ink"]).encode(text=alt.Text("f1_macro:Q", format=".3f"))
     return _style((dots + labels).properties(height=max(120, 34 * len(data) + 30)), t)
+
+
+def mensagens_por_totem(frame: pd.DataFrame, t: dict):
+    """Uma linha por totem: mensagens recebidas pelo broker em cada intervalo. Os dois com mais mensagens ficam em
+    azul e laranja; os demais (ex.: o `totem-demo` da demonstração automática), em cinza."""
+    names = frame.groupby("dispositivo")["mensagens"].sum().sort_values(ascending=False, kind="stable").index.tolist()
+    palette = [t["series1"], t["series2"]] + [t["gray"]] * max(len(names) - 2, 0)
+    color = alt.Color("dispositivo:N", title=None, sort=names, scale=alt.Scale(domain=names, range=palette[: len(names)]))
+    base = alt.Chart(frame).encode(
+        x=alt.X("hora:T", title="horário (UTC)", axis=alt.Axis(format="%d/%m %H:%M", labelOverlap=True, grid=False)),
+        y=alt.Y("mensagens:Q", title="mensagens", axis=alt.Axis(tickMinStep=1), scale=alt.Scale(zero=True)),
+        color=color,
+    )
+    lines = base.mark_line(strokeWidth=2)
+    points = base.mark_point(filled=True, size=40).encode(
+        tooltip=[alt.Tooltip("hora:T", title="início", format="%d/%m %H:%M"), alt.Tooltip("dispositivo:N", title="totem"),
+                 alt.Tooltip("mensagens:Q", title="mensagens")],
+    )
+    return _style((lines + points).properties(height=HEIGHT), t)

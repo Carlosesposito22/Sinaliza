@@ -1,4 +1,5 @@
 import json
+import socket
 import threading
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -39,6 +40,12 @@ def server():
     httpd.shutdown()
 
 
+_BROKER = socket.socket()
+_BROKER.bind(("127.0.0.1", 0))
+_BROKER.listen()
+BROKER = f"127.0.0.1:{_BROKER.getsockname()[1]}"  # só aceita a conexão TCP: basta para a checagem da etapa 1
+
+
 def stack(server, tmp_path, modelo="sinaliza-t1/1"):
     """Um 'sistema' falso inteiro atrás de um só servidor HTTP e de um SQLite."""
     banco = f"sqlite:///{tmp_path}/demo.db"
@@ -55,7 +62,7 @@ def stack(server, tmp_path, modelo="sinaliza-t1/1"):
         "glosses": ["FILHO"], "model_version": modelo, "latency_ms": 7,
         "matches": [{"word": "filho", "decision": "MANTER", "probability": 0.92, "kind": "exact", "gloss": "FILHO"},
                     {"word": "o", "decision": "DESCARTAR", "probability": 0.02, "kind": "function", "gloss": None}]})
-    return demo.Alvos(api=server, mlflow=server, airflow=server, painel=server, banco=banco)
+    return demo.Alvos(api=server, mlflow=server, airflow=server, painel=server, banco=banco, mqtt=BROKER)
 
 
 def lines():
@@ -67,7 +74,7 @@ def test_servicos_ok_when_everything_answers(server, tmp_path):
     saida, out = lines()
     resultado = demo.servicos(stack(server, tmp_path), out)
     assert resultado.ok and "todos respondem" in resultado.detalhe
-    assert "modelo em uso: sinaliza-t1/1" in saida[0] and "banco ok" in saida[0]
+    assert "modelo em uso: sinaliza-t1/1" in saida[0] and "banco ok" in saida[0] and "broker MQTT ok" in saida[0]
 
 
 def test_servicos_fails_when_the_api_runs_without_the_model(server, tmp_path):
@@ -77,8 +84,15 @@ def test_servicos_fails_when_the_api_runs_without_the_model(server, tmp_path):
 
 def test_servicos_reports_what_is_down(server, tmp_path):
     alvos = stack(server, tmp_path)
-    resultado = demo.servicos(demo.Alvos(api=alvos.api, mlflow="http://127.0.0.1:9", airflow=alvos.airflow, painel=alvos.painel, banco=alvos.banco), lines()[1])
-    assert not resultado.ok and "MLflow sem resposta" in resultado.detalhe
+    resultado = demo.servicos(demo.Alvos(api=alvos.api, mlflow="http://127.0.0.1:9", airflow=alvos.airflow, painel=alvos.painel,
+                                         banco=alvos.banco, mqtt="127.0.0.1:9"), lines()[1])
+    assert not resultado.ok and "MLflow sem resposta" in resultado.detalhe and "broker MQTT sem resposta" in resultado.detalhe
+
+
+def test_totem_mqtt_fails_cleanly_when_the_broker_is_down(server, tmp_path):
+    alvos = stack(server, tmp_path)
+    resultado = demo.totem_mqtt(demo.Alvos(banco=alvos.banco, mqtt="127.0.0.1:9"), lines()[1])
+    assert not resultado.ok and "sem resposta" in resultado.detalhe
 
 
 def test_modelo_checks_that_the_registered_version_is_the_one_in_use(server, tmp_path):
@@ -132,5 +146,5 @@ def test_painel_checks_the_streamlit_health(server, tmp_path):
 
 
 def test_every_step_has_a_title_a_message_and_a_function():
-    assert len(demo.ETAPAS) == 7
+    assert len(demo.ETAPAS) == 8
     assert all(titulo and ideia and callable(funcao) for titulo, ideia, funcao in demo.ETAPAS)

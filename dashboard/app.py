@@ -1,6 +1,7 @@
 """Painel do Sinaliza: monitoramento do classificador T1 em execução.
 
-ETAPA: visualização (sem ML novo). Lê o Postgres (`inferencias`, `indicadores_horarios`), a API, o MLflow e o Airflow.
+ETAPA: visualização (sem ML novo). Lê o Postgres (`inferencias`, `indicadores_horarios`, `mensagens_mqtt`, `totens`),
+a API, o MLflow, o Airflow e o broker MQTT.
 O que o modelo faz: decide, palavra por palavra, se ela vira sinal (MANTER) ou não (DESCARTAR). A saída da API é uma
 sequência de sinais, não uma tradução de Libras.
 
@@ -173,6 +174,50 @@ def inferences(recent: pd.DataFrame, since: datetime, tokens: dict) -> None:
         st.caption("Só entram frases com o texto gravado. São candidatas a entrar no vocabulário (sempre a validar com quem sabe Libras).")
 
 
+def totems_tab(engine, since: datetime, tokens: dict) -> None:
+    st.caption(
+        "Aquisição de dados: os **totens de atendimento simulados** (sistema embarcado, `embedded/`) publicam frases no "
+        "broker **MQTT**; o `receptor` grava cada mensagem em `mensagens_mqtt` e pede a inferência ao modelo pela API."
+    )
+    try:
+        msgs, devices = data.load_mqtt(engine), data.load_devices(engine)
+    except Exception as error:
+        st.error(f"Não foi possível ler as mensagens dos totens ({type(error).__name__}).")
+        return
+    window = msgs[msgs["recebida_em"] >= pd.Timestamp(since)]
+    summary = data.mqtt_summary(window)
+    online = int((devices["status"] == "online").sum()) if not devices.empty else 0
+    cols = st.columns(5)
+    cols[0].metric("Online", f"{online} de {len(devices)}")
+    cols[1].metric("Mensagens", summary["mensagens"])
+    cols[2].metric("Inferidas", pct(summary["inferidas"] / summary["mensagens"]) if summary["mensagens"] else "—",
+                   help="Inferidas / recebidas. As demais foram rejeitadas (nenhuma palavra com sinal), deram erro na API ou eram inválidas.")
+    cols[3].metric("p95 ponta a ponta", "—" if summary["latencia_p95_ms"] is None else f"{summary['latencia_p95_ms']:.0f}ms",
+                   help="Do envio pelo totem até a inferência gravada (MQTT + receptor + API + modelo).")
+    cols[4].metric("Perdidas", summary["perdidas"], help="Buracos na numeração (`seq`) de cada totem.")
+    if summary["erros"] or summary["invalidas"]:
+        st.warning(f"{summary['erros']} mensagem(ns) com erro na API e {summary['invalidas']} inválida(s) na janela. Veja a coluna “status”.")
+
+    st.subheader("Totens")
+    if devices.empty and msgs.empty:
+        st.info("Nenhum totem se conectou ainda. Suba os serviços `mosquitto`, `receptor` e `totem-*` do compose.")
+        return
+    table = data.devices_table(window, devices)
+    table["última mensagem"] = table["última mensagem"].map(ago)
+    st.dataframe(table, hide_index=True, width="stretch")
+
+    st.subheader("Mensagens recebidas por 10 minutos")
+    per = data.mqtt_per_interval(window, since)
+    if per.empty:
+        st.info("Nenhuma mensagem nesta janela.")
+    else:
+        show(charts.mensagens_por_totem(per, tokens))
+
+    st.subheader("Últimas mensagens")
+    st.dataframe(data.mqtt_recent_table(window), hide_index=True, width="stretch")
+    st.caption("Os totens são simulados e só enviam frases públicas (`data/phrases.json`), por isso o texto é gravado.")
+
+
 def model_tab(config: data.Config, tokens: dict) -> None:
     in_use = data.api_model(config.api_url)
     registry = data.registered_model(config.mlflow_url)
@@ -241,7 +286,7 @@ def main() -> None:
         st.header("Painel")
         window_label = st.selectbox("Janela de tempo", list(WINDOWS), index=1)
         auto = st.toggle(f"Atualizar a cada {REFRESH_SECONDS} s", value=True)
-        st.caption("Horários em UTC. Fontes: Postgres, API, MLflow e Airflow.")
+        st.caption("Horários em UTC. Fontes: Postgres, API, MLflow, Airflow e broker MQTT.")
 
     st.title("Sinaliza · painel do modelo")
     st.caption(
@@ -261,11 +306,14 @@ def main() -> None:
             st.error(f"Não foi possível ler o banco ({type(error).__name__}). Veja a aba Serviços.")
             recent, hourly, totals = (pd.DataFrame(columns=data.RECENT_COLUMNS), pd.DataFrame(columns=data.HOURLY_COLUMNS),
                                       {"frases": 0, "pendentes": 0, "ultima": None, "primeira": None, "consolidado_ate": None})
-        tab_overview, tab_inferences, tab_model, tab_services = st.tabs(["Visão geral", "Inferências", "Modelo", "Serviços"])
+        tab_overview, tab_inferences, tab_totems, tab_model, tab_services = st.tabs(
+            ["Visão geral", "Inferências", "Totens (MQTT)", "Modelo", "Serviços"])
         with tab_overview:
             overview(config, hourly, totals, since, tokens)
         with tab_inferences:
             inferences(recent, since, tokens)
+        with tab_totems:
+            totems_tab(engine, since, tokens)
         with tab_model:
             model_tab(config, tokens)
         with tab_services:

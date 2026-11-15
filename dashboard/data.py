@@ -1,6 +1,7 @@
 """Acesso a dados do painel: Postgres, API e MLflow. Sem Streamlit, para poder ser testado.
 
-ETAPA: visualização (sem ML novo). Só lê. As tabelas `inferencias` (uma linha por frase atendida pela API) e
+ETAPA: visualização (sem ML novo). Só lê. As tabelas `mensagens_mqtt` e `totens` (aquisição pelos totens via
+MQTT) vêm de `receptor/receptor.py`. As tabelas `inferencias` (uma linha por frase atendida pela API) e
 `indicadores_horarios` (consolidação do DAG `monitoramento`) vêm de `textgloss/monitor.py`; o modelo e as métricas
 vêm do MLflow; o estado dos serviços vem de chamadas a cada um.
 
@@ -46,6 +47,8 @@ class Config:
     mlflow_public_url: str
     airflow_url: str
     experiment: str
+    mqtt_host: str = ""
+    mqtt_port: int = 1883
 
     @classmethod
     def from_env(cls) -> "Config":
@@ -57,6 +60,8 @@ class Config:
             mlflow_public_url=os.environ.get("SINALIZA_MLFLOW_PUBLIC_URL", "http://localhost:5000"),
             airflow_url=os.environ.get("SINALIZA_AIRFLOW_URL", ""),
             experiment=os.environ.get("SINALIZA_MLFLOW_EXPERIMENT", "t1-manter-descartar"),
+            mqtt_host=os.environ.get("MQTT_HOST", ""),
+            mqtt_port=int(os.environ.get("MQTT_PORT", "1883")),
         )
 
 
@@ -249,6 +254,120 @@ def recent_table(recent: pd.DataFrame, limit: int = 40) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+# --- Aquisição pelos totens (MQTT) ---------------------------------------------------------------------------------
+# Tabelas `mensagens_mqtt` e `totens`, gravadas pelo `receptor/` (uma linha por mensagem recebida do broker).
+
+MQTT_COLUMNS = [
+    "id", "msg_id", "dispositivo", "local", "seq", "enviada_em", "recebida_em", "texto", "status", "glosas",
+    "versao_modelo", "latencia_api_ms", "latencia_total_ms", "tentativas", "erro",
+]
+DEVICE_COLUMNS = ["dispositivo", "status", "local", "atualizado_em"]
+
+
+def load_mqtt(engine, limit: int = 5000) -> pd.DataFrame:
+    """As últimas mensagens recebidas dos totens (mais novas primeiro), com horários em UTC."""
+    if not _has_table(engine, "mensagens_mqtt"):
+        return pd.DataFrame(columns=MQTT_COLUMNS)
+    sql = text(f"SELECT {', '.join(MQTT_COLUMNS)} FROM mensagens_mqtt ORDER BY id DESC LIMIT :limit")
+    frame = pd.read_sql(sql, engine, params={"limit": limit})
+    for column in ("enviada_em", "recebida_em"):
+        frame[column] = pd.to_datetime(frame[column], utc=True)
+    return frame
+
+
+def load_devices(engine) -> pd.DataFrame:
+    if not _has_table(engine, "totens"):
+        return pd.DataFrame(columns=DEVICE_COLUMNS)
+    frame = pd.read_sql(text(f"SELECT {', '.join(DEVICE_COLUMNS)} FROM totens ORDER BY dispositivo"), engine)
+    frame["atualizado_em"] = pd.to_datetime(frame["atualizado_em"], utc=True)
+    return frame
+
+
+def lost_messages(seqs: pd.Series) -> int:
+    """Mensagens perdidas pelos buracos em `seq` (em ordem de chegada). Se a sequência volta (o totem reiniciou e
+    recomeçou do 1), conta cada trecho separado."""
+    values = [int(v) for v in seqs.dropna()]
+    lost, segment = 0, []
+    for value in values + [None]:
+        if segment and (value is None or value <= segment[-1]):
+            lost += segment[-1] - segment[0] + 1 - len(set(segment))
+            segment = []
+        if value is not None:
+            segment.append(value)
+    return lost
+
+
+def mqtt_summary(msgs: pd.DataFrame) -> dict:
+    """Indicadores da aquisição numa janela: volume, desfecho de cada mensagem, latência ponta a ponta e perdas."""
+    if msgs.empty:
+        return {"mensagens": 0, "inferidas": 0, "rejeitadas": 0, "erros": 0, "invalidas": 0, "pendentes": 0,
+                "latencia_p50_ms": None, "latencia_p95_ms": None, "perdidas": 0}
+    status = msgs["status"].value_counts()
+    latency = msgs.loc[msgs["status"] == "inferida", "latencia_total_ms"].dropna()
+    ordered = msgs.sort_values("id")
+    return {
+        "mensagens": len(msgs),
+        "inferidas": int(status.get("inferida", 0)),
+        "rejeitadas": int(status.get("rejeitada", 0)),
+        "erros": int(status.get("erro", 0)),
+        "invalidas": int(status.get("invalida", 0)),
+        "pendentes": int(status.get("recebida", 0)),
+        "latencia_p50_ms": float(latency.quantile(0.5)) if len(latency) else None,
+        "latencia_p95_ms": float(latency.quantile(0.95)) if len(latency) else None,
+        "perdidas": sum(lost_messages(group["seq"]) for _, group in ordered.groupby("dispositivo")),
+    }
+
+
+def devices_table(msgs: pd.DataFrame, devices: pd.DataFrame) -> pd.DataFrame:
+    """Uma linha por totem: estado (do tópico de status), mensagens e perdas na janela, última mensagem."""
+    names = sorted(set(devices["dispositivo"].dropna()) | set(msgs["dispositivo"].dropna()))
+    out = []
+    for name in names:
+        mine = msgs[msgs["dispositivo"] == name].sort_values("id")
+        info = devices[devices["dispositivo"] == name]
+        latency = mine.loc[mine["status"] == "inferida", "latencia_total_ms"].dropna()
+        out.append({
+            "totem": name,
+            "estado": info["status"].iloc[0] if len(info) else "desconhecido",
+            "local": (info["local"].iloc[0] if len(info) else None) or (mine["local"].dropna().iloc[-1] if mine["local"].notna().any() else ""),
+            "mensagens": len(mine),
+            "inferidas": int((mine["status"] == "inferida").sum()),
+            "perdidas": lost_messages(mine["seq"]),
+            "latência p95 (ms)": round(float(latency.quantile(0.95))) if len(latency) else None,
+            "última mensagem": mine["recebida_em"].max() if len(mine) else pd.NaT,
+        })
+    return pd.DataFrame(out, columns=["totem", "estado", "local", "mensagens", "inferidas", "perdidas",
+                                      "latência p95 (ms)", "última mensagem"])
+
+
+def mqtt_per_interval(msgs: pd.DataFrame, since: datetime, freq: str = "10min") -> pd.DataFrame:
+    """Mensagens recebidas por intervalo e totem (intervalos vazios com zero), para o gráfico."""
+    if msgs.empty:
+        return pd.DataFrame(columns=["hora", "dispositivo", "mensagens"])
+    start = pd.Timestamp(since).floor(freq)
+    end = max(pd.Timestamp(datetime.now(timezone.utc)), msgs["recebida_em"].max()).floor(freq)
+    index = pd.date_range(start, end, freq=freq, tz="UTC")
+    frames = []
+    for name, group in msgs.groupby("dispositivo"):
+        counts = group.set_index("recebida_em").resample(freq).size().reindex(index, fill_value=0)
+        frames.append(pd.DataFrame({"hora": index, "dispositivo": name, "mensagens": counts.values}))
+    return pd.concat(frames, ignore_index=True)
+
+
+def mqtt_recent_table(msgs: pd.DataFrame, limit: int = 40) -> pd.DataFrame:
+    shown = msgs.head(limit)
+    return pd.DataFrame({
+        "recebida (UTC)": shown["recebida_em"].dt.strftime("%d/%m %H:%M:%S"),
+        "totem": shown["dispositivo"],
+        "seq": shown["seq"],
+        "frase": shown["texto"].fillna("—"),
+        "sequência de sinais": shown["glosas"].map(lambda g: " ".join(json.loads(g)) if isinstance(g, str) and g else "—"),
+        "status": shown["status"],
+        "ponta a ponta (ms)": shown["latencia_total_ms"].map(lambda v: "—" if pd.isna(v) else f"{v:.0f}"),
+        "modelo": shown["versao_modelo"].fillna("—"),
+    })
+
+
 # --- Serviços ------------------------------------------------------------------------------------------------------
 
 
@@ -335,14 +454,28 @@ def check_airflow(airflow_url: str) -> ServiceStatus:
     return _timed("Airflow", health)
 
 
+def check_broker(host: str, port: int) -> ServiceStatus:
+    """Abre uma conexão TCP com o broker MQTT (não publica nada)."""
+    if not host:
+        return ServiceStatus("Broker MQTT (Mosquitto)", None, "defina MQTT_HOST para monitorar")
+    import socket
+
+    def connect():
+        with socket.create_connection((host, port), timeout=3):
+            return True, f"{host}:{port} aceitando conexões"
+
+    return _timed("Broker MQTT (Mosquitto)", connect)
+
+
 def check_services(config: Config, engine) -> list[ServiceStatus]:
     """Checa todos ao mesmo tempo: um serviço parado (que demora para dar timeout) não atrasa os demais."""
-    with ThreadPoolExecutor(max_workers=4) as pool:
+    with ThreadPoolExecutor(max_workers=5) as pool:
         api = pool.submit(check_api, config.api_url)
         database = pool.submit(check_database, engine)
         mlflow = pool.submit(check_mlflow, config.mlflow_url)
         airflow = pool.submit(check_airflow, config.airflow_url)
-        return [*api.result(), database.result(), mlflow.result(), airflow.result()]
+        broker = pool.submit(check_broker, config.mqtt_host, config.mqtt_port)
+        return [*api.result(), database.result(), mlflow.result(), airflow.result(), broker.result()]
 
 
 def api_model(api_url: str) -> str | None:

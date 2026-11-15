@@ -1,10 +1,12 @@
 """Demonstração ponta a ponta do Sinaliza, em um comando, narrando o que cada etapa prova e onde está o ML.
 
 ETAPA: demonstração (sem ML novo). Percorre o mesmo fluxo da apresentação: serviços de pé → modelo registrado no
-MLflow → inferência palavra por palavra na API → simulador de uso → consolidação pelo DAG `monitoramento` →
-indicadores no banco → painel. Sai com código 0 só se todas as etapas passarem.
+MLflow → inferência palavra por palavra na API → totem (sistema embarcado simulado) publicando via MQTT → simulador
+de uso → consolidação pelo DAG `monitoramento` → indicadores no banco → painel. Sai com código 0 só se todas as
+etapas passarem.
 
 Uso: python -m textgloss.demo [--n 20] [--api URL] [--mlflow URL] [--airflow URL] [--painel URL] [--banco URL]
+                              [--mqtt HOST:PORTA]
 Roteiro falado e o que mostrar em cada passo: references/30-roteiro-da-demonstracao.md
 """
 from __future__ import annotations
@@ -32,6 +34,7 @@ class Alvos:
     airflow: str = "http://localhost:8080"
     painel: str = "http://localhost:8501"
     banco: str = config.DATABASE_URL
+    mqtt: str = "localhost:1883"
 
 
 @dataclass
@@ -63,7 +66,7 @@ def _engine(banco: str):
 
 
 def servicos(alvos: Alvos, out) -> Resultado:
-    """1. Tudo de pé: API (e se o modelo carregou), MLflow, Airflow, painel e banco."""
+    """1. Tudo de pé: API (e se o modelo carregou), MLflow, Airflow, painel, broker MQTT e banco."""
     estados, falhas = [], []
     try:
         health = _json(f"{alvos.api}/health")
@@ -80,6 +83,14 @@ def servicos(alvos: Alvos, out) -> Resultado:
             estados.append(f"{nome} ok")
         except (urllib.error.URLError, OSError, ValueError) as error:
             falhas.append(f"{nome} sem resposta ({type(error).__name__})")
+    try:
+        import socket
+
+        host, _, port = alvos.mqtt.partition(":")
+        socket.create_connection((host, int(port or 1883)), timeout=3).close()
+        estados.append("broker MQTT ok")
+    except (OSError, ValueError) as error:
+        falhas.append(f"broker MQTT sem resposta ({type(error).__name__})")
     try:
         with _engine(alvos.banco).connect() as conn:
             from sqlalchemy import text
@@ -127,8 +138,57 @@ def inferencia(alvos: Alvos, out) -> Resultado:
     return Resultado("inferência palavra por palavra", not problemas, "; ".join(problemas) or f"{len(FRASES_EXEMPLO)} frases pelo modelo")
 
 
+def totem_mqtt(alvos: Alvos, out, esperar: float = 30.0) -> Resultado:
+    """4. Um totem (sistema embarcado simulado) publica uma frase no broker MQTT; o receptor grava a mensagem e pede
+    a inferência ao modelo pela API. Confere o caminho inteiro no banco: `mensagens_mqtt` e `inferencias`."""
+    import sys
+
+    import paho.mqtt.client as mqtt
+    from sqlalchemy import text
+
+    sys.path.insert(0, str(config.ROOT / "embedded"))
+    import totem
+
+    host, _, port = alvos.mqtt.partition(":")
+    frase = FRASES_EXEMPLO[0]
+    mensagem = totem.build_message("totem-demo", "demonstração", 1, frase)
+    cliente = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=f"sinaliza-demo-{mensagem['msg_id'][:8]}")
+    try:
+        cliente.connect(host, int(port or 1883), keepalive=10)
+    except OSError as error:
+        return Resultado("totem via MQTT", False, f"broker {alvos.mqtt} sem resposta ({type(error).__name__})")
+    cliente.loop_start()
+    cliente.publish(totem.topic_frases("totem-demo"), json.dumps(mensagem, ensure_ascii=False), qos=1).wait_for_publish(timeout=10)
+    cliente.loop_stop()
+    cliente.disconnect()
+    out(f"  publicado em {totem.topic_frases('totem-demo')} (QoS 1): \"{frase}\"")
+
+    engine = _engine(alvos.banco)
+    linha, limite = None, time.monotonic() + esperar
+    while time.monotonic() < limite:
+        with engine.connect() as conn:
+            linha = conn.execute(text(
+                "SELECT status, glosas, versao_modelo, latencia_total_ms FROM mensagens_mqtt WHERE msg_id = :m"
+            ), {"m": mensagem["msg_id"]}).mappings().first()
+        if linha is not None and linha["status"] != "recebida":
+            break
+        time.sleep(0.5)
+    if linha is None:
+        return Resultado("totem via MQTT", False, "o receptor não gravou a mensagem (serviço `receptor` de pé?)")
+    if linha["status"] != "inferida":
+        return Resultado("totem via MQTT", False, f"mensagem gravada, mas com status {linha['status']}")
+    with engine.connect() as conn:
+        online = conn.execute(text("SELECT COUNT(*) FROM totens WHERE status = 'online'")).scalar()
+        inferencias = conn.execute(text("SELECT COUNT(*) FROM inferencias WHERE origem = 'totem'")).scalar()
+    out(f"  receptor gravou e a API respondeu: {' · '.join(json.loads(linha['glosas']))}   [{linha['versao_modelo']}, "
+        f"{linha['latencia_total_ms']:.0f} ms do totem até a inferência]")
+    out(f"  totens online agora: {online}; inferências vindas de totens no banco: {inferencias}")
+    ok = str(linha["versao_modelo"]).startswith("sinaliza-t1")
+    return Resultado("totem via MQTT", ok, "broker → receptor → banco → API (modelo)" if ok else f"inferida sem o modelo ({linha['versao_modelo']})")
+
+
 def simular(alvos: Alvos, out, n: int = 20) -> Resultado:
-    """4. O simulador faz o papel da fonte de dados novos: a API classifica e grava cada frase."""
+    """5. O simulador de uso gera volume: a API classifica e grava cada frase."""
     estatisticas = simulador.run(alvos.api, simulador.load_phrases("frases"), n, 0.1, config.SEED, out=lambda _: None)
     out(f"  {estatisticas['enviadas']} frases enviadas, {estatisticas['ok']} atendidas, modelos: {estatisticas['modelos']}")
     return Resultado("simulador de uso", estatisticas["ok"] == n and estatisticas["erros"] == 0, f"{estatisticas['ok']}/{n} atendidas")
@@ -142,7 +202,7 @@ def _pendentes(alvos: Alvos) -> int:
 
 
 def consolidar(alvos: Alvos, out, esperar: float = 120.0) -> Resultado:
-    """5. O DAG `monitoramento` do Airflow consolida as frases novas (se o Airflow não responder, roda o mesmo módulo)."""
+    """6. O DAG `monitoramento` do Airflow consolida as frases novas (se o Airflow não responder, roda o mesmo módulo)."""
     try:
         antes = _pendentes(alvos)
     except Exception as error:
@@ -171,7 +231,7 @@ def consolidar(alvos: Alvos, out, esperar: float = 120.0) -> Resultado:
 
 
 def indicadores(alvos: Alvos, out) -> Resultado:
-    """6. O resultado da consolidação: indicadores por hora e versão do modelo."""
+    """7. O resultado da consolidação: indicadores por hora e versão do modelo."""
     from sqlalchemy import text
 
     try:
@@ -190,23 +250,24 @@ def indicadores(alvos: Alvos, out) -> Resultado:
 
 
 def painel(alvos: Alvos, out) -> Resultado:
-    """7. O painel lê tudo isso e mostra em tempo real."""
+    """8. O painel lê tudo isso e mostra em tempo real."""
     try:
         _get(f"{alvos.painel}/_stcore/health")
     except (urllib.error.URLError, OSError) as error:
         return Resultado("painel", False, f"sem resposta ({type(error).__name__})")
-    out(f"  abra {alvos.painel} (abas Visão geral, Inferências, Modelo e Serviços)")
+    out(f"  abra {alvos.painel} (abas Visão geral, Inferências, Totens (MQTT), Modelo e Serviços)")
     return Resultado("painel", True, alvos.painel)
 
 
 ETAPAS = [
-    ("1. Serviços de pé", "docker compose up: postgres, mlflow, api, airflow, painel", servicos),
+    ("1. Serviços de pé", "docker compose up: postgres, mlflow, api, airflow, painel, broker MQTT", servicos),
     ("2. O modelo (ML nosso)", "Random Forest otimizado, registrado no MLflow, é o que a API usa", modelo),
     ("3. Inferência palavra por palavra", "O MODELO decide MANTER ou DESCARTAR; o resto é tabela e regra", inferencia),
-    ("4. Simulador de uso", "faz o papel da fonte de dados novos (no lugar do embarcado)", simular),
-    ("5. Consolidação (Airflow)", "DAG monitoramento: das frases gravadas aos indicadores por hora", consolidar),
-    ("6. Indicadores", "o que o painel vai mostrar", indicadores),
-    ("7. Painel", "monitoramento em tempo de execução", painel),
+    ("4. Totem via MQTT", "sistema embarcado simulado → broker → receptor → banco → API (modelo)", totem_mqtt),
+    ("5. Simulador de uso", "gera volume de frases novas pela API", simular),
+    ("6. Consolidação (Airflow)", "DAG monitoramento: das frases gravadas aos indicadores por hora", consolidar),
+    ("7. Indicadores", "o que o painel vai mostrar", indicadores),
+    ("8. Painel", "monitoramento em tempo de execução", painel),
 ]
 
 
@@ -219,8 +280,9 @@ def main() -> int:
     parser.add_argument("--airflow", default=padrao.airflow)
     parser.add_argument("--painel", default=padrao.painel)
     parser.add_argument("--banco", default=padrao.banco)
+    parser.add_argument("--mqtt", default=padrao.mqtt, help="broker MQTT, HOST:PORTA")
     args = parser.parse_args()
-    alvos = Alvos(args.api, args.mlflow, args.airflow, args.painel, args.banco)
+    alvos = Alvos(args.api, args.mlflow, args.airflow, args.painel, args.banco, args.mqtt)
 
     resultados: list[Resultado] = []
     for titulo, ideia, etapa in ETAPAS:
