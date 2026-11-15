@@ -16,6 +16,71 @@ services:
       timeout: 3s
       retries: 10
 
+  # Broker MQTT da aquisição de dados (Eclipse Mosquitto). Os totens publicam frases; o `receptor` assina.
+  # Sem senha nem TLS: uso local. Porta 1883 aberta para a demonstração (`python -m textgloss.demo`).
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports:
+      - "${MQTT_PORT:-1883}:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto-data:/mosquitto/data
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-t", "$$SYS/broker/uptime", "-C", "1", "-W", "3"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Sistema embarcado SIMULADO: dois totens de atendimento que publicam frases públicas (data/phrases.json)
+  # via MQTT a cada ~TOTEM_INTERVALO segundos. Ver embedded/totem.py.
+  totem-ubs: &totem
+    build:
+      context: .
+      dockerfile: embedded/Dockerfile
+    environment:
+      MQTT_HOST: mosquitto
+      TOTEM_ID: totem-ubs
+      TOTEM_LOCAL: "UBS Centro (simulado)"
+      TOTEM_INTERVALO: ${TOTEM_INTERVALO:-20}
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+      receptor:
+        condition: service_healthy
+    restart: unless-stopped
+
+  totem-inss:
+    <<: *totem
+    environment:
+      MQTT_HOST: mosquitto
+      TOTEM_ID: totem-inss
+      TOTEM_LOCAL: "Agência do INSS (simulado)"
+      TOTEM_INTERVALO: ${TOTEM_INTERVALO:-20}
+
+  # Recebe as frases dos totens, grava em `mensagens_mqtt` (Postgres) e pede a inferência à API (modelo T1),
+  # que grava em `inferencias`. Ver receptor/receptor.py.
+  receptor:
+    build:
+      context: .
+      dockerfile: receptor/Dockerfile
+    environment:
+      MQTT_HOST: mosquitto
+      SINALIZA_DATABASE_URL: postgresql+psycopg://sinaliza:${POSTGRES_PASSWORD:-sinaliza}@postgres:5432/sinaliza
+      SINALIZA_API_URL: http://api:8000
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/receptor-pronto"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+
   mlflow:
     build: mlflow
     command: >
@@ -152,6 +217,7 @@ services:
       # Endereço do MLflow aberto no navegador (o link do painel); o de cima é o interno da rede do compose.
       SINALIZA_MLFLOW_PUBLIC_URL: http://localhost:5000
       SINALIZA_AIRFLOW_URL: http://airflow:8080
+      MQTT_HOST: mosquitto
     depends_on:
       postgres:
         condition: service_healthy
@@ -178,6 +244,7 @@ services:
         condition: service_healthy
 
 volumes:
+  mosquitto-data:
   pgdata:
   mlartifacts:
   modelcache:

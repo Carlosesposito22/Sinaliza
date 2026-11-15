@@ -2,8 +2,9 @@
 
 Falha de gravação NUNCA afeta a resposta da API: só vai para o log.
 
-PRIVACIDADE: o texto digitado pode ter dado pessoal. As palavras e o texto só são gravados para o
-`simulador` (frases públicas) ou com `SINALIZA_LOG_TEXT=true`; sem isso, ficam só a decisão, a
+PRIVACIDADE: o texto digitado pode ter dado pessoal. As palavras e o texto só são gravados para as origens
+simuladas, que só enviam frases públicas (`simulador` e o `totem` simulado via MQTT, ver `embedded/` e
+`receptor/`), ou com `SINALIZA_LOG_TEXT=true`; sem isso, ficam só a decisão, a
 probabilidade e o tipo de cada palavra. O `monitoramento` apaga o texto depois da retenção.
 """
 import json
@@ -15,6 +16,8 @@ logger = logging.getLogger("sinaliza.log")
 
 UNCERTAIN_RANGE = (0.4, 0.6)
 ORIGIN_PATTERN = re.compile(r"^[a-z0-9_-]{1,32}$")
+# Origens que só mandam frases públicas (data/phrases.json ou o corpus): o texto pode ser gravado.
+PUBLIC_ORIGINS = frozenset({"simulador", "totem"})
 
 
 def clean_origin(value: str | None) -> str:
@@ -49,7 +52,7 @@ class InferenceLog:
         if not self.enabled:
             return
         try:
-            keep_text = self.log_text or origin == "simulador"
+            keep_text = self.log_text or origin in PUBLIC_ORIGINS
             words = sum(m.n_words for m in matches)
             kept = sum(m.n_words for m in matches if m.decision == "MANTER")
             without_sign = sum(m.n_words for m in matches if m.kind == "ignored")
