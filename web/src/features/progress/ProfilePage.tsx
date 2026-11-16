@@ -1,5 +1,7 @@
 // Perfil: XP, nível, sequência e o que a pessoa já concluiu. Tudo vem de GET /learn/progress e /learn/path
 // (via LearnContext). O perfil é anônimo: o id fica guardado só neste navegador.
+import type { ReactNode } from "react";
+import { BookOpen, Flame, Hand, Map as MapIcon, Medal, Star, Target, Trophy } from "lucide-react";
 import { useLearn } from "./LearnContext";
 import { ErrorView, LoadingView } from "./StatusViews";
 import { goalPercent, levelPercent, profileStats } from "../trail/trail";
@@ -22,7 +24,7 @@ export function ProfilePage() {
 
       <section className="card" aria-labelledby="nivel">
         <h2 id="nivel">
-          <span aria-hidden="true">🏅</span> Nível {progress.level}
+          <Medal size={18} className="ic ic-medal" aria-hidden="true" /> Nível {progress.level}
         </h2>
         <p>
           {progress.xp} XP no total · faltam {progress.xp_to_next_level} XP para o nível {progress.level + 1}
@@ -33,17 +35,17 @@ export function ProfilePage() {
       </section>
 
       <div className="tiles">
-        <Tile icon="🔥" value={progress.streak_days} label={progress.streak_days === 1 ? "dia seguido" : "dias seguidos"} />
-        <Tile icon="🏆" value={progress.best_streak} label="melhor sequência" />
-        <Tile icon="📘" value={`${s.lessonsCompleted}/${s.lessonsTotal}`} label="lições concluídas" />
-        <Tile icon="★" value={`${s.stars}/${s.maxStars}`} label="estrelas" />
-        <Tile icon="🤟" value={s.signsLearned} label="sinais vistos" />
-        <Tile icon="🗺️" value={`${s.unitsCompleted}/${s.unitsTotal}`} label="unidades completas" />
+        <Tile icon={<Flame />} value={progress.streak_days} label={progress.streak_days === 1 ? "dia seguido" : "dias seguidos"} />
+        <Tile icon={<Trophy />} value={progress.best_streak} label="melhor sequência" />
+        <Tile icon={<BookOpen />} value={`${s.lessonsCompleted}/${s.lessonsTotal}`} label="lições concluídas" />
+        <Tile icon={<Star />} value={`${s.stars}/${s.maxStars}`} label="estrelas" />
+        <Tile icon={<Hand />} value={s.signsLearned} label="sinais vistos" />
+        <Tile icon={<MapIcon />} value={`${s.unitsCompleted}/${s.unitsTotal}`} label="unidades completas" />
       </div>
 
       <section className="card" aria-labelledby="meta">
         <h2 id="meta">
-          <span aria-hidden="true">🎯</span> Meta de hoje
+          <Target size={18} className="ic ic-zap" aria-hidden="true" /> Meta de hoje
         </h2>
         <p>
           {progress.xp_today}/{progress.daily_goal_xp} XP{progress.goal_reached_today ? " · cumprida!" : ""}
@@ -57,7 +59,7 @@ export function ProfilePage() {
   );
 }
 
-function Tile({ icon, value, label }: { icon: string; value: number | string; label: string }) {
+function Tile({ icon, value, label }: { icon: ReactNode; value: number | string; label: string }) {
   return (
     <div className="tile">
       <span className="tile-icon" aria-hidden="true">

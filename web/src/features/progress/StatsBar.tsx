@@ -1,4 +1,5 @@
 // Cabeçalho fixo da trilha: sequência, XP, nível e meta do dia.
+import { Flame, Medal, Zap } from "lucide-react";
 import type { Progress } from "../../contract";
 import { goalPercent } from "../trail/trail";
 
@@ -8,13 +9,14 @@ export function StatsBar({ progress }: { progress: Progress }) {
     <header className="stats" aria-label="Seu progresso">
       <div className="stat-row">
         <span className="stat" title="Sequência de dias">
-          <span aria-hidden="true">🔥</span> {progress.streak_days} {progress.streak_days === 1 ? "dia" : "dias"}
+          <Flame size={18} className="ic ic-flame" aria-hidden="true" /> {progress.streak_days}{" "}
+          {progress.streak_days === 1 ? "dia" : "dias"}
         </span>
         <span className="stat" title="Experiência total">
-          <span aria-hidden="true">⚡</span> {progress.xp} XP
+          <Zap size={18} className="ic ic-zap" aria-hidden="true" /> {progress.xp} XP
         </span>
         <span className="stat" title="Nível">
-          <span aria-hidden="true">🏅</span> Nível {progress.level}
+          <Medal size={18} className="ic ic-medal" aria-hidden="true" /> Nível {progress.level}
         </span>
       </div>
       <div className="goal">

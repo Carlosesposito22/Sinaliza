@@ -2,11 +2,41 @@
 // e se atualizam sozinhos quando uma lição termina (applyResult). Só front; não é ML.
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import type { LessonSummary, Progress } from "../../contract";
+import {
+  BookOpen, Check, Hand, Heart, Home, Lock, MessageCircle, Play, Star, Sun, Users, Utensils,
+  type LucideIcon,
+} from "lucide-react";
+import type { LessonSummary, Progress, Unit } from "../../contract";
 import { useLearn } from "../progress/LearnContext";
 import { StatsBar } from "../progress/StatsBar";
 import { ErrorView, LoadingView } from "../progress/StatusViews";
-import { currentLessonId, lessonStatus, nodeOffset, stars, unitSummary } from "./trail";
+import { currentLessonId, lessonStatus, nodeOffset, unitSummary } from "./trail";
+
+// Ícone por unidade: casa pelo id/título (sem acento). Unidade nova cai no fallback.
+const UNIT_ICONS: [RegExp, LucideIcon][] = [
+  [/famil/, Users],
+  [/dia.?a.?dia|rotina|cotidian/, Sun],
+  [/casa|lar/, Home],
+  [/comida|aliment|cozinha/, Utensils],
+  [/sentiment|emoc/, Heart],
+  [/cumpriment|saudac|conversa|frase/, MessageCircle],
+  [/alfabeto|letra|manual/, Hand],
+];
+
+function unitIcon(unit: Unit): LucideIcon {
+  const key = `${unit.id} ${unit.title}`.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  return UNIT_ICONS.find(([re]) => re.test(key))?.[1] ?? BookOpen;
+}
+
+function Stars({ count }: { count: number }) {
+  return (
+    <>
+      {[0, 1, 2].map((i) => (
+        <Star key={i} size={14} className={i < count ? "star on" : "star"} />
+      ))}
+    </>
+  );
+}
 
 export function TrailPage() {
   const { path, progress, error, loading, justUnlocked, reload } = useLearn();
@@ -32,15 +62,17 @@ export function TrailPage() {
       <p className="disclaimer">{path.disclaimer}</p>
       {path.units.map((unit) => {
         const summary = unitSummary(unit, progress);
+        const UnitIcon = unitIcon(unit);
         return (
           <section key={unit.id} className="unit" aria-labelledby={`unit-${unit.id}`}>
             <div className="unit-head" style={{ background: unit.color }}>
               <h2 id={`unit-${unit.id}`}>
-                <span aria-hidden="true">{unit.icon}</span> {unit.title}
+                <UnitIcon size={22} aria-hidden="true" /> {unit.title}
               </h2>
               <p>{unit.description}</p>
               <p className="unit-count">
-                {summary.completed}/{summary.total} lições · {summary.stars}/{summary.total * 3} ★
+                {summary.completed}/{summary.total} lições · {summary.stars}/{summary.total * 3}{" "}
+                <Star size={13} aria-label="estrelas" />
               </p>
             </div>
             <ol className="path">
@@ -88,7 +120,7 @@ function LessonNode({ lesson, progress, color, isCurrent, isNew }: NodeProps) {
     return (
       <div className="node-wrap">
         <span className="node-circle locked" role="img" aria-label={`${lesson.title}: bloqueada`}>
-          🔒
+          <Lock aria-hidden="true" />
         </span>
         <span className="node-title muted">{lesson.title}</span>
       </div>
@@ -112,12 +144,12 @@ function LessonNode({ lesson, progress, color, isCurrent, isNew }: NodeProps) {
         style={status === "available" ? { background: color } : undefined}
         aria-label={label}
       >
-        <span aria-hidden="true">{status === "completed" ? "✓" : "▶"}</span>
+        {status === "completed" ? <Check aria-hidden="true" /> : <Play aria-hidden="true" />}
       </Link>
       <span className="node-title">{lesson.title}</span>
       {status === "completed" && (
         <span className="node-stars" aria-hidden="true">
-          {stars(starCount)}
+          <Stars count={starCount} />
         </span>
       )}
     </div>

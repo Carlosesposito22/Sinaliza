@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { Languages } from "lucide-react";
 import { fetchCategories, fetchVocabulary, translate, type Category, type TranslateResponse, type WordMatch } from "../api";
 import { useAvatarGlosses } from "../app/AvatarContext";
 
@@ -77,11 +78,31 @@ export function TranslatorPage() {
 
   return (
     <main className="app">
-      <h1>Sinaliza</h1>
+      <div className="logo">
+        <img src="../public/logos/logo.png" alt="Sinaliza" />
+      </div>
+
       <p className="subtitle">
         Digite um texto e veja a sequência de sinais, na ordem do texto. O vocabulário tem{" "}
         {signCount ?? "poucos"} sinais e isto não é uma tradução para Libras.
       </p>
+
+      <form onSubmit={onSubmit}>
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          maxLength={500}
+          rows={3}
+          aria-label="Texto em português"
+        />
+        <div className="form-foot">
+          <span className="counter">{text.length}/500</span>
+          <button type="submit" disabled={loading || !text.trim()}>
+            <Languages size={18} aria-hidden="true" />
+            {loading ? "Gerando..." : "Traduzir"}
+          </button>
+        </div>
+      </form>
 
       {categories.length > 0 && (
         <section className="categories" aria-label="Frases de exemplo por categoria">
@@ -113,19 +134,6 @@ export function TranslatorPage() {
         </section>
       )}
 
-      <form onSubmit={onSubmit}>
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          maxLength={500}
-          rows={3}
-          aria-label="Texto em português"
-        />
-        <button type="submit" disabled={loading || !text.trim()}>
-          {loading ? "Gerando..." : "Traduzir"}
-        </button>
-      </form>
-
       {error && <p className="error">{error}</p>}
 
       {result && (
@@ -135,7 +143,11 @@ export function TranslatorPage() {
               <MatchWord key={`${m.word}-${i}`} match={m} />
             ))}
           </p>
-          <p className="glosses">{result.glosses.join(" · ")}</p>
+          <ol className="glosses" aria-label="Sequência de sinais">
+            {result.glosses.map((g, i) => (
+              <li key={`${g}-${i}`}>{g}</li>
+            ))}
+          </ol>
           {hasApprox && (
             <p className="note">
               Palavras com “~” foram aproximadas por similaridade com um sinal do vocabulário. É uma proposta: confira
@@ -152,7 +164,6 @@ export function TranslatorPage() {
           Libras.
         </p>
       )}
-
     </main>
   );
 }
