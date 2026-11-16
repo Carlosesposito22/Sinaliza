@@ -6,6 +6,7 @@
   --surface: #ffffff;
   --border: #e2e8f0;
   --error: #b91c1c;
+  --success: #16a34a;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,6 +18,7 @@
     --surface: #1e293b;
     --border: #334155;
     --error: #f87171;
+    --success: #22c55e;
   }
 }
 

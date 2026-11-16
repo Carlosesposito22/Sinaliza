@@ -5,6 +5,7 @@ import "./app.css";
 
 const TABS = [
   { to: "/", label: "Trilha", end: true },
+  { to: "/perfil", label: "Perfil", end: false },
   { to: "/tradutor", label: "Tradutor", end: false },
   { to: "/sobre", label: "Sobre", end: false },
 ];
