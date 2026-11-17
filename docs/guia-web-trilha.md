@@ -2,6 +2,15 @@
 
 Leia este arquivo primeiro. Ele junta o contexto que vocês precisam para andar sem esperar o ML. O detalhe técnico da API está em [`contrato-api-web.md`](contrato-api-web.md); aqui está o **porquê**, o **o quê** e o **como começar**.
 
+> **Mudança de 2026-11-17 (contrato v2): trilha por temas com prova.** Onde este guia fala em "unidades" e "lições", leia **temas** e **aulas**. Agora:
+>
+> - A pessoa percorre **temas** pré-programados (Escola, Família, Saúde), escritos em [`data/trilha.json`](../data/trilha.json). Cada tema tem aulas de sinais (ex.: escola, criança, banheiro), uma aula de **frases** (ex.: "A criança quer ir ao banheiro.") e termina numa **prova**.
+> - **Só o nosso dicionário:** tudo usa apenas os **210 sinais** de `data/vocabulary.json` (V-LIBRASIL). O mock recusa glosa fora dele.
+> - **Prova** (`/prova/:themeId`, [`ExamPage.tsx`](../web/src/features/exam/ExamPage.tsx)): o avatar sinaliza **sem legenda** e a pessoa escreve o que entendeu. A API corrige por sinal. Com nota ≥ 70% o próximo tema abre; abaixo disso, as aulas do tema voltam a ficar pendentes (marcadas "refazer" na trilha) e a prova só reabre quando todas forem refeitas.
+> - **Fluxo da aula (M2) feito em 2026-11-17** em [`ExercisePlayer.tsx`](../web/src/features/lesson/ExercisePlayer.tsx) e [`Exercises.tsx`](../web/src/features/lesson/Exercises.tsx), usando o `LessonReducer` e a correção do Caio: os 7 tipos, incluindo `learn_phrase`, `phrase_to_text` e `sign_to_text` (escrever, como na prova). A legenda do avatar fica desligada enquanto a pessoa responde.
+> - **Treino:** revisão dos erros (`/revisao`), desafio do dia (`/desafio`), dicionário com os 210 sinais (`/dicionario`), conquistas (`/conquistas`) e velocidade do avatar (Devagar/Normal e "Câmera lenta"). "Sobre" saiu do menu e virou link no Perfil.
+> - As frases seguem a ordem do português: são sequência de sinais, não Libras com gramática. Isso continua valendo da regra 4 abaixo (não há exercício de "montar a frase").
+
 ## 1. A missão em poucas linhas
 
 Construir, no `web/`, uma **trilha de aprendizado de sinais de Libras**, gamificada e **inspirada no Duolingo**: a pessoa avança por unidades e lições, faz exercícios curtos com um avatar que sinaliza, ganha XP, estrelas e sequência de dias. O **tradutor de texto** que já existe continua como uma tela à parte.

@@ -1,0 +1,355 @@
+/* =========================================================================================
+   Componentes reutilizáveis: botões, cartões, chips, barras, etiquetas, marca, emblemas.
+   Usam só os tokens de tokens.css. As telas ficam em app/app.css.
+   ========================================================================================= */
+
+/* ---- botões -------------------------------------------------------------------------- */
+/* Botão sem classe = primário (para os botões simples que já existem). Variações em .btn-*. */
+button,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 0;
+  border-radius: var(--radius);
+  font: inherit;
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none;
+  color: #fff;
+  background: var(--brand);
+  box-shadow: 0 4px 0 var(--brand-strong);
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.08s, filter 0.15s, background 0.15s;
+}
+button:hover:not(:disabled),
+.btn:hover {
+  filter: brightness(1.06);
+}
+button:active:not(:disabled),
+.btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--brand-strong);
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+button svg,
+.btn svg {
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, var(--brand-sky), var(--brand));
+  color: #fff;
+}
+.btn-secondary {
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid var(--border);
+  box-shadow: 0 3px 0 var(--border);
+}
+.btn-secondary:active {
+  box-shadow: 0 1px 0 var(--border);
+}
+.btn-ghost {
+  color: var(--brand);
+  background: transparent;
+  box-shadow: none;
+}
+.btn-ghost:active {
+  box-shadow: none;
+}
+.btn-sm {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+}
+.btn-lg {
+  min-height: 60px;
+  padding: 14px 28px;
+  font-size: 1.15rem;
+  border-radius: 20px;
+}
+
+/* ---- chips (filtros, escolhas pequenas) --------------------------------------------- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+button.chip {
+  min-height: 36px;
+  padding: 6px 14px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  box-shadow: none;
+}
+button.chip:hover:not(:disabled) {
+  border-color: var(--brand);
+}
+button.chip[aria-pressed="true"] {
+  color: #fff;
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+/* ---- cartões ------------------------------------------------------------------------- */
+.card {
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.card h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 1.05rem;
+}
+.card p + p,
+.card p + .bar {
+  margin-top: 8px;
+}
+
+/* ---- barras de progresso ------------------------------------------------------------- */
+.bar {
+  height: 12px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--border) 70%, transparent);
+  border-radius: 999px;
+}
+.bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--brand-sky), var(--brand));
+  transition: width 0.35s ease;
+}
+.bar-fill.done {
+  background: linear-gradient(90deg, var(--green), var(--success));
+}
+
+/* ---- textos de apoio ----------------------------------------------------------------- */
+.muted {
+  color: var(--muted);
+}
+.error {
+  color: var(--error);
+  font-weight: 700;
+}
+.note {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.label {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.small-note {
+  font-size: 0.8rem;
+}
+.page-title {
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  font-weight: 900;
+}
+.subtitle {
+  color: var(--muted);
+  max-width: 60ch;
+}
+.disclaimer {
+  padding: 10px 14px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+}
+
+/* ---- etiquetas ----------------------------------------------------------------------- */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 9px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+  color: var(--brand);
+  background: var(--brand-soft);
+  border-radius: 999px;
+}
+.tag.muted {
+  color: var(--muted);
+  background: var(--surface-2);
+}
+.tag-warn {
+  color: var(--orange);
+  background: color-mix(in srgb, var(--orange) 14%, transparent);
+}
+
+/* ---- ícones coloridos ---------------------------------------------------------------- */
+.ic {
+  flex: none;
+}
+.ic-flame {
+  color: var(--orange);
+}
+.ic-zap {
+  color: var(--yellow-strong);
+}
+.ic-medal {
+  color: var(--purple);
+}
+
+/* ---- estados de tela (carregando, erro, vazio) -------------------------------------- */
+.status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 24px 16px;
+  padding: 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.status p {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ---- marca (Logo.tsx) ---------------------------------------------------------------- */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--brand-ink);
+  text-decoration: none;
+}
+.logo-mark {
+  width: 34px;
+  height: 34px;
+}
+.logo-text {
+  display: flex;
+  flex-direction: column;
+}
+.logo-name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.logo-tagline {
+  color: var(--muted);
+  font-weight: 600;
+}
+.logo-hero {
+  flex-direction: column;
+  gap: 14px;
+  text-align: center;
+}
+.logo-hero .logo-mark {
+  width: clamp(112px, 26vw, 168px);
+  height: auto;
+  aspect-ratio: 1;
+  filter: drop-shadow(0 14px 26px color-mix(in srgb, var(--brand) 30%, transparent));
+}
+.logo-hero .logo-name {
+  font-size: clamp(2.8rem, 11vw, 5.2rem);
+  letter-spacing: 0.03em;
+}
+.logo-hero .logo-tagline {
+  margin-top: 6px;
+  font-size: clamp(1rem, 2.6vw, 1.3rem);
+}
+
+/* ---- emblemas das conquistas (Badge.tsx): medalha redonda, troféu em escudo --------- */
+.badge {
+  --tier: #c0773a;
+  --tier2: #f2b27c;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 64px;
+  height: 64px;
+  color: #fff;
+  background: linear-gradient(145deg, var(--tier2), var(--tier));
+  border: 3px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--tier) 70%, #000), inset 0 2px 6px rgba(255, 255, 255, 0.4);
+}
+.badge.tier-silver {
+  --tier: #7f8ca3;
+  --tier2: #e1e7f0;
+}
+.badge.tier-gold {
+  --tier: #d49200;
+  --tier2: #ffe07a;
+}
+.badge-medal {
+  border-radius: 50%;
+}
+.badge-trophy {
+  border-radius: 16px 16px 50% 50% / 16px 16px 40% 40%;
+}
+.badge-icon {
+  width: 46%;
+  height: 46%;
+  stroke-width: 2.4;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+}
+.badge.locked {
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 2px dashed var(--border-strong);
+  box-shadow: none;
+}
+.badge.locked .badge-icon {
+  opacity: 0.45;
+  filter: none;
+}
+.badge-lock {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+}
+.badge-lock svg {
+  width: 12px;
+  height: 12px;
+}
+.badge-sm {
+  width: 36px;
+  height: 36px;
+  border-width: 2px;
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--tier) 70%, #000);
+}
