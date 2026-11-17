@@ -1,6 +1,8 @@
 // Perfil: XP, nível, sequência e o que a pessoa já concluiu. Tudo vem de GET /learn/progress e /learn/path
 // (via LearnContext). O perfil é anônimo: o id fica guardado só neste navegador.
 import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
+import { ThemeToggle } from "../../ui/ThemeToggle";
 import { BookOpen, Flame, Hand, Map as MapIcon, Medal, Star, Target, Trophy } from "lucide-react";
 import { useLearn } from "./LearnContext";
 import { ErrorView, LoadingView } from "./StatusViews";
@@ -40,7 +42,7 @@ export function ProfilePage() {
         <Tile icon={<BookOpen />} value={`${s.lessonsCompleted}/${s.lessonsTotal}`} label="lições concluídas" />
         <Tile icon={<Star />} value={`${s.stars}/${s.maxStars}`} label="estrelas" />
         <Tile icon={<Hand />} value={s.signsLearned} label="sinais vistos" />
-        <Tile icon={<MapIcon />} value={`${s.unitsCompleted}/${s.unitsTotal}`} label="unidades completas" />
+        <Tile icon={<MapIcon />} value={`${s.themesPassed}/${s.themesTotal}`} label="temas aprovados" />
       </div>
 
       <section className="card" aria-labelledby="meta">
@@ -54,6 +56,12 @@ export function ProfilePage() {
           <div className={progress.goal_reached_today ? "bar-fill done" : "bar-fill"} style={{ width: `${goal}%` }} />
         </div>
         {progress.last_activity_date && <p className="muted">Última lição em {formatDate(progress.last_activity_date)}.</p>}
+      </section>
+
+      <section className="card profile-links" aria-label="Preferências e informações">
+        <ThemeToggle withLabel />
+        <Link to="/tradutor">Texto em sinais</Link>
+        <Link to="/sobre">Sobre o Sinaliza, créditos e avisos</Link>
       </section>
     </main>
   );

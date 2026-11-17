@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Sinaliza API (mock)",
-    "version": "contrato-1"
+    "version": "contrato-2"
   },
   "paths": {
     "/health": {
@@ -334,10 +334,617 @@
           }
         }
       }
+    },
+    "/learn/themes/{theme_id}/exam": {
+      "get": {
+        "summary": "Learn Exam",
+        "description": "As questões da prova, sem o gabarito: o avatar toca `glosses` e a pessoa escreve o que entendeu.",
+        "operationId": "learn_exam_learn_themes__theme_id__exam_get",
+        "parameters": [
+          {
+            "name": "theme_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Theme Id"
+            }
+          },
+          {
+            "name": "x-learner-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Learner-Id"
+            }
+          },
+          {
+            "name": "x-mock-today",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Mock-Today"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exam"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Learn Exam Submit",
+        "description": "Corrige a prova (regra, não ML). Questão sem resposta vale 0.",
+        "operationId": "learn_exam_submit_learn_themes__theme_id__exam_post",
+        "parameters": [
+          {
+            "name": "theme_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Theme Id"
+            }
+          },
+          {
+            "name": "x-learner-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Learner-Id"
+            }
+          },
+          {
+            "name": "x-mock-today",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Mock-Today"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExamSubmit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/learn/achievements": {
+      "get": {
+        "summary": "Learn Achievements",
+        "description": "Todas as conquistas (medalhas e troféus), ganhas ou não, com quanto falta para cada uma.",
+        "operationId": "learn_achievements_learn_achievements_get",
+        "parameters": [
+          {
+            "name": "x-learner-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Learner-Id"
+            }
+          },
+          {
+            "name": "x-mock-today",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Mock-Today"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AchievementsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/learn/check": {
+      "post": {
+        "summary": "Learn Check",
+        "description": "Corrige uma resposta escrita de treino (`sign_to_text`) com a mesma regra da prova. Não grava nada.",
+        "operationId": "learn_check_learn_check_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/learn/review": {
+      "get": {
+        "summary": "Learn Review",
+        "description": "Sessão de revisão com os sinais que a pessoa mais errou em aulas e provas.",
+        "operationId": "learn_review_learn_review_get",
+        "parameters": [
+          {
+            "name": "x-learner-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Learner-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Practice"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/learn/challenge": {
+      "get": {
+        "summary": "Learn Challenge",
+        "description": "Desafio do dia: sinais sorteados entre os que a pessoa já viu (o mesmo sorteio o dia todo).",
+        "operationId": "learn_challenge_learn_challenge_get",
+        "parameters": [
+          {
+            "name": "x-learner-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Learner-Id"
+            }
+          },
+          {
+            "name": "x-mock-today",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Mock-Today"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Practice"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/learn/practice/{session_id}/complete": {
+      "post": {
+        "summary": "Learn Practice Complete",
+        "operationId": "learn_practice_complete_learn_practice__session_id__complete_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "x-learner-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Learner-Id"
+            }
+          },
+          {
+            "name": "x-mock-today",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Mock-Today"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PracticeResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/learn/dictionary": {
+      "get": {
+        "summary": "Learn Dictionary",
+        "description": "Os 210 sinais do vocabulário curado, com os que a pessoa já viu nas aulas marcados.",
+        "operationId": "learn_dictionary_learn_dictionary_get",
+        "parameters": [
+          {
+            "name": "x-learner-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Learner-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DictionaryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AchievementInfo": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "medal",
+              "trophy"
+            ],
+            "title": "Kind"
+          },
+          "tier": {
+            "type": "string",
+            "enum": [
+              "bronze",
+              "silver",
+              "gold"
+            ],
+            "title": "Tier"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "provas",
+              "temas",
+              "aulas",
+              "habito"
+            ],
+            "title": "Category"
+          },
+          "icon": {
+            "type": "string",
+            "title": "Icon",
+            "description": "nome curto do desenho: exam, check, star, rocket, comeback, hand, book, flame, level, trophy, crown"
+          },
+          "unlocked": {
+            "type": "boolean",
+            "title": "Unlocked"
+          },
+          "unlocked_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unlocked At",
+            "description": "AAAA-MM-DD da primeira vez"
+          },
+          "current": {
+            "type": "integer",
+            "title": "Current",
+            "description": "quanto já fez (limitado a `target`)"
+          },
+          "target": {
+            "type": "integer",
+            "title": "Target"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "kind",
+          "tier",
+          "category",
+          "icon",
+          "unlocked",
+          "unlocked_at",
+          "current",
+          "target"
+        ],
+        "title": "AchievementInfo",
+        "description": "Uma conquista (medalha ou troféu) e o estado dela para quem pediu. Regra, não ML."
+      },
+      "AchievementsResponse": {
+        "properties": {
+          "unlocked_count": {
+            "type": "integer",
+            "title": "Unlocked Count"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "achievements": {
+            "items": {
+              "$ref": "#/components/schemas/AchievementInfo"
+            },
+            "type": "array",
+            "title": "Achievements"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unlocked_count",
+          "total",
+          "achievements"
+        ],
+        "title": "AchievementsResponse"
+      },
       "CategoriesResponse": {
         "properties": {
           "categories": {
@@ -380,6 +987,78 @@
         ],
         "title": "Category"
       },
+      "CheckRequest": {
+        "properties": {
+          "glosses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Glosses"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "texto esperado (o do exercício)"
+          },
+          "answer": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Answer",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "glosses",
+          "text"
+        ],
+        "title": "CheckRequest",
+        "description": "Corrige uma resposta escrita de treino (exercício `sign_to_text`) com a regra da prova."
+      },
+      "CheckResult": {
+        "properties": {
+          "correct": {
+            "type": "boolean",
+            "title": "Correct",
+            "description": "acertou todos os sinais sem palavra sobrando"
+          },
+          "score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Score"
+          },
+          "expected_text": {
+            "type": "string",
+            "title": "Expected Text"
+          },
+          "signs": {
+            "items": {
+              "$ref": "#/components/schemas/SignCheck"
+            },
+            "type": "array",
+            "title": "Signs"
+          },
+          "extra_words": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Extra Words"
+          }
+        },
+        "type": "object",
+        "required": [
+          "correct",
+          "score",
+          "expected_text",
+          "signs",
+          "extra_words"
+        ],
+        "title": "CheckResult"
+      },
       "CompleteRequest": {
         "properties": {
           "correct": {
@@ -407,6 +1086,283 @@
           "total"
         ],
         "title": "CompleteRequest"
+      },
+      "DictionaryEntry": {
+        "properties": {
+          "gloss": {
+            "type": "string",
+            "title": "Gloss"
+          },
+          "word": {
+            "type": "string",
+            "title": "Word"
+          },
+          "forms": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Forms"
+          },
+          "theme_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Theme Ids",
+            "description": "temas da trilha que ensinam este sinal (vazio: só no vocabulário)"
+          },
+          "seen": {
+            "type": "boolean",
+            "title": "Seen",
+            "description": "apareceu numa aula que a pessoa já fez"
+          },
+          "mistakes": {
+            "type": "integer",
+            "title": "Mistakes",
+            "description": "erros recentes ainda na revisão"
+          }
+        },
+        "type": "object",
+        "required": [
+          "gloss",
+          "word",
+          "forms",
+          "theme_ids",
+          "seen",
+          "mistakes"
+        ],
+        "title": "DictionaryEntry"
+      },
+      "DictionaryResponse": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "seen_count": {
+            "type": "integer",
+            "title": "Seen Count"
+          },
+          "signs": {
+            "items": {
+              "$ref": "#/components/schemas/DictionaryEntry"
+            },
+            "type": "array",
+            "title": "Signs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "seen_count",
+          "signs"
+        ],
+        "title": "DictionaryResponse"
+      },
+      "Exam": {
+        "properties": {
+          "theme_id": {
+            "type": "string",
+            "title": "Theme Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "pass_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Pass Score"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/ExamQuestion"
+            },
+            "type": "array",
+            "title": "Questions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "theme_id",
+          "title",
+          "pass_score",
+          "questions"
+        ],
+        "title": "Exam"
+      },
+      "ExamAnswer": {
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "title": "Question Id"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Text",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "question_id"
+        ],
+        "title": "ExamAnswer"
+      },
+      "ExamQuestion": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "sign",
+              "phrase"
+            ],
+            "title": "Kind"
+          },
+          "glosses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Glosses"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "glosses"
+        ],
+        "title": "ExamQuestion",
+        "description": "Uma questão da prova: o avatar toca `glosses`, sem legenda. A resposta certa NÃO vem aqui."
+      },
+      "ExamResult": {
+        "properties": {
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Score"
+          },
+          "pass_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Pass Score"
+          },
+          "xp_gained": {
+            "type": "integer",
+            "title": "Xp Gained"
+          },
+          "level_up": {
+            "type": "boolean",
+            "title": "Level Up"
+          },
+          "goal_reached_now": {
+            "type": "boolean",
+            "title": "Goal Reached Now"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionResult"
+            },
+            "type": "array",
+            "title": "Questions"
+          },
+          "unlocked_theme_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unlocked Theme Ids"
+          },
+          "must_redo_lesson_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Must Redo Lesson Ids",
+            "description": "reprovou: aulas a refazer antes da próxima tentativa"
+          },
+          "new_achievements": {
+            "items": {
+              "$ref": "#/components/schemas/AchievementInfo"
+            },
+            "type": "array",
+            "title": "New Achievements",
+            "description": "conquistas ganhas agora"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/Progress"
+          }
+        },
+        "type": "object",
+        "required": [
+          "passed",
+          "score",
+          "pass_score",
+          "xp_gained",
+          "level_up",
+          "goal_reached_now",
+          "questions",
+          "unlocked_theme_ids",
+          "must_redo_lesson_ids",
+          "progress"
+        ],
+        "title": "ExamResult"
+      },
+      "ExamSubmit": {
+        "properties": {
+          "answers": {
+            "items": {
+              "$ref": "#/components/schemas/ExamAnswer"
+            },
+            "type": "array",
+            "title": "Answers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "answers"
+        ],
+        "title": "ExamSubmit"
+      },
+      "ExamSummary": {
+        "properties": {
+          "n_questions": {
+            "type": "integer",
+            "title": "N Questions"
+          },
+          "pass_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Pass Score",
+            "description": "nota mínima para passar (0 a 1)"
+          },
+          "xp_reward": {
+            "type": "integer",
+            "title": "Xp Reward"
+          }
+        },
+        "type": "object",
+        "required": [
+          "n_questions",
+          "pass_score",
+          "xp_reward"
+        ],
+        "title": "ExamSummary"
       },
       "HTTPValidationError": {
         "properties": {
@@ -443,6 +1399,39 @@
           "mock"
         ],
         "title": "Health"
+      },
+      "LearnPhrase": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "const": "learn_phrase",
+            "title": "Type",
+            "default": "learn_phrase"
+          },
+          "glosses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Glosses"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "glosses",
+          "text"
+        ],
+        "title": "LearnPhrase",
+        "description": "Cartão de apresentação de uma frase: o avatar toca `glosses` em sequência e mostra `text`.\n\nA sequência segue a ordem do português; não é a gramática da Libras (mostre isso na tela)."
       },
       "LearnSign": {
         "properties": {
@@ -488,13 +1477,21 @@
             "type": "string",
             "title": "Id"
           },
-          "unit_id": {
+          "theme_id": {
             "type": "string",
-            "title": "Unit Id"
+            "title": "Theme Id"
           },
           "title": {
             "type": "string",
             "title": "Title"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "signs",
+              "phrases"
+            ],
+            "title": "Kind"
           },
           "xp_reward": {
             "type": "integer",
@@ -514,13 +1511,25 @@
                 },
                 {
                   "$ref": "#/components/schemas/MatchPairs"
+                },
+                {
+                  "$ref": "#/components/schemas/LearnPhrase"
+                },
+                {
+                  "$ref": "#/components/schemas/PhraseToText"
+                },
+                {
+                  "$ref": "#/components/schemas/SignToText"
                 }
               ],
               "discriminator": {
                 "propertyName": "type",
                 "mapping": {
+                  "learn_phrase": "#/components/schemas/LearnPhrase",
                   "learn_sign": "#/components/schemas/LearnSign",
                   "match_pairs": "#/components/schemas/MatchPairs",
+                  "phrase_to_text": "#/components/schemas/PhraseToText",
+                  "sign_to_text": "#/components/schemas/SignToText",
                   "sign_to_word": "#/components/schemas/SignToWord",
                   "word_to_sign": "#/components/schemas/WordToSign"
                 }
@@ -533,8 +1542,9 @@
         "type": "object",
         "required": [
           "id",
-          "unit_id",
+          "theme_id",
           "title",
+          "kind",
           "xp_reward",
           "exercises"
         ],
@@ -566,6 +1576,11 @@
           "completions": {
             "type": "integer",
             "title": "Completions"
+          },
+          "needs_redo": {
+            "type": "boolean",
+            "title": "Needs Redo",
+            "description": "a pessoa reprovou na prova do tema e precisa refazer esta aula"
           }
         },
         "type": "object",
@@ -573,7 +1588,8 @@
           "status",
           "stars",
           "best_accuracy",
-          "completions"
+          "completions",
+          "needs_redo"
         ],
         "title": "LessonProgress"
       },
@@ -614,6 +1630,19 @@
             "type": "array",
             "title": "Unlocked Lesson Ids"
           },
+          "exam_unlocked": {
+            "type": "boolean",
+            "title": "Exam Unlocked",
+            "description": "esta aula foi a última que faltava: a prova do tema abriu"
+          },
+          "new_achievements": {
+            "items": {
+              "$ref": "#/components/schemas/AchievementInfo"
+            },
+            "type": "array",
+            "title": "New Achievements",
+            "description": "conquistas ganhas agora"
+          },
           "progress": {
             "$ref": "#/components/schemas/Progress"
           }
@@ -628,6 +1657,7 @@
           "level_up",
           "goal_reached_now",
           "unlocked_lesson_ids",
+          "exam_unlocked",
           "progress"
         ],
         "title": "LessonResult"
@@ -642,6 +1672,14 @@
             "type": "string",
             "title": "Title"
           },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "signs",
+              "phrases"
+            ],
+            "title": "Kind"
+          },
           "xp_reward": {
             "type": "integer",
             "title": "Xp Reward"
@@ -655,13 +1693,15 @@
               "type": "string"
             },
             "type": "array",
-            "title": "Glosses"
+            "title": "Glosses",
+            "description": "sinais que a aula ensina (nas de frases, os que as frases usam)"
           }
         },
         "type": "object",
         "required": [
           "id",
           "title",
+          "kind",
           "xp_reward",
           "n_exercises",
           "glosses"
@@ -729,19 +1769,19 @@
             "type": "string",
             "title": "Disclaimer"
           },
-          "units": {
+          "themes": {
             "items": {
-              "$ref": "#/components/schemas/Unit"
+              "$ref": "#/components/schemas/Theme"
             },
             "type": "array",
-            "title": "Units"
+            "title": "Themes"
           }
         },
         "type": "object",
         "required": [
           "title",
           "disclaimer",
-          "units"
+          "themes"
         ],
         "title": "PathResponse"
       },
@@ -773,6 +1813,47 @@
           "ignored"
         ],
         "title": "Phrase"
+      },
+      "PhraseToText": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "const": "phrase_to_text",
+            "title": "Type",
+            "default": "phrase_to_text"
+          },
+          "glosses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Glosses"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/TextOption"
+            },
+            "type": "array",
+            "title": "Options"
+          },
+          "correct_option_id": {
+            "type": "string",
+            "title": "Correct Option Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "glosses",
+          "options",
+          "correct_option_id"
+        ],
+        "title": "PhraseToText",
+        "description": "O avatar toca `glosses`; a pessoa escolhe, entre frases em português, a certa."
       },
       "PoseSequence": {
         "properties": {
@@ -818,6 +1899,149 @@
           "frames"
         ],
         "title": "PoseSequence"
+      },
+      "Practice": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "id da sessão; use em POST /learn/practice/{id}/complete"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "review",
+              "challenge"
+            ],
+            "title": "Kind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "xp_reward": {
+            "type": "integer",
+            "title": "Xp Reward"
+          },
+          "glosses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Glosses"
+          },
+          "exercises": {
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/LearnSign"
+                },
+                {
+                  "$ref": "#/components/schemas/SignToWord"
+                },
+                {
+                  "$ref": "#/components/schemas/WordToSign"
+                },
+                {
+                  "$ref": "#/components/schemas/MatchPairs"
+                },
+                {
+                  "$ref": "#/components/schemas/LearnPhrase"
+                },
+                {
+                  "$ref": "#/components/schemas/PhraseToText"
+                },
+                {
+                  "$ref": "#/components/schemas/SignToText"
+                }
+              ],
+              "discriminator": {
+                "propertyName": "type",
+                "mapping": {
+                  "learn_phrase": "#/components/schemas/LearnPhrase",
+                  "learn_sign": "#/components/schemas/LearnSign",
+                  "match_pairs": "#/components/schemas/MatchPairs",
+                  "phrase_to_text": "#/components/schemas/PhraseToText",
+                  "sign_to_text": "#/components/schemas/SignToText",
+                  "sign_to_word": "#/components/schemas/SignToWord",
+                  "word_to_sign": "#/components/schemas/WordToSign"
+                }
+              }
+            },
+            "type": "array",
+            "title": "Exercises"
+          },
+          "completed_today": {
+            "type": "boolean",
+            "title": "Completed Today",
+            "description": "desafio: já foi feito hoje (refazer não dá XP)",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "xp_reward",
+          "glosses",
+          "exercises"
+        ],
+        "title": "Practice",
+        "description": "Sessão de treino fora da trilha: revisão dos erros ou desafio do dia. O front joga como uma aula."
+      },
+      "PracticeResult": {
+        "properties": {
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "accuracy": {
+            "type": "number",
+            "title": "Accuracy"
+          },
+          "xp_gained": {
+            "type": "integer",
+            "title": "Xp Gained"
+          },
+          "level_up": {
+            "type": "boolean",
+            "title": "Level Up"
+          },
+          "goal_reached_now": {
+            "type": "boolean",
+            "title": "Goal Reached Now"
+          },
+          "cleared_glosses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Cleared Glosses",
+            "description": "sinais que saíram da revisão (acertados nesta sessão)"
+          },
+          "new_achievements": {
+            "items": {
+              "$ref": "#/components/schemas/AchievementInfo"
+            },
+            "type": "array",
+            "title": "New Achievements"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/Progress"
+          }
+        },
+        "type": "object",
+        "required": [
+          "passed",
+          "accuracy",
+          "xp_gained",
+          "level_up",
+          "goal_reached_now",
+          "cleared_glosses",
+          "progress"
+        ],
+        "title": "PracticeResult"
       },
       "Progress": {
         "properties": {
@@ -873,12 +2097,36 @@
             "title": "Last Activity Date",
             "description": "AAAA-MM-DD"
           },
+          "themes": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ThemeProgress"
+            },
+            "type": "object",
+            "title": "Themes"
+          },
           "lessons": {
             "additionalProperties": {
               "$ref": "#/components/schemas/LessonProgress"
             },
             "type": "object",
             "title": "Lessons"
+          },
+          "review_signs": {
+            "type": "integer",
+            "title": "Review Signs",
+            "description": "sinais errados esperando revisão",
+            "default": 0
+          },
+          "challenge_available": {
+            "type": "boolean",
+            "title": "Challenge Available",
+            "description": "já há sinais vistos para o desafio do dia",
+            "default": false
+          },
+          "challenge_done_today": {
+            "type": "boolean",
+            "title": "Challenge Done Today",
+            "default": false
           }
         },
         "type": "object",
@@ -894,9 +2142,98 @@
           "xp_today",
           "goal_reached_today",
           "last_activity_date",
+          "themes",
           "lessons"
         ],
         "title": "Progress"
+      },
+      "QuestionResult": {
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "title": "Question Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "sign",
+              "phrase"
+            ],
+            "title": "Kind"
+          },
+          "glosses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Glosses"
+          },
+          "expected_text": {
+            "type": "string",
+            "title": "Expected Text"
+          },
+          "answer": {
+            "type": "string",
+            "title": "Answer"
+          },
+          "score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Score"
+          },
+          "signs": {
+            "items": {
+              "$ref": "#/components/schemas/SignCheck"
+            },
+            "type": "array",
+            "title": "Signs"
+          },
+          "extra_words": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Extra Words",
+            "description": "palavras da resposta que não correspondem a nenhum sinal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question_id",
+          "kind",
+          "glosses",
+          "expected_text",
+          "answer",
+          "score",
+          "signs",
+          "extra_words"
+        ],
+        "title": "QuestionResult"
+      },
+      "SignCheck": {
+        "properties": {
+          "gloss": {
+            "type": "string",
+            "title": "Gloss"
+          },
+          "word": {
+            "type": "string",
+            "title": "Word",
+            "description": "palavra de referência do sinal"
+          },
+          "correct": {
+            "type": "boolean",
+            "title": "Correct"
+          }
+        },
+        "type": "object",
+        "required": [
+          "gloss",
+          "word",
+          "correct"
+        ],
+        "title": "SignCheck"
       },
       "SignInfo": {
         "properties": {
@@ -956,6 +2293,48 @@
         ],
         "title": "SignOption"
       },
+      "SignToText": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "const": "sign_to_text",
+            "title": "Type",
+            "default": "sign_to_text"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "sign",
+              "phrase"
+            ],
+            "title": "Kind"
+          },
+          "glosses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Glosses"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "glosses",
+          "text"
+        ],
+        "title": "SignToText",
+        "description": "O avatar toca `glosses` (um sinal ou uma frase); a pessoa ESCREVE o que entendeu, como na prova.\n\nA correção é a mesma da prova, feita pela API em `POST /learn/check`. Diferente da prova, o texto\nesperado vem aqui (`text`), porque a aula é treino; o front só o mostra depois de verificar."
+      },
       "SignToWord": {
         "properties": {
           "id": {
@@ -1011,6 +2390,108 @@
           "text"
         ],
         "title": "TextOption"
+      },
+      "Theme": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "lessons": {
+            "items": {
+              "$ref": "#/components/schemas/LessonSummary"
+            },
+            "type": "array",
+            "title": "Lessons"
+          },
+          "exam": {
+            "$ref": "#/components/schemas/ExamSummary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "color",
+          "lessons",
+          "exam"
+        ],
+        "title": "Theme"
+      },
+      "ThemeProgress": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "locked",
+              "learning",
+              "exam_ready",
+              "passed"
+            ],
+            "title": "Status"
+          },
+          "lessons_completed": {
+            "type": "integer",
+            "title": "Lessons Completed"
+          },
+          "lessons_total": {
+            "type": "integer",
+            "title": "Lessons Total"
+          },
+          "exam_attempts": {
+            "type": "integer",
+            "title": "Exam Attempts"
+          },
+          "best_exam_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Best Exam Score"
+          },
+          "last_exam_score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Exam Score"
+          },
+          "must_redo": {
+            "type": "boolean",
+            "title": "Must Redo",
+            "description": "reprovou na última prova e ainda não refez todas as aulas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "lessons_completed",
+          "lessons_total",
+          "exam_attempts",
+          "best_exam_score",
+          "last_exam_score",
+          "must_redo"
+        ],
+        "title": "ThemeProgress",
+        "description": "`status`: `locked` (tema anterior sem prova aprovada), `learning` (faltam aulas),\n`exam_ready` (aulas feitas, prova liberada) ou `passed` (prova aprovada; o próximo tema abre)."
       },
       "TranslateRequest": {
         "properties": {
@@ -1081,47 +2562,6 @@
           "latency_ms"
         ],
         "title": "TranslateResponse"
-      },
-      "Unit": {
-        "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id"
-          },
-          "title": {
-            "type": "string",
-            "title": "Title"
-          },
-          "description": {
-            "type": "string",
-            "title": "Description"
-          },
-          "color": {
-            "type": "string",
-            "title": "Color"
-          },
-          "icon": {
-            "type": "string",
-            "title": "Icon"
-          },
-          "lessons": {
-            "items": {
-              "$ref": "#/components/schemas/LessonSummary"
-            },
-            "type": "array",
-            "title": "Lessons"
-          }
-        },
-        "type": "object",
-        "required": [
-          "id",
-          "title",
-          "description",
-          "color",
-          "icon",
-          "lessons"
-        ],
-        "title": "Unit"
       },
       "ValidationError": {
         "properties": {

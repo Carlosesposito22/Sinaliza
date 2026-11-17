@@ -1,0 +1,166 @@
+/* =========================================================================================
+   Sinaliza: tokens de design (cores, tipografia, raios, sombras) e base da página.
+   A paleta sai da logo (public/logos/logo.png): azul-céu da moldura e azul-royal da mão.
+   Cores de apoio têm papel fixo: amarelo = XP e desafio, laranja = sequência e revisão,
+   verde = acerto, coral = erro, roxo = conquistas, turquesa = texto em sinais.
+   Ordem dos arquivos: tokens.css → components.css → app/app.css (layout e telas).
+   ========================================================================================= */
+
+:root {
+  /* marca */
+  --brand: #0b72d9;
+  --brand-strong: #0957ad;
+  --brand-sky: #14a3f7;
+  --brand-soft: #e4f1ff;
+  --brand-ink: #213a63; /* nome "SINALIZA" na marca */
+
+  /* apoio */
+  --blue: #0b72d9;
+  --yellow: #f5b400;
+  --yellow-strong: #db9a00;
+  --orange: #ff7a2f;
+  --green: #12b886;
+  --purple: #7c5cfa;
+  --teal: #0aa9b8;
+  --coral: #f04e62;
+
+  /* estados */
+  --success: #12a877;
+  --error: #e5484d;
+  --warning: #f59e0b;
+
+  /* superfícies e texto */
+  --bg: #f4f8fe;
+  --bg-tint: #e6f1ff;
+  --surface: #ffffff;
+  --surface-2: #f6f9fe;
+  --border: #dbe5f3;
+  --border-strong: #c2d2e8;
+  --text: #0e1b33;
+  --muted: #5a6a85;
+
+  /* forma */
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 24px;
+  --shadow-sm: 0 1px 2px rgba(14, 27, 51, 0.06), 0 1px 1px rgba(14, 27, 51, 0.04);
+  --shadow-md: 0 8px 20px rgba(13, 45, 100, 0.08);
+  --shadow-lg: 0 20px 44px rgba(11, 72, 170, 0.16);
+  --ring: 0 0 0 4px color-mix(in srgb, var(--brand) 24%, transparent);
+
+  /* tipografia: Montserrat nos títulos (próxima da logo), Nunito no texto */
+  --font-display: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* cor do tema em uso (aula, prova, treino); as telas redefinem */
+  --theme: var(--brand);
+
+  color-scheme: light;
+}
+
+/* Tema escuro: opcional, ligado pela pessoa (ThemeToggle grava data-theme no <html>). O padrão é o claro,
+   branco e azul, que é a identidade do Sinaliza. */
+:root[data-theme="dark"] {
+  --brand: #3d9bff;
+  --brand-strong: #1f7eea;
+  --brand-sky: #4cb8ff;
+  --brand-soft: #142a4c;
+  --brand-ink: #eaf2ff;
+
+  --blue: #3d9bff;
+  --yellow: #ffc83d;
+  --yellow-strong: #f2b31f;
+  --orange: #ff8c4a;
+  --green: #2fd39c;
+  --purple: #9b84ff;
+  --teal: #2cc6d4;
+  --coral: #ff6b7d;
+
+  --success: #2fd39c;
+  --error: #ff6b6f;
+
+  --bg: #0a1324;
+  --bg-tint: #0f1d36;
+  --surface: #111d33;
+  --surface-2: #15233d;
+  --border: #22324f;
+  --border-strong: #2e4266;
+  --text: #eaf1ff;
+  --muted: #93a4c2;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 20px 44px rgba(0, 0, 0, 0.45);
+
+  color-scheme: dark;
+}
+
+/* ---- base ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--brand);
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
+img,
+svg {
+  display: block;
+}
+
+:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

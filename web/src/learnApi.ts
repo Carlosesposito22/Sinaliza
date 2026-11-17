@@ -1,6 +1,9 @@
 // Cliente da trilha de aprendizado. Funciona igual contra o mock e contra a API real: só muda
 // VITE_API_URL (padrão http://localhost:8000). Ver docs/contrato-api-web.md.
-import type { CompleteRequest, Lesson, LessonResult, PathResponse, Progress } from "./contract";
+import type {
+  AchievementsResponse, CheckRequest, CheckResult, CompleteRequest, DictionaryResponse, Exam, ExamResult, ExamSubmit,
+  Lesson, LessonResult, PathResponse, Practice, PracticeResult, Progress,
+} from "./contract";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 const LEARNER_KEY = "sinaliza.learnerId";
@@ -45,5 +48,25 @@ export const completeLesson = (id: string, body: CompleteRequest) =>
     method: "POST",
     body: JSON.stringify(body),
   });
+// Prova do tema: as questões vêm sem gabarito; a correção é feita pela API.
+export const fetchExam = (themeId: string) => request<Exam>(`/learn/themes/${encodeURIComponent(themeId)}/exam`);
+export const submitExam = (themeId: string, body: ExamSubmit) =>
+  request<ExamResult>(`/learn/themes/${encodeURIComponent(themeId)}/exam`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+// Conquistas: todas, ganhas ou não, com quanto falta para cada uma.
+export const fetchAchievements = () => request<AchievementsResponse>("/learn/achievements");
+// Treino (regra, não ML; só os 210 sinais do vocabulário curado).
+export const checkAnswer = (body: CheckRequest) =>
+  request<CheckResult>("/learn/check", { method: "POST", body: JSON.stringify(body) });
+export const fetchReview = () => request<Practice>("/learn/review");
+export const fetchChallenge = () => request<Practice>("/learn/challenge");
+export const completePractice = (sessionId: string, body: CompleteRequest) =>
+  request<PracticeResult>(`/learn/practice/${encodeURIComponent(sessionId)}/complete`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+export const fetchDictionary = () => request<DictionaryResponse>("/learn/dictionary");
 // Só existe no mock.
 export const resetProgress = () => request<void>("/learn/progress", { method: "DELETE" });

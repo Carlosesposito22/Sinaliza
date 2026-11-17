@@ -49,6 +49,9 @@ class VlibrasPlayer {
   private pending: string | null = null;
   private listeners = new Set<Listener>();
   private started = false;
+  private subtitles = true;
+  private speed = 1;
+  private restoreSpeedAfterPlay = false;
 
   constructor() {
     this.element = document.createElement("div");
@@ -62,11 +65,19 @@ class VlibrasPlayer {
     window.onLoadPlayer = () => {
       this.send("setBaseUrl", signsUrl());
       this.send("initRandomAnimationsProcess");
+      this.send("setSubtitlesState", this.subtitles ? 1 : 0);
+      this.send("setSlider", this.speed);
       this.set({ loaded: true });
       if (this.pending) this.play(this.pending);
     };
     window.onPlayingStateChange = (playing, paused, _interval, loading) => {
-      this.set({ playing: playing !== "False" && paused === "False", loading: loading !== "False" });
+      const nowPlaying = playing !== "False" && paused === "False";
+      // Terminou uma reprodução em câmera lenta: volta para a velocidade escolhida.
+      if (this.state.playing && !nowPlaying && this.restoreSpeedAfterPlay) {
+        this.restoreSpeedAfterPlay = false;
+        this.send("setSlider", this.speed);
+      }
+      this.set({ playing: nowPlaying, loading: loading !== "False" });
     };
     window.CounterGloss = () => {};
     window.updateProgress = () => {};
@@ -91,8 +102,26 @@ class VlibrasPlayer {
     this.send("Change", name);
   }
 
+  // Velocidade de reprodução (1 = normal, 0.5 = metade). Vale também se chamado antes de o player carregar.
   setSpeed(speed: number): void {
+    this.speed = speed;
+    this.restoreSpeedAfterPlay = false;
+    if (this.state.loaded) this.send("setSlider", speed);
+  }
+
+  // Toca uma vez numa velocidade e depois volta para a escolhida (botão "câmera lenta").
+  playAtSpeed(gloss: string, speed: number): void {
+    if (!this.state.loaded) return;
     this.send("setSlider", speed);
+    this.restoreSpeedAfterPlay = speed !== this.speed;
+    this.play(gloss);
+  }
+
+  // Legenda do player (a glosa escrita embaixo do avatar). A prova do tema a desliga: lá a pessoa
+  // precisa entender o sinal sem ler a resposta. Vale também se chamado antes de o player carregar.
+  setSubtitles(enabled: boolean): void {
+    this.subtitles = enabled;
+    if (this.state.loaded) this.send("setSubtitlesState", enabled ? 1 : 0);
   }
 
   subscribe(listener: Listener): () => void {

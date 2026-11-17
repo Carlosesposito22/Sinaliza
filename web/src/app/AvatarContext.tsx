@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { toVlibrasGloss, vlibrasPlayer } from "../vlibras";
 
 interface AvatarValue {
   glosses: string[];
@@ -23,4 +24,17 @@ export function useAvatarGlosses(glosses: string[]) {
     return () => setGlosses([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
+}
+
+// Toca uma sequência no avatar a pedido (botão "ver o sinal"). Se já é a sequência atual, toca de novo;
+// se é outra, ela vira a atual (e o "Repetir" do avatar passa a repeti-la).
+export function usePlayGlosses(): (glosses: string[]) => void {
+  const { glosses, setGlosses } = useAvatar();
+  return useCallback(
+    (next: string[]) => {
+      if (next.join("|") === glosses.join("|")) vlibrasPlayer().play(toVlibrasGloss(next));
+      else setGlosses(next);
+    },
+    [glosses, setGlosses],
+  );
 }

@@ -1,4 +1,4 @@
-import type { KnownExercise } from "./exerciceTypes";
+import { isIntroCard, type KnownExercise } from "./exerciceTypes";
 
 export type Phase = "answering" | "feedback" | "finished";
 
@@ -13,7 +13,7 @@ export interface LessonState {
 
 export type LessonAction =
   | { type: "answer"; correct: boolean } // exercícios com "Verificar"
-  | { type: "acknowledge" } // learn_sign: conta como acerto e avança direto
+  | { type: "acknowledge" } // learn_sign e learn_phrase: contam como acerto e avançam direto
   | { type: "next" }; // "Continuar" depois do feedback
 
 export function initLesson(exercises: KnownExercise[]): LessonState {
@@ -44,7 +44,7 @@ export function lessonReducer(state: LessonState, action: LessonAction): LessonS
         : { ...state, phase: "feedback", mistakes: [...state.mistakes, current.id], lastWasCorrect: false };
     }
     case "acknowledge": {
-      if (state.phase !== "answering" || current?.type !== "learn_sign") return state;
+      if (state.phase !== "answering" || !current || !isIntroCard(current)) return state;
       return advance({ ...state, correct: state.correct + 1 });
     }
     case "next": {

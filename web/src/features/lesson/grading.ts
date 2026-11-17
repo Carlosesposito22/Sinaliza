@@ -1,7 +1,7 @@
-import type { SignToWord, WordToSign } from "./exerciceTypes";
+import type { PhraseToText, SignToWord, WordToSign } from "./exerciceTypes";
 
-/** sign_to_word e word_to_sign: compara o id da opção escolhida com o gabarito. */
-export function gradeChoice(exercise: SignToWord | WordToSign, selectedOptionId: string): boolean {
+/** sign_to_word, word_to_sign e phrase_to_text: compara o id da opção escolhida com o gabarito. */
+export function gradeChoice(exercise: SignToWord | WordToSign | PhraseToText, selectedOptionId: string): boolean {
   return exercise.correct_option_id === selectedOptionId;
 }
 

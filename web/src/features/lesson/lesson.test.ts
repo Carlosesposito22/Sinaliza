@@ -34,8 +34,9 @@ describe("grading", () => {
 
 describe("playableExercises", () => {
   it("ignora tipos desconhecidos sem quebrar", () => {
-    const mixed: Exercise[] = [learn, { id: "x", type: "futuro" }, s2w];
-    expect(playableExercises(mixed).map((e) => e.id)).toEqual(["e1", "e2"]);
+    const write: KnownExercise = { id: "w", type: "sign_to_text", kind: "sign", glosses: ["MÃE"], text: "mãe" };
+    const mixed: Exercise[] = [learn, { id: "x", type: "futuro" }, s2w, write];
+    expect(playableExercises(mixed).map((e) => e.id)).toEqual(["e1", "e2", "w"]);
   });
 });
 
@@ -45,7 +46,13 @@ describe("lessonReducer", () => {
     expect(s).toMatchObject({ index: 1, correct: 1, phase: "answering" });
   });
 
-  it("acknowledge é ignorado em exercício que não é learn_sign", () => {
+  it("learn_phrase também conta como acerto e avança", () => {
+    const phrase: KnownExercise = { id: "p1", type: "learn_phrase", glosses: ["MÃE", "GOSTAR"], text: "A mãe gosta." };
+    const s = run(initLesson([phrase, s2w]), { type: "acknowledge" });
+    expect(s).toMatchObject({ index: 1, correct: 1, phase: "answering" });
+  });
+
+  it("acknowledge é ignorado em exercício que não é cartão de apresentação", () => {
     const s0 = initLesson([s2w]);
     expect(run(s0, { type: "acknowledge" })).toBe(s0);
   });

@@ -1,9 +1,21 @@
 // Regras de exibição da trilha (só front; não é ML). Funções puras para poder testar sem a interface.
-import type { LessonStatus, PathResponse, Progress, Unit } from "../../contract";
+// A trilha é feita de temas; cada tema tem aulas e uma prova. Quem decide o que abre é a API
+// (GET /learn/progress); aqui só lemos esse estado.
+import type { LessonStatus, PathResponse, Progress, Theme, ThemeStatus } from "../../contract";
 
-// Lição sem entrada no progresso é tratada como bloqueada (nunca abrir por engano).
+// Aula sem entrada no progresso é tratada como bloqueada (nunca abrir por engano).
 export function lessonStatus(progress: Progress | null, lessonId: string): LessonStatus {
   return progress?.lessons[lessonId]?.status ?? "locked";
+}
+
+export function themeStatus(progress: Progress | null, themeId: string): ThemeStatus {
+  return progress?.themes[themeId]?.status ?? "locked";
+}
+
+// A prova abre com todas as aulas feitas; depois de aprovada, pode ser refeita para melhorar a nota.
+export function examOpen(progress: Progress | null, themeId: string): boolean {
+  const status = themeStatus(progress, themeId);
+  return status === "exam_ready" || status === "passed";
 }
 
 export function stars(count: number): string {
@@ -15,38 +27,57 @@ export function goalPercent(xpToday: number, goal: number): number {
   return goal > 0 ? Math.min(100, Math.round((xpToday / goal) * 100)) : 0;
 }
 
+export function percent(score: number): number {
+  return Math.round(score * 100);
+}
+
 // Deslocamento horizontal de cada nó no caminho, em "passos" (-2 a 2), formando uma curva suave.
 const WAVE = [0, 1, 2, 1, 0, -1, -2, -1];
 export function nodeOffset(index: number): number {
   return WAVE[((index % WAVE.length) + WAVE.length) % WAVE.length];
 }
 
-// A lição em que a pessoa está: a primeira disponível, na ordem da trilha. Null se não há nenhuma.
-export function currentLessonId(path: PathResponse | null, progress: Progress | null): string | null {
+export type Step = { kind: "lesson"; id: string } | { kind: "exam"; themeId: string };
+
+// Onde a pessoa está: no primeiro tema aberto e ainda não aprovado, a prova (se já abriu) ou a
+// primeira aula pendente. Null se não há nada pendente (tudo aprovado) ou faltam dados.
+export function currentStep(path: PathResponse | null, progress: Progress | null): Step | null {
   if (!path || !progress) return null;
-  for (const unit of path.units) {
-    for (const lesson of unit.lessons) {
-      if (lessonStatus(progress, lesson.id) === "available") return lesson.id;
-    }
+  for (const theme of path.themes) {
+    const status = themeStatus(progress, theme.id);
+    if (status === "locked" || status === "passed") continue;
+    if (status === "exam_ready") return { kind: "exam", themeId: theme.id };
+    const pending = theme.lessons.find((l) => lessonStatus(progress, l.id) === "available");
+    if (pending) return { kind: "lesson", id: pending.id };
   }
   return null;
 }
 
-export interface UnitSummary {
+export interface ThemeSummary {
+  status: ThemeStatus;
   completed: number;
   total: number;
   stars: number;
+  attempts: number;
+  bestScore: number;
+  lastScore: number | null;
+  mustRedo: boolean;
 }
 
-export function unitSummary(unit: Unit, progress: Progress | null): UnitSummary {
-  let completed = 0;
+export function themeSummary(theme: Theme, progress: Progress | null): ThemeSummary {
+  const tp = progress?.themes[theme.id];
   let starCount = 0;
-  for (const lesson of unit.lessons) {
-    const lp = progress?.lessons[lesson.id];
-    if (lp?.status === "completed") completed += 1;
-    starCount += lp?.stars ?? 0;
-  }
-  return { completed, total: unit.lessons.length, stars: starCount };
+  for (const lesson of theme.lessons) starCount += progress?.lessons[lesson.id]?.stars ?? 0;
+  return {
+    status: tp?.status ?? "locked",
+    completed: tp?.lessons_completed ?? 0,
+    total: tp?.lessons_total ?? theme.lessons.length,
+    stars: starCount,
+    attempts: tp?.exam_attempts ?? 0,
+    bestScore: tp?.best_exam_score ?? 0,
+    lastScore: tp?.last_exam_score ?? null,
+    mustRedo: tp?.must_redo ?? false,
+  };
 }
 
 export interface ProfileStats {
@@ -55,26 +86,28 @@ export interface ProfileStats {
   stars: number;
   maxStars: number;
   signsLearned: number;
-  unitsCompleted: number;
-  unitsTotal: number;
+  themesPassed: number;
+  themesTotal: number;
 }
 
-// Números do perfil. "Sinais vistos" = sinais distintos das lições concluídas.
+// Números do perfil. "Sinais vistos" = sinais distintos das aulas já feitas alguma vez.
 export function profileStats(path: PathResponse | null, progress: Progress | null): ProfileStats {
-  const units = path?.units ?? [];
+  const themes = path?.themes ?? [];
   let lessonsCompleted = 0;
   let lessonsTotal = 0;
   let starCount = 0;
-  let unitsCompleted = 0;
+  let themesPassed = 0;
   const signs = new Set<string>();
-  for (const unit of units) {
-    const s = unitSummary(unit, progress);
-    lessonsCompleted += s.completed;
-    lessonsTotal += s.total;
-    starCount += s.stars;
-    if (s.total > 0 && s.completed === s.total) unitsCompleted += 1;
-    for (const lesson of unit.lessons) {
-      if (lessonStatus(progress, lesson.id) === "completed") lesson.glosses.forEach((g) => signs.add(g));
+  for (const theme of themes) {
+    if (themeStatus(progress, theme.id) === "passed") themesPassed += 1;
+    for (const lesson of theme.lessons) {
+      const lp = progress?.lessons[lesson.id];
+      lessonsTotal += 1;
+      starCount += lp?.stars ?? 0;
+      if ((lp?.completions ?? 0) > 0) {
+        lessonsCompleted += 1;
+        lesson.glosses.forEach((g) => signs.add(g));
+      }
     }
   }
   return {
@@ -83,8 +116,8 @@ export function profileStats(path: PathResponse | null, progress: Progress | nul
     stars: starCount,
     maxStars: lessonsTotal * 3,
     signsLearned: signs.size,
-    unitsCompleted,
-    unitsTotal: units.length,
+    themesPassed,
+    themesTotal: themes.length,
   };
 }
 

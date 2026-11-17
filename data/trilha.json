@@ -1,0 +1,102 @@
+{
+  "version": 2,
+  "status": "conteúdo da trilha escrito pela equipe (regra, não ML). Usa SÓ os 210 sinais do nosso vocabulário curado (data/vocabulary.json, classes do V-LIBRASIL); os testes do mock recusam qualquer glosa fora dele. As formas aceitas do vocabulário entram sozinhas; `accept` aqui só acrescenta flexões do português. Rótulos, flexões e frases NÃO foram validados por falante de Libras. As frases são sequências de sinais na ordem do português, sem a gramática da Libras.",
+  "signs": {
+    "ESCOLA": { "word": "escola", "accept": ["escolas"] },
+    "CRIANÇA": { "word": "criança", "accept": [] },
+    "LIVRO": { "word": "livro", "accept": ["livros"] },
+    "BANHEIRO": { "word": "banheiro", "accept": ["banheiros"] },
+    "ESTUDO": { "word": "estudar", "accept": ["estuda", "estudo", "estudam", "estudamos"] },
+    "APRENDER": { "word": "aprender", "accept": ["aprende", "aprendo", "aprendem"] },
+    "ESCREVER": { "word": "escrever", "accept": ["escreve", "escrevo", "escrevem"] },
+    "BIBLIOTECA": { "word": "biblioteca", "accept": ["bibliotecas"] },
+    "COMPREENDER": { "word": "entender", "accept": ["entende", "entendo", "entendi", "compreende", "compreendo"] },
+    "EXPLICAR": { "word": "explicar", "accept": ["explica", "explico", "explicam"] },
+    "QUER": { "word": "querer", "accept": ["quero", "queremos", "querem"] },
+    "IR": { "word": "ir", "accept": ["vou", "vai", "vamos", "vão"] },
+    "MÃE": { "word": "mãe", "accept": ["mães"] },
+    "PAI": { "word": "pai", "accept": [] },
+    "FILHO": { "word": "filho", "accept": [] },
+    "FILHA": { "word": "filha", "accept": [] },
+    "IRMÃ": { "word": "irmã", "accept": [] },
+    "TIO": { "word": "tio", "accept": ["tios"] },
+    "TIA": { "word": "tia", "accept": ["tias"] },
+    "BEBÊ": { "word": "bebê", "accept": [] },
+    "CASA": { "word": "casa", "accept": ["casas"] },
+    "FESTA": { "word": "festa", "accept": ["festas"] },
+    "ANIVERSÁRIO": { "word": "aniversário", "accept": ["aniversários"] },
+    "GOSTAR": { "word": "gostar", "accept": ["gosta", "gosto", "gostam"] },
+    "MÉDICO": { "word": "médico", "accept": ["médicos"] },
+    "ENFERMEIRA": { "word": "enfermeira", "accept": ["enfermeiro", "enfermeiras"] },
+    "HOSPITAL": { "word": "hospital", "accept": ["hospitais"] },
+    "DOENTE": { "word": "doente", "accept": ["doentes"] },
+    "MEDICAMENTO": { "word": "remédio", "accept": [] },
+    "TOSSE": { "word": "tosse", "accept": [] },
+    "CANSADO": { "word": "cansado", "accept": [] },
+    "DORMIR": { "word": "dormir", "accept": ["dorme", "durmo", "dormem"] }
+  },
+  "themes": [
+    {
+      "id": "escola",
+      "title": "Escola",
+      "description": "A escola, estudar e pedidos da sala de aula",
+      "color": "#0b72d9",
+      "lessons": [
+        { "id": "escola-1", "title": "A escola", "signs": ["ESCOLA", "CRIANÇA", "LIVRO", "BANHEIRO"] },
+        { "id": "escola-2", "title": "Estudar", "signs": ["ESTUDO", "APRENDER", "ESCREVER", "BIBLIOTECA"] },
+        { "id": "escola-3", "title": "Na sala de aula", "signs": ["COMPREENDER", "EXPLICAR", "QUER", "IR"] },
+        {
+          "id": "escola-4",
+          "title": "Frases da escola",
+          "phrases": [
+            { "text": "A criança quer ir ao banheiro.", "glosses": ["CRIANÇA", "QUER", "IR", "BANHEIRO"] },
+            { "text": "A criança estuda na biblioteca.", "glosses": ["CRIANÇA", "ESTUDO", "BIBLIOTECA"] },
+            { "text": "Eu quero aprender.", "glosses": ["QUER", "APRENDER"] },
+            { "text": "Eu quero escrever no livro.", "glosses": ["QUER", "ESCREVER", "LIVRO"] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "familia",
+      "title": "Família",
+      "description": "Mãe, pai, filhos e a vida em casa",
+      "color": "#0f9d6e",
+      "lessons": [
+        { "id": "familia-1", "title": "Pais e filhos", "signs": ["MÃE", "PAI", "FILHO", "FILHA"] },
+        { "id": "familia-2", "title": "Mais parentes", "signs": ["IRMÃ", "TIO", "TIA", "BEBÊ"] },
+        { "id": "familia-3", "title": "Em casa", "signs": ["CASA", "FESTA", "ANIVERSÁRIO", "GOSTAR"] },
+        {
+          "id": "familia-4",
+          "title": "Frases da família",
+          "phrases": [
+            { "text": "A mãe gosta de festa.", "glosses": ["MÃE", "GOSTAR", "FESTA"] },
+            { "text": "A tia gosta do bebê.", "glosses": ["TIA", "GOSTAR", "BEBÊ"] },
+            { "text": "O pai vai para casa.", "glosses": ["PAI", "IR", "CASA"] },
+            { "text": "O aniversário da filha.", "glosses": ["ANIVERSÁRIO", "FILHA"] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "saude",
+      "title": "Saúde",
+      "description": "Médico, hospital e como você se sente",
+      "color": "#e5484d",
+      "lessons": [
+        { "id": "saude-1", "title": "No hospital", "signs": ["MÉDICO", "ENFERMEIRA", "HOSPITAL", "DOENTE"] },
+        { "id": "saude-2", "title": "Como você está", "signs": ["MEDICAMENTO", "TOSSE", "CANSADO", "DORMIR"] },
+        {
+          "id": "saude-3",
+          "title": "Frases da saúde",
+          "phrases": [
+            { "text": "A enfermeira está cansada.", "glosses": ["ENFERMEIRA", "CANSADO"] },
+            { "text": "O médico explica o remédio.", "glosses": ["MÉDICO", "EXPLICAR", "MEDICAMENTO"] },
+            { "text": "O doente vai ao hospital.", "glosses": ["DOENTE", "IR", "HOSPITAL"] },
+            { "text": "O doente precisa dormir.", "glosses": ["DOENTE", "DORMIR"] }
+          ]
+        }
+      ]
+    }
+  ]
+}

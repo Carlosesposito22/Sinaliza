@@ -1,18 +1,35 @@
-// TODO: trocar estas definições por imports de '../../contract' e apagar o que sobrar aqui.
+// Tipos dos exercícios: vêm do contrato (web/src/contract.ts). Aqui fica só o filtro de tipos conhecidos.
+import type {
+  LearnPhraseExercise,
+  LearnSignExercise,
+  MatchPairsExercise,
+  PhraseToTextExercise,
+  SignToTextExercise,
+  SignToWordExercise,
+  WordToSignExercise,
+} from "../../contract";
 
-export interface LearnSign { id: string; type: "learn_sign"; gloss: string; word_pt: string; forms: string[] }
-export interface SignToWord { id: string; type: "sign_to_word"; gloss: string; options: { id: string; text: string }[]; correct_option_id: string }
-export interface WordToSign { id: string; type: "word_to_sign"; text: string; options: { id: string; gloss: string }[]; correct_option_id: string }
-export interface MatchPairs { id: string; type: "match_pairs"; pairs: { id: string; gloss: string; text: string }[] }
+export type LearnSign = LearnSignExercise;
+export type SignToWord = SignToWordExercise;
+export type WordToSign = WordToSignExercise;
+export type MatchPairs = MatchPairsExercise;
+export type LearnPhrase = LearnPhraseExercise;
+export type PhraseToText = PhraseToTextExercise;
+export type SignToText = SignToTextExercise;
 
-export type KnownExercise = LearnSign | SignToWord | WordToSign | MatchPairs;
+export type KnownExercise = LearnSign | SignToWord | WordToSign | MatchPairs | LearnPhrase | PhraseToText | SignToText;
 // A API pode ganhar tipos novos: o front precisa sobreviver a eles.
 export type Exercise = KnownExercise | { id: string; type: string; [k: string]: unknown };
 
-const KNOWN = new Set(["learn_sign", "sign_to_word", "word_to_sign", "match_pairs"]);
+const KNOWN = new Set(["learn_sign", "sign_to_word", "word_to_sign", "match_pairs", "learn_phrase", "phrase_to_text", "sign_to_text"]);
 
 export function isKnownExercise(e: Exercise): e is KnownExercise {
   return KNOWN.has(e.type);
+}
+
+/** Cartões de apresentação: não valem nota, contam como acerto ao continuar. */
+export function isIntroCard(e: KnownExercise): e is LearnSign | LearnPhrase {
+  return e.type === "learn_sign" || e.type === "learn_phrase";
 }
 
 /** Descarta tipos desconhecidos antes de começar, para que `total` bata com o que a pessoa realmente jogou. */

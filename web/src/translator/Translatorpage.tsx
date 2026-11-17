@@ -78,9 +78,7 @@ export function TranslatorPage() {
 
   return (
     <main className="app">
-      <div className="logo">
-        <img src="../public/logos/logo.png" alt="Sinaliza" />
-      </div>
+      <h1 className="page-title">Texto em sinais</h1>
 
       <p className="subtitle">
         Digite um texto e veja a sequência de sinais, na ordem do texto. O vocabulário tem{" "}
@@ -97,9 +95,9 @@ export function TranslatorPage() {
         />
         <div className="form-foot">
           <span className="counter">{text.length}/500</span>
-          <button type="submit" disabled={loading || !text.trim()}>
+          <button type="submit" className="btn btn-primary" disabled={loading || !text.trim()}>
             <Languages size={18} aria-hidden="true" />
-            {loading ? "Gerando..." : "Traduzir"}
+            {loading ? "Gerando…" : "Mostrar sinais"}
           </button>
         </div>
       </form>
